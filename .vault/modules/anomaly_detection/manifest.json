@@ -1,0 +1,36 @@
+{
+  "name": "AnomalyDetection",
+  "version": "1.0",
+  "entry": "anomaly_bridge.py",
+  "description": "Isolation Forest anomaly detection — identifies outliers in network traffic, system behavior, and sensor data. Runs in gage_env. Trinity-Ready Phase 1.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "anomaly scan",
+    "anomaly train",
+    "anomaly status"
+  ],
+  "tools": [
+    {
+      "name": "anomaly_status",
+      "description": "AnomalyDetection status — model trained state and path",
+      "syntax": "[TOOL:anomaly_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:anomaly_status: check]"
+    },
+    {
+      "name": "anomaly_train",
+      "description": "Train the Isolation Forest model on baseline data — comma-separated values or file path",
+      "syntax": "[TOOL:anomaly_train: 100,200,300,400,500]",
+      "autonomous": false,
+      "example": "[TOOL:anomaly_train: 100,200,300,400,500]"
+    },
+    {
+      "name": "anomaly_scan",
+      "description": "Scan data for anomalies — comma-separated values or file path. Returns normal/ANOMALY per sample.",
+      "syntax": "[TOOL:anomaly_scan: 100,200,5000,300,6000]",
+      "autonomous": false,
+      "example": "[TOOL:anomaly_scan: 100,200,5000,300,6000]"
+    }
+  ]
+}

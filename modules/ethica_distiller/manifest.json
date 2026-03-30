@@ -1,0 +1,28 @@
+{
+  "name": "EthicaDistiller",
+  "version": "1.0",
+  "entry": "ethica_distiller.py",
+  "description": "Recursive learning pipeline — reads saved chat logs, re-runs semantic analysis, consolidates into memory. Ethica grows richer with every distillation run.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "distill run",
+    "distill status"
+  ],
+  "tools": [
+    {
+      "name": "distill_run",
+      "description": "Process all unprocessed chat logs. Extract patterns, update memory. Ethica learns.",
+      "syntax": "[TOOL:distill_run: run]",
+      "autonomous": false,
+      "example": "[TOOL:distill_run: run]"
+    },
+    {
+      "name": "distill_status",
+      "description": "Show distillation history and files waiting to be processed.",
+      "syntax": "[TOOL:distill_status: check]",
+      "autonomous": false,
+      "example": "[TOOL:distill_status: check]"
+    }
+  ]
+}

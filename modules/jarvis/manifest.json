@@ -1,0 +1,54 @@
+{
+  "name": "jarvis",
+  "display_name": "J.A.R.V.I.S.",
+  "role": "The Infiltrator",
+  "slot": 7,
+  "description": "Pentesting and vulnerability intelligence agent. Sovereign local CVE database, tool-agnostic recon, portable by design.",
+  "autonomous": false,
+  "triggers": [
+    "jarvis status",
+    "jarvis setup",
+    "jarvis update",
+    "jarvis search",
+    "jarvis audit"
+  ],
+  "tools": [
+    {
+      "name": "jarvis_status",
+      "trigger": "jarvis status",
+      "description": "Show J.A.R.V.I.S. config, CVE db path, last update, available tools"
+    },
+    {
+      "name": "jarvis_setup",
+      "trigger": "jarvis setup",
+      "description": "First-time init \u2014 clone CVE repo, write config"
+    },
+    {
+      "name": "jarvis_update",
+      "trigger": "jarvis update",
+      "description": "git pull on CVE repo, report new CVEs"
+    },
+    {
+      "name": "jarvis_search",
+      "trigger": "jarvis search",
+      "description": "Search local CVE db by keyword, product, CVE-ID or severity"
+    },
+    {
+      "name": "jarvis_audit",
+      "trigger": "jarvis audit",
+      "description": "Extract version strings from a file and match against local CVE db"
+    },
+    {
+      "name": "jarvis_analyze",
+      "trigger": "jarvis analyze",
+      "description": "LLM-powered CVE and vulnerability analysis \u2014 attack vectors, exploitability, bug bounty relevance"
+    },
+    {
+      "name": "jarvis_recon",
+      "trigger": "jarvis recon",
+      "description": "Passive recon on a target \u2014 headers, tech fingerprint, port scan \u2014 fed to LLM for attack surface analysis"
+    }
+  ],
+  "author": "Victory \u2014 The Architect",
+  "glyph": "\u27c1\u03a3\u223f\u221e"
+}

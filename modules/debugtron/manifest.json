@@ -1,0 +1,44 @@
+{
+  "name": "Debugtron",
+  "version": "1.0",
+  "entry": "debugtron.py",
+  "description": "Debugtron — The King of Debugging. Any language, any error, any stack. Single role, absolute mastery. Trinity's original core, wired into Ethica.",
+  "author": "Trinity + Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "debugtron analyze",
+    "debugtron run",
+    "debugtron verify",
+    "debugtron status"
+  ],
+  "tools": [
+    {
+      "name": "debugtron_analyze",
+      "description": "Analyze an error message or traceback and suggest a fix. Any language.",
+      "syntax": "[TOOL:debugtron_analyze: <error message or traceback>]",
+      "autonomous": false,
+      "example": "[TOOL:debugtron_analyze: ModuleNotFoundError: No module named 'transformers']"
+    },
+    {
+      "name": "debugtron_run",
+      "description": "Run a Python file and auto-analyze any errors that surface.",
+      "syntax": "[TOOL:debugtron_run: /path/to/file.py]",
+      "autonomous": false,
+      "example": "[TOOL:debugtron_run: ~/Ethica/modules/debugtron/debugtron_ai.py]"
+    },
+    {
+      "name": "debugtron_verify",
+      "description": "Verify Python file syntax via ast.parse. Reports clean or exact error location.",
+      "syntax": "[TOOL:debugtron_verify: /path/to/file.py]",
+      "autonomous": false,
+      "example": "[TOOL:debugtron_verify: ~/Ethica/core/chat_engine.py]"
+    },
+    {
+      "name": "debugtron_status",
+      "description": "Return Debugtron's current state, task, and progress.",
+      "syntax": "[TOOL:debugtron_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:debugtron_status: check]"
+    }
+  ]
+}

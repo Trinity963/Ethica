@@ -1,0 +1,38 @@
+{
+  "name": "TrinityDLP",
+  "version": "1.0",
+  "entry": "dlp_bridge.py",
+  "description": "Trinity-built Data Loss Prevention system. Scans files for sensitive data patterns, monitors file integrity, auto-recovers compromised files.",
+  "author": "Victory + Trinity",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "dlp scan",
+    "data leak",
+    "file integrity",
+    "dlp status",
+    "trinity dlp"
+  ],
+  "tools": [
+    {
+      "name": "dlp_scan",
+      "description": "Scan a file for sensitive data patterns (passwords, keys, tokens)",
+      "syntax": "[TOOL:dlp_scan: /path/to/file.py]",
+      "autonomous": false,
+      "example": "[TOOL:dlp_scan: /home/trinity/project/config.py]"
+    },
+    {
+      "name": "dlp_hash",
+      "description": "Generate SHA256 hash of a file for integrity baseline",
+      "syntax": "[TOOL:dlp_hash: /path/to/file.py]",
+      "autonomous": false,
+      "example": "[TOOL:dlp_hash: /home/trinity/project/main.py]"
+    },
+    {
+      "name": "dlp_status",
+      "description": "DLP system status and recent events",
+      "syntax": "[TOOL:dlp_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:dlp_status: check]"
+    }
+  ]
+}

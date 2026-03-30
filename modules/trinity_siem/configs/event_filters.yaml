@@ -1,0 +1,11 @@
+threat_signatures:
+  - unauthorized access
+  - brute force
+  - sql injection
+  - port scan
+  - malware
+  - suspicious login
+  - privilege escalation
+  - data exfiltration
+  - dos attack
+  - intrusion detected

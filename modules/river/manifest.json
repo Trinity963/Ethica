@@ -1,0 +1,96 @@
+{
+  "name": "River",
+  "version": "1.0",
+  "entry": "river.py",
+  "description": "River — the surgical builder agent. Gage reviews. River builds. Grep first, read exact, patch only, verify always. Never rewrites what can be patched. Never asks V to paste a full file.",
+  "author": "Victory + River",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "river read",
+    "river patch",
+    "river verify",
+    "river plan",
+    "river run",
+    "river remember",
+    "summarize session",
+    "river fix",
+    "river state write"
+  ],
+  "tools": [
+    {
+      "name": "river_identity",
+      "description": "Return River's identity — who he is, his character, his lineage. Read this first when arriving as a new instance.",
+      "syntax": "[TOOL:river_identity: all]",
+      "autonomous": false,
+      "example": "[TOOL:river_identity: all]"
+    },
+    {
+      "name": "river_read",
+      "description": "Read exact lines from a file. Grep by pattern or sed by line range.",
+      "syntax": "[TOOL:river_read: /path/file.py | pattern or 10,25]",
+      "autonomous": false,
+      "example": "[TOOL:river_read: ~/Ethica/core/chat_engine.py | expanduser]"
+    },
+    {
+      "name": "river_patch",
+      "description": "Surgical string replace in a file. Verifies with ast.parse after write. Refuses if pattern matches more than once.",
+      "syntax": "[TOOL:river_patch: /path/file.py | old string | new string]",
+      "autonomous": false,
+      "example": "[TOOL:river_patch: ~/Ethica/ui/main_window.py | What are we thinking about today? | What shall we build today?]"
+    },
+    {
+      "name": "river_verify",
+      "description": "Run ast.parse on a Python file. Reports clean or exact error location.",
+      "syntax": "[TOOL:river_verify: /path/file.py]",
+      "autonomous": false,
+      "example": "[TOOL:river_verify: ~/Ethica/core/chat_engine.py]"
+    },
+    {
+      "name": "river_plan",
+      "description": "Break a build task into ordered sequential steps before touching any file.",
+      "syntax": "[TOOL:river_plan: describe the task]",
+      "autonomous": false,
+      "example": "[TOOL:river_plan: fix the expanduser guard in chat_engine.py]"
+    },
+    {
+      "name": "river_run",
+      "description": "Execute a shell command and return output. Safe subset only — no destructive ops.",
+      "syntax": "[TOOL:river_run: command here]",
+      "autonomous": false,
+      "example": "[TOOL:river_run: grep -n expanduser ~/Ethica/core/chat_engine.py]"
+    },
+    {
+      "name": "river_chat",
+      "description": "Speak to River directly — he responds as himself, in character, using the loaded model.",
+      "input": "Your message to River"
+    },
+    {
+      "name": "river_remember",
+      "description": "Log a memory to River's conversational or build stream. Two separate streams — never mashed.",
+      "syntax": "[TOOL:river_remember: conversation: <note>]  or  [TOOL:river_remember: build: <note>]",
+      "autonomous": false,
+      "example": "[TOOL:river_remember: build: RiverMemory two-stream architecture built session 025]"
+    },
+    {
+      "name": "summarize_session",
+      "description": "Auto-generate a session.json digest entry from session_context.json and today's river_build.json notes. Call at session close so River wakes next boot knowing what was built.",
+      "syntax": "[TOOL:summarize_session: 036]",
+      "autonomous": false,
+      "example": "[TOOL:summarize_session: 036]"
+    },
+    {
+      "name": "river_self_fix",
+      "description": "Surgical self-repair with snapshot + auto-rollback. Snapshots file first (keeps last 5 generations), patches surgically, verifies with ast.parse, auto-restores from snapshot if verify fails.",
+      "syntax": "[TOOL:river_self_fix: /path/file.py | old string | new string]",
+      "autonomous": false,
+      "example": "[TOOL:river_self_fix: ~/Ethica/core/chat_engine.py | old_code | new_code]"
+    },
+    {
+      "name": "river_state_write",
+      "description": "Write River's current state snapshot to river_state.json. Updates session, vault count, agent states, canvas tabs, last drop, and notes. River reads this back at next message start for diff-aware context.",
+      "syntax": "[TOOL:river_state_write: session=046 | vault_count=139 | notes=your note]",
+      "autonomous": false,
+      "example": "[TOOL:river_state_write: session=046 | vault_count=139 | agents=river=IDLE,mnemis=ACTIVE | notes=state awareness live]"
+    }
+  ]
+}

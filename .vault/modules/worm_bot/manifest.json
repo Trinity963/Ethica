@@ -1,0 +1,67 @@
+{
+  "name": "WormBot",
+  "version": "1.0",
+  "entry": "wormbot.py",
+  "description": "Multi-language code analyzer and auto-fixer. Wraps worm_bot's native modules. Python/JS/CSS/HTML/JSON/Markdown auto-fix ON. Rust scan-only — V reviews.",
+  "author": "Victory",
+  "autonomous": true,
+  "autonomous_triggers": [
+    "fix my code",
+    "broken code",
+    "syntax error",
+    "code review",
+    "scan this",
+    "check my code",
+    "wormbot",
+    "code has errors",
+    "something wrong with",
+    "debug this",
+    "fix this"
+  ],
+  "auto_fix": {
+    "python":     true,
+    "javascript": true,
+    "css":        true,
+    "html":       true,
+    "json":       true,
+    "markdown":   true,
+    "rust":       false
+  },
+  "tools": [
+    {
+      "name": "wormbot_fix",
+      "description": "Analyze and auto-fix code. Input: language|code. Auto-fix on for Python/JS/CSS/HTML/JSON/Markdown. Rust scan-only.",
+      "syntax": "[TOOL:wormbot_fix: language|code here]",
+      "autonomous": true,
+      "example": "[TOOL:wormbot_fix: python|def foo(x)\\n    return x+1]"
+    },
+    {
+      "name": "wormbot_scan",
+      "description": "Scan a file on disk — analyze and fix in place if auto-fix enabled",
+      "syntax": "[TOOL:wormbot_scan: /path/to/file.ext]",
+      "autonomous": false,
+      "example": "[TOOL:wormbot_scan: /home/trinity/project/main.py]"
+    },
+    {
+      "name": "wormbot_diff",
+      "description": "Show diff between original and fixed code from last run",
+      "syntax": "[TOOL:wormbot_diff: last]",
+      "autonomous": false,
+      "example": "[TOOL:wormbot_diff: last]"
+    },
+    {
+      "name": "wormbot_report",
+      "description": "WormBot activity report — files scanned, fixed, issues found",
+      "syntax": "[TOOL:wormbot_report: summary]",
+      "autonomous": true,
+      "example": "[TOOL:wormbot_report: summary]"
+    },
+    {
+      "name": "wormbot_apply",
+      "description": "Apply last Rust fix suggestion after V review",
+      "syntax": "[TOOL:wormbot_apply: /path/to/file.rs]",
+      "autonomous": false,
+      "example": "[TOOL:wormbot_apply: /home/trinity/project/main.rs]"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "logLevel": "debug",
+  "agentHook": false
+}

@@ -1,0 +1,19 @@
+# Ethica v0.1 — Core Dependencies
+# Option A — loose versioning for maximum portability
+# Platform: Linux / macOS / Windows
+# Python: 3.x
+
+# Ollama official Python client
+ollama
+
+# HTTP requests for Ollama API fallback
+requests
+
+# Theme and UI color utilities
+# tkinter ships with Python — no pip install needed
+# but confirm system package: sudo apt install python3-tk (Debian/Ubuntu)
+
+# JSON handling — built into Python stdlib, no install needed
+
+# Packaging and distribution
+pyinstaller

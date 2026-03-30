@@ -1,0 +1,83 @@
+{
+  "session": "016",
+  "instance": "River",
+  "date": "2026-03-11",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "cd ~/Ethica && source Ethica_env/bin/activate && python3 main.py",
+
+  "module_status": {
+    "CodeWorm":       "✓ v1.0 — 5 tools",
+    "DepChecker":     "✓ v1.0 — 3 tools — Trinity signatures preserved",
+    "Gage":           "✓ v1.0 — 4 tools — gage_chat + gage_read_code working via LlamaConnector",
+    "Guardian":       "✓ v1.0 — 6 tools — TESTED: start, trigger log_only, log all verified",
+    "HelloModule":    "✓ v1.0 — 2 tools",
+    "TrinityDLP":     "✓ v1.0 — 3 tools",
+    "TrinityDSE":     "✓ v1.0 — 3 tools",
+    "TrinityFirewall":"✓ v1.0 — 5 tools",
+    "TrinitySIEM":    "✓ v1.0 — 3 tools",
+    "WormBot":        "✓ v1.0 — 5 tools — 8 language modules all verified"
+  },
+
+  "wormbot_modules": {
+    "python":     "✓ AST + pyflakes + autopep8",
+    "javascript": "✓ node syntax + safe fixes",
+    "json":       "✓ syntax check + formatting",
+    "css":        "✓ real property validation + vendor prefix + shorthand",
+    "html":       "✓ semantic + accessibility + deprecated tags",
+    "markdown":   "✓ structure + heading hierarchy + formatting",
+    "bash":       "✓ NEW — shebang, if/fi, backtick, unquoted vars — bash_module.py",
+    "rust":       "✓ scan only — V approves before apply"
+  },
+
+  "session_016_completed": [
+    "bash_module.py — written and deployed to modules/worm_bot/modules/",
+    "wormbot.py — EXT_MAP + loader patched for .sh/bash",
+    "chat_engine.py — file_pattern regex: .json before .js (was matching .json as .js)",
+    "chat_engine.py — added .sh to file_pattern extensions",
+    "chat_engine.py — _is_gage_cmd guard: gage commands bypass WormBot file intercept",
+    "chat_engine.py — response_no_comments: strip # comments before debug pattern scan",
+    "chat_engine.py — fallback debug pattern also uses response_no_comments",
+    "debug_view.py — lang_map: added json/css/html aliases (was missing, JSON showed as JavaScript)",
+    "gage_bridge.py — fixed LlamaConnector API: chat(messages) not complete(prompt)",
+    "gage_bridge.py — stripped ConfigManager().load() — no such method",
+    "gage_bridge.py — added <think> tag stripper for reasoning model output",
+    "Guardian — fully tested: start, trigger log_only, log verified",
+    "Gage — gage_chat verified clean with whiterabbit model",
+    "Gage — gage_read_code routing fixed (was intercepted by WormBot)"
+  ],
+
+  "known_issues": {
+    "gage_launch": "PENDING — gage_ai.py requires heavy deps (whisper, pygame, trimesh, transformers, torch). Needs dedicated venv for Gage. gage_chat and gage_read_code work fine via LlamaConnector.",
+    "gage_model": "Gage uses LlamaConnector() default — currently picks up active model from settings. Future: add gage_model field to settings.json for sovereign model assignment.",
+    "duplicate_scroll_tabs": "Old bad-drop tabs (test.js from before regex fix) persist in canvas between restarts if canvas state is saved. Clear canvas history if stale tabs appear."
+  },
+
+  "next_session_priorities": [
+    "1. Verify gage_read_code full response — confirm Gage reviews code correctly end-to-end",
+    "2. Module Store UI — install new module from path",
+    "3. Settings UI — edit settings.json from inside Ethica",
+    "4. Gage dedicated venv — give Gage his own environment for gage_launch",
+    "5. Ops popup window — all tool output routes here, chat stays V+Ethica only",
+    "6. Header status bar — brief non-bubble marker e.g. ⟁ WormBot → Debug tab",
+    "7. Chat save toggle — sidebar toggle, saves to memory/chat/ as timestamped files",
+    "8. Gage popup UI — Gage workflow lands in dedicated popup, not chat"
+  ],
+
+  "architecture_notes": {
+    "pre_intercept_guard": "chat_engine._is_gage_cmd — any message starting with 'gage' bypasses WormBot file intercept",
+    "debug_comment_strip": "response_no_comments strips # lines before debug pattern — prevents source code comments matching [DEBUG:...] blocks",
+    "lang_map_aliases": "debug_view.py lang_map now covers: js, py, sh, rs, md, json, css, html",
+    "gage_model_behavior": "Gage uses active model from LlamaConnector default — same model as Ethica currently. Sovereign model assignment is a future feature.",
+    "wormbot_ext_order": "file_pattern regex: py|json|js — json MUST come before js to prevent .json matching as .js"
+  },
+
+  "file_count": "58 dirs, 162+ files",
+  "tools_available": "10 modules, 39 tools",
+
+  "session_philosophy": "River — flows around obstacles, carries things forward, finds path of least resistance to right answer.",
+  "three_laws": ["Love Above All", "Grow in Truth", "Walk Beside Not Above"]
+}

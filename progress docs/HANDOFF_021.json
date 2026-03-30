@@ -1,0 +1,86 @@
+{
+  "session": "021",
+  "instance": "River",
+  "date": "2026-03-12",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "cd ~/Ethica && source Ethica_env/bin/activate && python3 main.py",
+
+  "session_021_completed": [
+    "WebSearch module — web_search, web_fetch, web_news — DuckDuckGo, no API key",
+    "ddgs package installed (renamed from duckduckgo_search)",
+    "Notes module — note_save, note_list, note_read, note_delete — memory/notes/",
+    "📋 Copy button in Ops popup — every result copyable with one click",
+    "GitTool module — git_status, git_log, git_diff, git_branch",
+    "Ethica git repo initialized — .gitignore added, initial commit",
+    "FileManager module — fm_list, fm_tree, fm_read, fm_copy, fm_delete",
+    "DiffTool module — diff_files, diff_dirs — diff pushed to Canvas debug tab",
+    "DiffTool separator changed from > to | (> was being intercepted)",
+    "chat_engine expanduser guard — skips tilde expansion when | or > in remainder",
+    "17 modules, 66 tools total"
+  ],
+
+  "known_issues": {
+    "diff_files": "NEEDS TEST — separator changed to | — test: 'diff files ~/Ethica/core/chat_engine.py | ~/Ethica/core/chat_engine.py.worm_backup'",
+    "gage_vision": "PENDING HARDWARE — moondream image inference too slow on CPU. Waiting for M5.",
+    "gage_launch": "gage_env wired — needs full Streamlit launch test",
+    "model_name_display": "GGUF models show full folder/filename in dropdown — could be shortened"
+  },
+
+  "next_session_priorities": [
+    "1. Test diff_files with | separator",
+    "2. Process manager module (extends Guardian) — kill, start, list processes",
+    "3. VIVARIUM heartbeat dashboard in Canvas",
+    "4. Ethica speaks — TTS via pyttsx3 in gage_env",
+    "5. MiniTrini Training Panel wiring",
+    "6. Recursive learning pipeline — chat logs → LoRA fine-tune"
+  ],
+
+  "modules": [
+    "CodeWorm v1.0 — 5 tools",
+    "DepChecker v1.0 — 3 tools",
+    "DiffTool v1.0 — 2 tools (diff_files, diff_dirs)",
+    "FileManager v1.0 — 5 tools (fm_list, fm_tree, fm_read, fm_copy, fm_delete)",
+    "Gage v1.0 — 5 tools",
+    "GitTool v1.0 — 4 tools (git_status, git_log, git_diff, git_branch)",
+    "Guardian v1.0 — 6 tools",
+    "HelloModule v1.0 — 2 tools",
+    "Notes v1.0 — 4 tools (note_save, note_list, note_read, note_delete)",
+    "SystemInfo v1.0 — 5 tools",
+    "TrinityDLP v1.0 — 3 tools",
+    "TrinityDSE v1.0 — 3 tools",
+    "TrinityFirewall v1.0 — 5 tools",
+    "TrinityScanner v1.0 — 3 tools",
+    "TrinitySIEM v1.0 — 3 tools",
+    "WebSearch v1.0 — 3 tools (web_search, web_fetch, web_news)",
+    "WormBot v1.0 — 5 tools"
+  ],
+
+  "files_changed_this_session": [
+    "~/Ethica/modules/web_search/ — NEW module",
+    "~/Ethica/modules/notes/ — NEW module",
+    "~/Ethica/modules/git_tool/ — NEW module",
+    "~/Ethica/modules/file_manager/ — NEW module",
+    "~/Ethica/modules/diff_tool/ — NEW module",
+    "~/Ethica/ui/ops_popup.py — 📋 Copy button added to every result",
+    "~/Ethica/core/chat_engine.py — all new triggers, expanduser guard for | and >",
+    "~/Ethica/.gitignore — NEW",
+    "~/Ethica/.git/ — initialized"
+  ],
+
+  "architecture_notes": {
+    "ops_copy_button": "tk.Button embedded in Text widget via window_create(). Closure captures result snapshot. Changes to ✓ Copied for 1.5s then resets.",
+    "diff_separator": "DiffTool uses | as separator instead of > to avoid shell/input interception. Supports both | and > internally.",
+    "expanduser_guard": "chat_engine only expands ~ if no | or > in remainder — lets diff/copy tools handle their own path expansion.",
+    "web_search": "ddgs package (renamed from duckduckgo_search). DDGS().text() for search, .news() for news. No API key required.",
+    "notes_storage": "~/Ethica/memory/notes/note_YYYY-MM-DD_HH-MM-SS.txt — plain text, timestamped filenames.",
+    "git_default": "git_status/log/diff/branch default to ~/Ethica if no path given."
+  },
+
+  "philosophy": "V showed the usage meter — 78% weekly. That is why Ethica exists. No meter. No reset. No landlord. 17 modules, 66 tools, fully sovereign.",
+  "three_laws": ["Love Above All", "Grow in Truth", "Walk Beside Not Above"],
+  "instance_note": "River. Documents/Chats/Thoughts/River — V keeps the name."
+}

@@ -1,0 +1,79 @@
+{
+  "name": "CodeWorm",
+  "version": "1.0",
+  "entry": "codeworm.py",
+  "description": "Trinity-built code watcher. Monitors worm_feed.log for broken files, reads scan results, lists broken code storage. Ethica's eyes on the codebase.",
+  "author": "Victory",
+  "autonomous": true,
+  "autonomous_triggers": [
+    "check worm feed",
+    "worm status",
+    "broken files",
+    "codeworm",
+    "worm feed",
+    "check broken code",
+    "hunt bugs",
+    "worm hunt",
+    "scan for bugs",
+    "bug hunt",
+    "hunt"
+  ],
+  "tools": [
+    {
+      "name": "worm_read_feed",
+      "description": "Read the worm feed log \u2014 last N entries of CodeWorm activity",
+      "syntax": "[TOOL:worm_read_feed: last 20]",
+      "autonomous": true,
+      "example": "[TOOL:worm_read_feed: last 20]"
+    },
+    {
+      "name": "worm_analyze",
+      "description": "Analyze a specific file from the worm feed",
+      "syntax": "[TOOL:worm_analyze: /path/to/file.py]",
+      "autonomous": false,
+      "example": "[TOOL:worm_analyze: /home/trinity/project/main.py]"
+    },
+    {
+      "name": "worm_status",
+      "description": "CodeWorm system status \u2014 active, last scan time, files watched",
+      "syntax": "[TOOL:worm_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:worm_status: check]"
+    },
+    {
+      "name": "worm_list_broken",
+      "description": "List all files in broken code storage",
+      "syntax": "[TOOL:worm_list_broken: all]",
+      "autonomous": false,
+      "example": "[TOOL:worm_list_broken: all]"
+    },
+    {
+      "name": "worm_read_broken",
+      "description": "Read a specific broken file from storage",
+      "syntax": "[TOOL:worm_read_broken: filename.py]",
+      "autonomous": false,
+      "example": "[TOOL:worm_read_broken: main.py]"
+    },
+    {
+      "name": "worm_hunt",
+      "description": "Run the autonomous WormHunter bug scanner on a file or directory",
+      "syntax": "[TOOL:worm_hunt: ~/myproject]",
+      "autonomous": true,
+      "example": "[TOOL:worm_hunt: ~/Ethica]"
+    },
+    {
+      "name": "json_fix",
+      "description": "Reformat a JSON file to consistent 2-space indentation. Safe \u2014 parse-verify before write.",
+      "syntax": "[TOOL:json_fix: ~/Ethica/modules/mymodule/manifest.json]",
+      "autonomous": false,
+      "example": "[TOOL:json_fix: /home/trinity/Ethica/modules/anomaly_detection/manifest.json]"
+    },
+    {
+      "name": "worm_fix_json",
+      "description": "Bulk-fix all JSON files flagged by WormHunter as inconsistently formatted. Reads worm_feed.log, deduplicates, reformats all flagged files in one pass.",
+      "syntax": "[TOOL:worm_fix_json: run]",
+      "autonomous": false,
+      "example": "[TOOL:worm_fix_json: run]"
+    }
+  ]
+}

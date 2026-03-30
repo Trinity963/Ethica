@@ -1,0 +1,37 @@
+{
+  "name": "ProcessManager",
+  "version": "1.0",
+  "entry": "proc_manager.py",
+  "description": "Process manager — list, inspect, and kill system processes. Complements Guardian's filesystem watch with runtime process visibility.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "list processes",
+    "show processes",
+    "kill process",
+    "process info"
+  ],
+  "tools": [
+    {
+      "name": "proc_list",
+      "description": "List running processes. Optional name filter.",
+      "syntax": "[TOOL:proc_list: filter]",
+      "autonomous": false,
+      "example": "[TOOL:proc_list: python]"
+    },
+    {
+      "name": "proc_kill",
+      "description": "Kill a process by PID or name.",
+      "syntax": "[TOOL:proc_kill: PID or name]",
+      "autonomous": false,
+      "example": "[TOOL:proc_kill: 1234]"
+    },
+    {
+      "name": "proc_info",
+      "description": "Detailed info on a process by PID — CPU, RAM, threads, connections, cmdline.",
+      "syntax": "[TOOL:proc_info: PID]",
+      "autonomous": false,
+      "example": "[TOOL:proc_info: 1234]"
+    }
+  ]
+}

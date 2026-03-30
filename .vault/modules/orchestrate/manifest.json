@@ -1,0 +1,29 @@
+{
+  "name": "Orchestrate",
+  "version": "1.0",
+  "entry": "orchestrate_bridge.py",
+  "description": "Orchestrate — The Synthesist. Holds four minds: Dev, Critic, Expert, Hacker. Runs any problem through all four lenses and delivers a unified synthesis. Routes conclusion to Canvas, council breakdown to Debug.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "orchestrate think",
+    "orchestrate status",
+    "orchestrate council"
+  ],
+  "tools": [
+    {
+      "name": "orchestrate_think",
+      "description": "Orchestrate runs a directive through four voices (Dev, Critic, Expert, Hacker) and synthesizes a unified conclusion — pushes synthesis to Canvas, council breakdown to Debug tab",
+      "syntax": "[TOOL:orchestrate_think: your question or problem]",
+      "autonomous": false,
+      "example": "[TOOL:orchestrate_think: should we build the memory index as a flat JSON or SQLite?]"
+    },
+    {
+      "name": "orchestrate_status",
+      "description": "Orchestrate current state — last directive, synthesis history",
+      "syntax": "[TOOL:orchestrate_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:orchestrate_status: check]"
+    }
+  ]
+}

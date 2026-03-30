@@ -1,0 +1,81 @@
+# ── Ethica .gitignore ─────────────────────────────────────────
+# Ethica ships clean — no personal memory, no session state, no config
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+Ethica_env/
+venv/
+.venv/
+
+# ── Personal memory — NEVER ships ─────────────────────────────
+memory/vault/
+memory/river_build.json
+memory/river_conversational.json
+memory/conversation_log.json
+memory/mnemis_index.json
+memory/crashes/
+memory/snapshots/
+
+# ── Session state ──────────────────────────────────────────────
+status/session.json
+status/session_context.json
+status/river_state.json
+
+# ── User config ────────────────────────────────────────────────
+config/settings.json
+
+# ── J.A.R.V.I.S. / recon — lives outside Ethica dir ──────────
+# (already external — jarvis_config.json points outward)
+
+# ── Temp / WIP ────────────────────────────────────────────────
+docs/.WIP/
+*.tmp
+*.log
+
+# ── Session history / personal archives — never ships ─────────
+modules/river/River/
+docs/Trinity3Laws.txt
+docs/My philosophy made executable README .md
+docs/RIVER_OPERATIONAL_SCROLL.md
+docs/MODULE_TRIGGERS.txt
+docs/.WIP/
+
+# ── Gage virtual environment — never ships ────────────────────
+modules/gage/gage_env/
+modules/gage/gage_env
+secure_storage.db
+
+# ── Runtime memory & logs ─────────────────────────────────────
+memory/chat/
+memory/notes/
+memory/insights.json
+memory/user_profile.json
+memory/conversation_log.json
+scans/
+progress docs/
+modules/river/.River/
+status/river_status.json
+memory/canvas_history.json
+
+# ── Integrity vault — runtime hashes, not source ──────────────
+.vault/
+
+# ── Status runtime files ───────────────────────────────────────
+status/dashboard_context.json
+status/integrity_warning.json
+status/drop_state.json
+
+# ── Guardian logs ──────────────────────────────────────────────
+modules/guardian/logs/
+
+# ── WormBot environment ────────────────────────────────────────
+modules/worm_bot/wormbot_env/
+memory/canvas_state.json
+memory/river_state.json
+assets/*.zip

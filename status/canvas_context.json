@@ -1,0 +1,20 @@
+{
+  "tab_count": 2,
+  "active_tab": "canvas_window.py",
+  "tabs": [
+    {
+      "name": "Page 1",
+      "mode": "document",
+      "active": false,
+      "lines": 0,
+      "preview": ""
+    },
+    {
+      "name": "canvas_window.py",
+      "mode": "debug",
+      "active": true,
+      "lines": 0,
+      "preview": ""
+    }
+  ]
+}

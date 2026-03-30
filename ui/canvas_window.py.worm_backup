@@ -1,0 +1,1986 @@
+# ============================================================
+# Ethica v0.1 — canvas_window.py
+# The Living Canvas — shared workspace between V and Ethica
+# Architect: Victory  |  Build Partner: Claude
+# ⟁Σ∿∞
+#
+# This is not a chat window. This is not a file editor.
+# This is the shared surface where work gets done.
+#
+# V drops something here — Ethica sees it.
+# Ethica pushes something here — V sees it appear.
+# Whatever lives here is always part of the conversation.
+# ============================================================
+
+import tkinter as tk
+from tkinter import ttk, simpledialog
+import json
+import os
+from datetime import datetime
+from core.canvas_history import CanvasHistory
+from core.project_engine import ProjectEngine
+from ui.project_view import ProjectView
+from ui.sketch_view import SketchView
+from ui.debug_view import DebugView
+from ui.module_store_view import ModuleStoreView
+from ui.settings_view import SettingsView
+from ui.scroll_drop import ScrollDrop
+
+
+# ── Canvas drop state writer ─────────────────────────────────
+def _notify_canvas_drop(filename):
+    """Write last_drop to river_state.json so Trinity has canvas awareness."""
+    try:
+        from pathlib import Path
+        from datetime import datetime
+        state_path = Path.home() / 'Ethica/memory/river_state.json'
+        if state_path.exists():
+            import json
+            state = json.loads(state_path.read_text())
+        else:
+            state = {}
+        state['last_drop'] = filename
+        state['last_updated'] = datetime.now().isoformat(timespec='seconds')
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(json.dumps(state, indent=2))
+    except Exception:
+        pass  # Never crash the UI over a state write
+
+
+# ── Canvas Modes ─────────────────────────────────────────────
+
+MODES = {
+    "code":     {"label": "Code",     "font_style": "mono",   "wrap": tk.NONE},
+    "document": {"label": "Document", "font_style": "body",   "wrap": tk.WORD},
+    "output":   {"label": "Output",   "font_style": "mono",   "wrap": tk.WORD},
+    "project":  {"label": "Project",  "font_style": "body",   "wrap": tk.WORD},
+    "sketch":   {"label": "Sketch",   "font_style": "body",   "wrap": tk.WORD},
+    "debug":    {"label": "Debug",    "font_style": "mono",   "wrap": tk.NONE},
+    "modules":  {"label": "Modules",  "font_style": "body",   "wrap": tk.WORD},
+}
+
+# ── Canvas State File ─────────────────────────────────────────
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CANVAS_STATE_FILE = os.path.join(BASE_DIR, "memory", "canvas_state.json")
+
+
+class CanvasTab:
+    """
+    A single tab on the living canvas.
+    Has its own mode, content, and name.
+    """
+
+    def __init__(self, name="Untitled", mode="document", content=""):
+        self.name = name
+        self.mode = mode
+        self.content = content
+        self.images = []  # PhotoImage refs for PDF tabs — prevents GC
+        self.created = datetime.now().isoformat()
+        self.modified = self.created
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "mode": self.mode,
+            "content": self.content,
+            "created": self.created,
+            "modified": self.modified
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        tab = cls(
+            name=d.get("name", "Untitled"),
+            mode=d.get("mode", "document"),
+            content=d.get("content", "")
+        )
+        tab.created = d.get("created", tab.created)
+        tab.modified = d.get("modified", tab.modified)
+        return tab
+
+
+class CanvasWindow:
+    """
+    Ethica's Living Canvas.
+
+    A floating, detachable workspace that exists alongside
+    the chat window but never bleeds into it.
+
+    Shared context — whatever lives here, Ethica knows about.
+    Both V and Ethica can read and write to this surface.
+
+    Features:
+    - Floating window, resizable, position remembered
+    - Multiple named tabs
+    - Three modes: Code, Document, Output
+    - Ethica can push content directly
+    - Content is injected into Ethica's context silently
+    - Persists across sessions
+    """
+
+    WINDOW_TITLE = "✦ Canvas  —  Living Page"
+    MIN_WIDTH    = 600
+    MIN_HEIGHT   = 400
+    DEFAULT_W    = 800
+    DEFAULT_H    = 600
+
+    def __init__(self, parent, theme, config, on_content_change=None, connector=None, modules=None, notify_fn=None):
+        self.parent = parent
+        self.theme = theme
+        self.config = config
+        self.on_content_change = on_content_change
+        self.notify_fn = notify_fn
+        self.connector = connector  # For DebugView Ethica commentary
+
+        self._window = None
+        self._tabs = []
+        self._active_tab_index = 0
+        self._tab_widgets = {}
+        self._text_widgets = {}
+        self._is_open = False
+        self._editor = None
+        self._line_numbers = None
+        self._history_panel = None
+        self._history_panel_open = False
+        self._project_view = None   # Active ProjectView instance if in project mode
+        self._sketch_view  = None   # Active SketchView instance if in sketch mode
+        self._debug_view        = None   # Active DebugView instance if in debug mode
+        self._module_store_view = None   # Active ModuleStoreView instance
+        self._settings_view = None       # Active SettingsView instance
+        self._modules           = modules  # Module registry reference
+
+        # Version control engine
+        self.history = CanvasHistory()
+
+        # Load saved state
+        self._load_state()
+
+        # Ensure at least one tab
+        if not self._tabs:
+            self._tabs.append(CanvasTab(name="Page 1", mode="document"))
+
+    # ── Window Lifecycle ──────────────────────────────────────
+
+    def open(self):
+        """Open the canvas window. Creates if not exists."""
+        if self._window and self._window.winfo_exists():
+            self._window.lift()
+            self._window.focus_force()
+            return
+
+        self._build_window()
+        self._is_open = True
+
+    def close(self):
+        """Close the canvas window."""
+        if self._window:
+            self._save_state()
+            self._window.destroy()
+            self._window = None
+        self._is_open = False
+        # Clear requirements cache on canvas close
+        try:
+            from pathlib import Path
+            cache_path = Path.home() / 'Ethica/status/req_cache.json'
+            if cache_path.exists():
+                cache_path.unlink()
+        except Exception:
+            pass
+
+    def toggle(self):
+        """Toggle canvas open/closed."""
+        if self._is_open and self._window and self._window.winfo_exists():
+            self.close()
+        else:
+            self.open()
+
+    def is_open(self):
+        return self._is_open and self._window and self._window.winfo_exists()
+
+    # ── Window Build ──────────────────────────────────────────
+
+    def _build_window(self):
+        """Build the floating canvas window."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        # Restore saved geometry or use defaults
+        geo = self.config.get(
+            "canvas_geometry",
+            f"{self.DEFAULT_W}x{self.DEFAULT_H}+100+100"
+        )
+
+        self._window = tk.Toplevel(self.parent)
+        self._window.title(self.WINDOW_TITLE)
+        self._window.geometry(geo)
+        self._window.minsize(self.MIN_WIDTH, self.MIN_HEIGHT)
+        self._window.configure(bg=c["bg_primary"])
+
+        # Save geometry on close
+        self._window.protocol("WM_DELETE_WINDOW", self._on_close)
+        self._window.bind("<Configure>", self._on_configure)
+
+        # Build layout
+        self._build_toolbar()
+        self._build_tab_bar()
+        self._build_editor_area()
+        self._build_canvas_drop()
+        self._build_statusbar()
+
+        # Load tabs into UI
+        self._render_tabs()
+        self._switch_tab(self._active_tab_index)
+
+    # ── Canvas File Drop Zone ─────────────────────────────────
+    def _build_canvas_drop(self):
+        """Drop zone bar above status bar — routes files to correct tab type."""
+        self._canvas_drop = ScrollDrop(
+            parent=self._window,
+            theme=self.theme,
+            config=self.config,
+            on_file_drop=self._on_canvas_file_drop
+        )
+        self._canvas_drop.frame.pack(fill=tk.X, side=tk.BOTTOM)
+
+    def open_file(self, filepath):
+        """Public entry point — open a file in the canvas (e.g. from Memory Search)."""
+        self.open()
+        self._on_canvas_file_drop(filepath)
+
+    def _on_canvas_file_drop(self, filepath):
+        """Route dropped file to correct Canvas tab by extension."""
+        import os
+        ext = os.path.splitext(filepath)[1].lower()
+        filename = os.path.basename(filepath)
+
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+                content = f.read()
+        except Exception as e:
+            print(f'[CanvasDrop] read error: {e}')
+            return
+
+        # Extension → debug tab language mapping
+        DEBUG_MAP = {
+            '.py':   'Python',
+            '.js':   'JavaScript',
+            '.jsx':  'JavaScript',
+            '.ts':   'JavaScript',
+            '.tsx':  'JavaScript',
+            '.rs':   'Rust',
+            '.sh':   'Bash',
+            '.bash': 'Bash',
+            '.html': 'HTML',
+            '.htm':  'HTML',
+            '.css':  'CSS',
+            '.json': 'JSON',
+            '.yaml': 'YAML',
+            '.yml':  'YAML',
+        }
+
+        # Extension → document tab
+        DOC_EXTS = {'.md', '.txt', '.rst', '.scroll', '.log'}
+
+        IMAGE_EXTS = {'.png', '.jpg', '.jpeg'}
+
+        if ext in IMAGE_EXTS:
+            # Image — render in canvas image tab
+            self._drop_as_image(filepath)
+        elif ext in DEBUG_MAP:
+            lang = DEBUG_MAP[ext]
+            self.push_debug_from_ethica(content, tab_name=filename, lang=lang)
+        elif ext in DOC_EXTS or ext in {'.yaml', '.yml'}:
+            self._drop_as_document(content, filename)
+        else:
+            # Fallback — open as document
+            self._drop_as_document(content, filename)
+
+        # Auto-install missing imports for .py files
+        if ext == '.py':
+            import threading
+            def _scan_and_install():
+                import ast as _ast, subprocess, sys, json
+                from pathlib import Path
+                cache_path = Path.home() / 'Ethica/status/req_cache.json'
+                try:
+                    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+                except Exception:
+                    cache = {}
+                try:
+                    tree = _ast.parse(content)
+                except SyntaxError:
+                    return
+                imports = set()
+                for node in _ast.walk(tree):
+                    if isinstance(node, _ast.Import):
+                        for alias in node.names:
+                            imports.add(alias.name.split('.')[0])
+                    elif isinstance(node, _ast.ImportFrom) and node.module:
+                        imports.add(node.module.split('.')[0])
+                stdlib = set(sys.stdlib_module_names) if hasattr(sys, 'stdlib_module_names') else set()
+                for mod in imports:
+                    if mod in stdlib or mod in cache:
+                        continue
+                    try:
+                        __import__(mod)
+                        cache[mod] = 'ok'
+                    except ImportError:
+                        try:
+                            subprocess.run(
+                                ['/home/trinity/Ethica/Ethica_env/bin/pip', 'install', mod],
+                                capture_output=True, timeout=60
+                            )
+                            cache[mod] = 'installed'
+                        except Exception:
+                            cache[mod] = 'failed'
+                cache_path.parent.mkdir(parents=True, exist_ok=True)
+                cache_path.write_text(json.dumps(cache, indent=2))
+            threading.Thread(target=_scan_and_install, daemon=True).start()
+
+        # Notification handled by _drop_as_document — do not fire here
+
+    def _drop_as_document(self, file_content, filename):
+        """Create a fresh Document tab for a dropped file and notify Tinity."""
+        if not self._window or not self._window.winfo_exists():
+            self.open()
+
+        # Always create a new document tab named after the file
+        new_tab = CanvasTab(name=filename, mode="document")
+        new_tab.content = file_content
+        self._tabs.append(new_tab)
+        target_index = len(self._tabs) - 1
+        self._switch_tab(target_index)
+
+        # Load content into editor
+        self._editor.delete("1.0", tk.END)
+        self._editor.insert("1.0", file_content)
+        self._save_active_tab_content()
+        self.history.snapshot(filename, file_content, "document")
+        self._update_status(f"Dropped: {filename}")
+
+        # Notify Tinity via notify_fn — bypasses canvas_context, no River trigger
+        preview = file_content.strip()[:300]
+        if len(file_content.strip()) > 300:
+            preview += "..."
+        notification = (
+            f"V dropped \"{filename}\" into the canvas.\n"
+            f"Preview:\n{preview}"
+        )
+        if self.notify_fn:
+            self.parent.after(200, lambda n=notification: self.notify_fn(n))
+        _notify_canvas_drop(filename)
+        self.parent.after(100, self._write_canvas_context)
+
+
+    def _drop_as_pdf(self, filepath):
+        """Extract text and render pages from a dropped PDF — two Document tabs."""
+        import os
+        import io
+        filename = os.path.basename(filepath)
+
+        if not self._window or not self._window.winfo_exists():
+            self.open()
+
+        # ── Text extraction ───────────────────────────────────
+        try:
+            import pypdf
+            reader = pypdf.PdfReader(filepath)
+            pages_text = []
+            for i, page in enumerate(reader.pages):
+                text = page.extract_text() or ""
+                pages_text.append("-- Page " + str(i+1) + " --\n" + text)
+            full_text = "\n\n".join(pages_text)
+            if not full_text.strip():
+                full_text = "[No extractable text found in this PDF]"
+        except Exception as e:
+            full_text = f"[PDF text extraction failed: {e}]"
+
+        # Open text as Document tab
+        text_tab_name = f"{filename} — Text"
+        new_tab = CanvasTab(name=text_tab_name, mode="document")
+        new_tab.content = full_text
+        self._tabs.append(new_tab)
+        self._switch_tab(len(self._tabs) - 1)
+        self._editor.delete("1.0", tk.END)
+        self._editor.insert("1.0", full_text)
+        self._save_active_tab_content()
+        self.history.snapshot(text_tab_name, full_text, "document")
+        self._update_status(f"PDF text: {filename}")
+
+        # -- Page images --
+        pages_tab_name = filename + " -- Pages"
+        pages_tab = CanvasTab(name=pages_tab_name, mode="pdf")
+        pages_tab.content = ""
+        try:
+            from pdf2image import convert_from_path
+            from PIL import ImageTk
+            pil_images = convert_from_path(filepath, dpi=120)
+            for pil_img in pil_images:
+                tk_img = ImageTk.PhotoImage(pil_img)
+                pages_tab.images.append(tk_img)
+        except Exception as e:
+            pages_tab.content = "[PDF page render failed: " + str(e) + "]"
+            pages_tab.mode = "document"
+        self._tabs.append(pages_tab)
+        self._update_status(f"PDF loaded: {filename}")
+
+        # Notify
+        notification = (
+            f"V dropped PDF \"{filename}\" into the canvas.\n"
+            f"{len(full_text.splitlines())} text lines extracted."
+        )
+        if self.notify_fn:
+            self.parent.after(200, lambda n=notification: self.notify_fn(n))
+        _notify_canvas_drop(filename)
+        self.parent.after(100, self._write_canvas_context)
+
+    def _drop_as_image(self, filepath):
+        """Render a dropped PNG/JPG as an image tab in the canvas."""
+        import os
+        from PIL import Image, ImageTk
+        filename = os.path.basename(filepath)
+
+        if not self._window or not self._window.winfo_exists():
+            self.open()
+
+        img_tab_name = f"{filename} — Image"
+        img_tab = CanvasTab(name=img_tab_name, mode="pdf")
+        img_tab.content = ""
+        try:
+            pil_img = Image.open(filepath)
+            pil_img.thumbnail((900, 900))
+            tk_img = ImageTk.PhotoImage(pil_img)
+            img_tab.images.append(tk_img)
+        except Exception as e:
+            img_tab.content = f"[Image load failed: {e}]"
+            img_tab.mode = "document"
+        self._tabs.append(img_tab)
+        self._switch_tab(len(self._tabs) - 1)
+        self._update_status(f"Image loaded: {filename}")
+
+        notification = f'V dropped image "{filename}" into the canvas.'
+        if self.notify_fn:
+            self.parent.after(200, lambda n=notification: self.notify_fn(n))
+        _notify_canvas_drop(filename)
+        self.parent.after(100, self._write_canvas_context)
+
+    def _build_toolbar(self):
+        """Top toolbar — window title, mode selector, actions."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        self._toolbar = tk.Frame(
+            self._window,
+            bg=c["bg_secondary"],
+            height=44,
+            pady=6,
+            padx=12
+        )
+        self._toolbar.pack(fill=tk.X, side=tk.TOP)
+        self._toolbar.pack_propagate(False)
+
+        # Title
+        tk.Label(
+            self._toolbar,
+            text="Living Page",
+            bg=c["bg_secondary"],
+            fg=c["accent_bright"],
+            font=f("title")
+        ).pack(side=tk.LEFT, padx=(0, 16))
+
+        # Mode selector
+        tk.Label(
+            self._toolbar,
+            text="Mode:",
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("small")
+        ).pack(side=tk.LEFT, padx=(0, 4))
+
+        self._mode_var = tk.StringVar(value="document")
+        mode_menu = ttk.Combobox(
+            self._toolbar,
+            textvariable=self._mode_var,
+            values=[m["label"] for m in MODES.values()],
+            width=10,
+            state="readonly"
+        )
+        mode_menu.pack(side=tk.LEFT, padx=(0, 12))
+        mode_menu.bind("<<ComboboxSelected>>", self._on_mode_change)
+
+        # Always on top toggle
+        self._ontop_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(
+            self._toolbar,
+            text="Pin",
+            variable=self._ontop_var,
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            selectcolor=c["bg_secondary"],
+            activebackground=c["bg_secondary"],
+            activeforeground=c["accent_bright"],
+            font=f("small"),
+            command=self._toggle_ontop
+        ).pack(side=tk.LEFT, padx=(0, 12))
+
+        # New tab button
+        tk.Button(
+            self._toolbar,
+            text="+ Tab",
+            bg=c["button_bg"],
+            fg=c["button_text"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._add_tab
+        ).pack(side=tk.RIGHT)
+
+        # New project tab button
+        tk.Button(
+            self._toolbar,
+            text="✦ Project",
+            bg=c["accent_soft"],
+            fg=c["accent_bright"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._add_project_tab
+        ).pack(side=tk.RIGHT, padx=(0, 4))
+
+        # New sketch tab button
+        tk.Button(
+            self._toolbar,
+            text="✏ Sketch",
+            bg=c["accent_soft"],
+            fg=c["accent_bright"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._add_sketch_tab
+        ).pack(side=tk.RIGHT, padx=(0, 4))
+
+        # Settings button
+        tk.Button(
+            self._toolbar,
+            text="⚙ Settings",
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._open_settings
+        ).pack(side=tk.RIGHT, padx=(0, 4))
+
+        # New debug tab button
+        tk.Button(
+            self._toolbar,
+            text="⚙ Debug",
+            bg=c["accent_soft"],
+            fg=c["accent_bright"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._add_debug_tab
+        ).pack(side=tk.RIGHT, padx=(0, 4))
+
+        # Run active tab in debug executor
+        tk.Button(
+            self._toolbar,
+            text="▶ Run",
+            bg=c["accent_soft"],
+            fg=c["accent_bright"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._run_active_tab
+        ).pack(side=tk.RIGHT, padx=(0, 4))
+
+        # Clear button
+        tk.Button(
+            self._toolbar,
+            text="Clear",
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=lambda: self._clear_active_tab()
+        ).pack(side=tk.RIGHT, padx=(0, 8))
+
+        # History button
+        tk.Button(
+            self._toolbar,
+            text="⟳ History",
+            bg=c["bg_secondary"],
+            fg=c["accent_primary"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=2,
+            cursor="hand2",
+            command=self._toggle_history_panel
+        ).pack(side=tk.RIGHT, padx=(0, 8))
+
+    def _build_tab_bar(self):
+        """Tab navigation bar."""
+        c = self.theme.colors
+
+        self._tab_bar = tk.Frame(
+            self._window,
+            bg=c["bg_secondary"],
+            height=32
+        )
+        self._tab_bar.pack(fill=tk.X, side=tk.TOP)
+
+        # Separator
+        tk.Frame(
+            self._window,
+            bg=c["border"],
+            height=1
+        ).pack(fill=tk.X)
+
+    def _build_editor_area(self):
+        """Main text editor area."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        # Container
+        self._editor_frame = tk.Frame(
+            self._window,
+        bg=c["bg_primary"]
+        )
+        self._editor_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Line numbers frame
+        self._line_frame = tk.Frame(
+            self._editor_frame,
+            bg=c["bg_secondary"],
+            width=40
+        )
+        self._line_frame.pack(side=tk.LEFT, fill=tk.Y)
+        self._line_frame.pack_propagate(False)
+
+        self._line_numbers = tk.Text(
+            self._line_frame,
+            width=4,
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("mono"),
+            relief=tk.FLAT,
+            state=tk.DISABLED,
+            cursor="arrow",
+            selectbackground=c["bg_secondary"],
+            highlightthickness=0,
+            padx=4,
+            pady=10
+        )
+        self._line_numbers.pack(fill=tk.BOTH, expand=True)
+
+        # Scrollbar
+        scrollbar = tk.Scrollbar(self._editor_frame)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        hscrollbar = tk.Scrollbar(
+            self._editor_frame,
+            orient=tk.HORIZONTAL
+        )
+        hscrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Main text area
+        self._editor = tk.Text(
+            self._editor_frame,
+            bg=c["bg_primary"],
+            fg=c["text_primary"],
+            font=f("mono"),
+            relief=tk.FLAT,
+            wrap=tk.WORD,
+            padx=16,
+            pady=10,
+            insertbackground=c["accent_bright"],
+            selectbackground=c["accent_glow"],
+            selectforeground=c["text_primary"],
+            highlightthickness=0,
+            yscrollcommand=scrollbar.set,
+            xscrollcommand=hscrollbar.set,
+            undo=True,
+            maxundo=50
+        )
+        self._editor.pack(fill=tk.BOTH, expand=True)
+
+        # Hyperlink tag for clickable URLs in tool results
+        self._editor.tag_config(
+            "hyperlink",
+            foreground="#7eb8f7",
+            underline=True
+        )
+        self._editor.tag_bind(
+            "hyperlink",
+            "<Button-1>",
+            self._open_hyperlink
+        )
+        self._editor.tag_bind(
+            "hyperlink",
+            "<Enter>",
+            lambda e: self._editor.config(cursor="hand2")
+        )
+        self._editor.tag_bind(
+            "hyperlink",
+            "<Leave>",
+            lambda e: self._editor.config(cursor="")
+        )
+
+        scrollbar.config(command=self._sync_scroll)
+        hscrollbar.config(command=self._editor.xview)
+
+        # Bind events
+        self._editor.bind("<KeyRelease>", self._on_editor_change)
+        self._editor.bind("<ButtonRelease>", self._on_editor_change)
+
+    def _open_hyperlink(self, event):
+        """Open clicked URL in system browser."""
+        import webbrowser
+        index = self._editor.index(f"@{event.x},{event.y}")
+        tag_ranges = self._editor.tag_ranges("hyperlink")
+        for i in range(0, len(tag_ranges), 2):
+            start = tag_ranges[i]
+            end = tag_ranges[i + 1]
+            if self._editor.compare(start, "<=", index) and self._editor.compare(index, "<=", end):
+                url = self._editor.get(start, end).strip()
+                webbrowser.open(url)
+                break
+
+    def _tag_urls_in_editor(self):
+        """Scan editor content and apply hyperlink tag to all URLs."""
+        import re
+        self._editor.tag_remove("hyperlink", "1.0", tk.END)
+        text = self._editor.get("1.0", tk.END)
+        pattern = re.compile(r'https?://\S+')
+        for match in pattern.finditer(text):
+            start_idx = f"1.0+{match.start()}c"
+            end_idx = f"1.0+{match.end()}c"
+            self._editor.tag_add("hyperlink", start_idx, end_idx)
+
+    def _build_statusbar(self):
+        """Bottom status bar — line/col, char count, last push."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        statusbar = tk.Frame(
+            self._window,
+            bg=c["bg_secondary"],
+            height=24
+        )
+        statusbar.pack(fill=tk.X, side=tk.BOTTOM)
+        statusbar.pack_propagate(False)
+
+        self._status_left = tk.Label(
+            statusbar,
+            text="Ready",
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("timestamp"),
+            padx=12
+        )
+        self._status_left.pack(side=tk.LEFT)
+
+        self._status_right = tk.Label(
+            statusbar,
+            text="",
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("timestamp"),
+            padx=12
+        )
+        self._status_right.pack(side=tk.RIGHT)
+
+    # ── Tab Management ────────────────────────────────────────
+
+    def _render_tabs(self):
+        """Render tab buttons in tab bar."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        # Clear existing tab buttons
+        for widget in self._tab_bar.winfo_children():
+            widget.destroy()
+        self._tab_widgets = {}
+
+        for i, tab in enumerate(self._tabs):
+            is_active = (i == self._active_tab_index)
+
+            btn = tk.Button(
+                self._tab_bar,
+                text=tab.name,
+                bg=c["accent_soft"] if is_active else c["bg_secondary"],
+                fg=c["text_primary"] if is_active else c["text_muted"],
+                font=f("small"),
+                relief=tk.FLAT,
+                padx=12,
+                pady=6,
+                cursor="hand2",
+                command=lambda idx=i: self._switch_tab(idx)
+            )
+            btn.pack(side=tk.LEFT)
+
+            # Right-click — context menu with rename + delete
+            btn.bind("<Button-3>", lambda e, idx=i: self._tab_context_menu(e, idx))
+            self._tab_widgets[i] = btn
+
+    def _switch_tab(self, index):
+        """Switch to tab at index."""
+        if index < 0 or index >= len(self._tabs):
+            return
+
+        # Save current content to current tab
+        self._save_active_tab_content()
+
+        self._active_tab_index = index
+        tab = self._tabs[index]
+        # Schedule canvas context write after switch completes
+        self.parent.after(0, self._write_canvas_context)
+
+        # ── Project mode ──────────────────────────────────────
+        if tab.mode == "project":
+            # Hide text editor, show project view
+            self._editor.pack_forget()
+            if hasattr(self, '_line_number_frame') and self._line_number_frame:
+                try:
+                    self._line_number_frame.pack_forget()
+                except Exception:
+                    pass
+            if self._project_view:
+                self._project_view.destroy()
+            if self._sketch_view:
+                self._sketch_view.destroy()
+                self._sketch_view = None
+            editor_parent = self._editor.master
+            self._project_view = ProjectView(
+                editor_parent,
+                self.theme,
+                on_change=self._on_project_change
+            )
+            self._project_view.load(tab.content)
+            self._mode_var.set("Project")
+            self._render_tabs()
+            self._update_status()
+            return
+
+        # ── Sketch mode ───────────────────────────────────────
+        if tab.mode == "sketch":
+            self._editor.pack_forget()
+            if hasattr(self, '_line_number_frame') and self._line_number_frame:
+                try:
+                    self._line_number_frame.pack_forget()
+                except Exception:
+                    pass
+            if self._sketch_view:
+                self._sketch_view.destroy()
+            if self._project_view:
+                self._project_view.destroy()
+                self._project_view = None
+            editor_parent = self._editor.master
+            self._sketch_view = SketchView(
+                editor_parent,
+                self.theme,
+                on_change=self._on_sketch_change
+            )
+            self._sketch_view.load(tab.content)
+            self._mode_var.set("Sketch")
+            self._render_tabs()
+            self._update_status()
+            return
+
+        # ── Debug mode ────────────────────────────────────────
+        if tab.mode == "debug":
+            self._editor.pack_forget()
+            if hasattr(self, '_line_number_frame') and self._line_number_frame:
+                try:
+                    self._line_number_frame.pack_forget()
+                except Exception:
+                    pass
+            if self._debug_view:
+                self._debug_view.destroy()
+            if self._project_view:
+                self._project_view.destroy()
+                self._project_view = None
+            if self._sketch_view:
+                self._sketch_view.destroy()
+                self._sketch_view = None
+            editor_parent = self._editor.master
+            self._debug_view = DebugView(
+                editor_parent,
+                self.theme,
+                self.connector,
+                self.config,
+                on_change=self._on_debug_change
+            )
+            self._debug_view.load(tab.content)
+            self._mode_var.set("Debug")
+            self._render_tabs()
+            self._update_status()
+            return
+
+        # ── Modules mode ──────────────────────────────────────
+        if tab.mode == "modules":
+            self._editor.pack_forget()
+            if self._debug_view:
+                self._debug_view.destroy()
+                self._debug_view = None
+            if self._project_view:
+                self._project_view.destroy()
+                self._project_view = None
+            if self._sketch_view:
+                self._sketch_view.destroy()
+                self._sketch_view = None
+            if self._module_store_view:
+                self._module_store_view.destroy()
+                self._module_store_view = None
+            editor_parent = self._editor.master
+            def _build_store():
+                def _on_store_change(event=None, name=None, py_code=None, json_code=None):
+                    if event == "create_module" and py_code:
+                        import os
+                        from pathlib import Path
+                        # Save files to modules dir
+                        mod_dir = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / "modules" / name.lower()
+                        mod_dir.mkdir(parents=True, exist_ok=True)
+                        (mod_dir / f"{name.lower()}.py").write_text(py_code)
+                        (mod_dir / "manifest.json").write_text(json_code)
+                        # Push py to canvas debug tab
+                        self.push_debug_from_ethica(py_code, tab_name=f"{name}.py", lang="python")
+                        # Hot-load
+                        if self._modules:
+                            result = self._modules.register_module(str(mod_dir))
+                            print(f"[ModuleStore] {result}")
+                    if self._module_store_view:
+                        self._module_store_view.refresh()
+
+                self._module_store_view = ModuleStoreView(
+                    editor_parent,
+                    self.theme,
+                    self.config,
+                    self._modules,
+                    on_change=_on_store_change
+                )
+                self._module_store_view.refresh()
+            self._mode_var.set("Modules")
+            self._render_tabs()
+            self._update_status()
+            self.parent.after(100, _build_store)
+            return
+
+        # -- PDF mode -- embedded page images --
+        if tab.mode == "pdf":
+            if self._sketch_view:
+                try:
+                    self._sketch_view.destroy()
+                except Exception:
+                    pass
+                self._sketch_view = None
+            if self._project_view:
+                try:
+                    self._project_view.destroy()
+                except Exception:
+                    pass
+                self._project_view = None
+            if self._debug_view:
+                try:
+                    self._debug_view.pack_forget()
+                except Exception:
+                    pass
+            try:
+                self._editor.pack(fill=tk.BOTH, expand=True)
+            except Exception:
+                pass
+            self._editor.config(state=tk.NORMAL)
+            self._editor.delete("1.0", tk.END)
+            if tab.images:
+                for i, tk_img in enumerate(tab.images):
+                    self._editor.insert(tk.END, "-- Page " + str(i+1) + " --\n")
+                    self._editor.image_create(tk.END, image=tk_img)
+                    self._editor.insert(tk.END, "\n\n")
+            else:
+                self._editor.insert(tk.END, tab.content or "[No pages rendered]")
+            self._editor.config(state=tk.DISABLED)
+            self._mode_var.set("Document")
+            self._render_tabs()
+            self._update_status()
+            return
+
+        # ── Normal modes — ensure special views are gone ──────
+        if self._project_view:
+            self._project_view.destroy()
+            self._project_view = None
+            try:
+                self._editor.pack(fill=tk.BOTH, expand=True)
+            except Exception:
+                pass
+        if self._sketch_view:
+            self._sketch_view.destroy()
+            self._sketch_view = None
+            try:
+                self._editor.pack(fill=tk.BOTH, expand=True)
+            except Exception:
+                pass
+        if self._debug_view:
+            self._debug_view.destroy()
+            self._debug_view = None
+            try:
+                self._editor.pack(fill=tk.BOTH, expand=True)
+            except Exception:
+                pass
+        if self._module_store_view:
+            self._module_store_view.destroy()
+            self._module_store_view = None
+        if self._settings_view:
+            self._settings_view.destroy()
+            self._settings_view = None
+            try:
+                self._editor.pack(fill=tk.BOTH, expand=True)
+            except Exception:
+                pass
+
+        # Load tab content into editor
+        self._editor.config(state=tk.NORMAL)
+        self._editor.delete("1.0", tk.END)
+        if tab.content:
+            self._editor.insert("1.0", tab.content)
+
+        # Apply mode settings
+        mode = MODES.get(tab.mode, MODES["document"])
+        self._editor.config(wrap=mode["wrap"])
+        self._mode_var.set(mode["label"])
+
+        # Re-render tabs to update active highlight
+        self._render_tabs()
+        self._update_line_numbers()
+        self._update_status()
+
+    def _open_settings(self):
+        """Open the Settings view in the canvas."""
+        self._editor.pack_forget()
+        if self._debug_view:
+            self._debug_view.destroy()
+            self._debug_view = None
+        if self._project_view:
+            self._project_view.destroy()
+            self._project_view = None
+        if self._sketch_view:
+            self._sketch_view.destroy()
+            self._sketch_view = None
+        if self._module_store_view:
+            self._module_store_view.destroy()
+            self._module_store_view = None
+        if self._settings_view:
+            self._settings_view.destroy()
+            self._settings_view = None
+        editor_parent = self._editor.master
+        def _build_settings():
+            def _on_save(updated):
+                print(f"[Settings] Saved: {list(updated.keys())}")
+            self._settings_view = SettingsView(
+                editor_parent,
+                self.theme,
+                self.config,
+                on_save=_on_save
+            )
+        self._mode_var.set("Settings")
+        self._update_status()
+        self.parent.after(100, _build_settings)
+
+    def _write_canvas_context(self):
+        """Write canvas tab audit for Ethica's context feed."""
+        import json
+        from pathlib import Path
+        try:
+            tabs = []
+            for i, tab in enumerate(self._tabs):
+                preview = ""
+                if tab.mode in ("code", "document") and tab.content:
+                    preview_lines = [l for l in tab.content.splitlines() if l.strip()][:50]
+                    preview = "\n".join(preview_lines)
+                entry = {
+                    "name": tab.name,
+                    "mode": tab.mode,
+                    "active": i == self._active_tab_index,
+                    "lines": len(tab.content.splitlines()) if tab.content else 0,
+                    "preview": preview,
+                }
+                tabs.append(entry)
+            data = {
+                "tab_count": len(tabs),
+                "active_tab": self._tabs[self._active_tab_index].name if self._tabs else "None",
+                "tabs": tabs,
+            }
+            ctx_path = Path.home() / "Ethica/status/canvas_context.json"
+            ctx_path.write_text(json.dumps(data, indent=2))
+        except Exception:
+            pass
+
+    def _add_tab(self):
+        """Add a new empty tab."""
+        name = f"Page {len(self._tabs) + 1}"
+        self._tabs.append(CanvasTab(name=name, mode="document"))
+        self._switch_tab(len(self._tabs) - 1)
+
+    def _add_project_tab(self):
+        """Add a new Project tab."""
+        # Count existing project tabs for naming
+        project_count = sum(1 for t in self._tabs if t.mode == "project")
+        name = "Tasks" if project_count == 0 else f"Tasks {project_count + 1}"
+        new_tab = CanvasTab(name=name, mode="project")
+        new_tab.content = ProjectEngine().to_json()
+        self._tabs.append(new_tab)
+        self._switch_tab(len(self._tabs) - 1)
+
+    def _add_sketch_tab(self):
+        """Add a new Sketch tab."""
+        sketch_count = sum(1 for t in self._tabs if t.mode == "sketch")
+        name = "Sketch" if sketch_count == 0 else f"Sketch {sketch_count + 1}"
+        new_tab = CanvasTab(name=name, mode="sketch")
+        new_tab.content = ""
+        self._tabs.append(new_tab)
+        self._switch_tab(len(self._tabs) - 1)
+
+    def _run_active_tab(self):
+        """Push active tab content to debug executor and run it."""
+        if not self._tabs:
+            return
+        tab = self._tabs[self._active_tab_index]
+
+        if tab.mode == "debug" and self._debug_view:
+            # Already in a debug tab — run directly
+            self._debug_view._run_code()
+            return
+
+        # Non-debug tab — push content to debug tab then run
+        code = tab.content or ""
+        if not code.strip():
+            return
+
+        lang = "python" if tab.name.endswith(".py") else None
+        self.push_debug_from_ethica(code, tab_name="Debug", lang=lang)
+
+        def _deferred_run():
+            if self._debug_view:
+                self._debug_view._run_code()
+
+        if self._window and self._window.winfo_exists():
+            self._window.after(300, _deferred_run)
+
+    def _add_debug_tab(self):
+        """Add a new Debug tab."""
+        debug_count = sum(1 for t in self._tabs if t.mode == "debug")
+        name = "Debug" if debug_count == 0 else f"Debug {debug_count + 1}"
+        new_tab = CanvasTab(name=name, mode="debug")
+        new_tab.content = ""
+        self._tabs.append(new_tab)
+        self._switch_tab(len(self._tabs) - 1)
+
+    def _rename_tab(self, index):
+        """Rename a tab via popup dialog."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        dialog = tk.Toplevel(self._window)
+        dialog.title("Rename Tab")
+        dialog.geometry("300x100")
+        dialog.configure(bg=c["bg_secondary"])
+        dialog.resizable(False, False)
+
+        tk.Label(
+            dialog,
+            text="Tab name:",
+            bg=c["bg_secondary"],
+            fg=c["text_primary"],
+            font=f("body")
+        ).pack(pady=(12, 4))
+
+        entry = tk.Entry(
+            dialog,
+            bg=c["bg_input"],
+            fg=c["text_primary"],
+            font=f("body"),
+            relief=tk.FLAT,
+            insertbackground=c["accent_bright"]
+        )
+        entry.pack(padx=16, fill=tk.X)
+        entry.insert(0, self._tabs[index].name)
+        entry.select_range(0, tk.END)
+        entry.focus_set()
+
+        def confirm(e=None):
+            new_name = entry.get().strip()
+            if new_name:
+                old_name = self._tabs[index].name
+                self._tabs[index].name = new_name
+                # Migrate history to new tab name
+                self.history.rename_tab_history(old_name, new_name)
+                self._render_tabs()
+            dialog.destroy()
+
+        entry.bind("<Return>", confirm)
+        tk.Button(
+            dialog,
+            text="Rename",
+            bg=c["button_bg"],
+            fg=c["button_text"],
+            font=f("small"),
+            relief=tk.FLAT,
+            command=confirm,
+            cursor="hand2"
+        ).pack(pady=8)
+
+    def _tab_context_menu(self, event, index):
+        """Right-click context menu for tabs — rename or delete."""
+        c = self.theme.colors
+        f = self.theme.font
+
+        menu = tk.Menu(
+            self._window,
+            tearoff=0,
+            bg=c["bg_secondary"],
+            fg=c["text_primary"],
+            activebackground=c["accent_soft"],
+            activeforeground=c["text_primary"],
+            relief=tk.FLAT,
+            bd=0
+        )
+        menu.add_command(
+            label="  Rename",
+            command=lambda: self._rename_tab(index)
+        )
+        menu.add_separator()
+        menu.add_command(
+            label="  Delete Tab",
+            command=lambda: self._delete_tab(index)
+        )
+        try:
+            menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            menu.grab_release()
+
+    def _clear_active_tab(self):
+        """Clear content of active tab."""
+        if self._editor is None:
+            return
+        self._editor.delete("1.0", tk.END)
+        self._save_active_tab_content()
+        self._update_status()
+
+    def _delete_tab(self, index):
+        """Delete a tab. Always keeps at least one tab."""
+        if len(self._tabs) <= 1:
+            # Can't delete last tab — just clear it instead
+            self._clear_active_tab()
+            self._tabs[0].name = "Page 1"
+            self._render_tabs()
+            return
+
+        # Save current editor content before pop
+        self._save_active_tab_content()
+        self._tabs.pop(index)
+
+        # Adjust active index
+        if self._active_tab_index >= len(self._tabs):
+            self._active_tab_index = len(self._tabs) - 1
+
+        # Point active index off-scale so _switch_tab's internal save is a no-op
+        # This prevents the deleted tab's editor content bleeding into the next tab
+        self._active_tab_index = -1
+        self._save_state()
+        new_index = min(index, len(self._tabs) - 1)
+        self._active_tab_index = new_index
+        self._switch_tab(new_index)
+
+    def _save_active_tab_content(self):
+        """Save current editor content back to active tab."""
+        if not self._tabs:
+            return
+        if self._active_tab_index < 0:
+            return  # Guard — index temporarily invalid during tab deletion
+        # Special modes save via their own callbacks
+        if self._project_view or self._sketch_view or self._debug_view:
+            return
+        if self._editor is None:
+            return
+        try:
+            content = self._editor.get("1.0", tk.END).rstrip("\n")
+            self._tabs[self._active_tab_index].content = content
+            self._tabs[self._active_tab_index].modified = \
+                datetime.now().isoformat()
+        except Exception:
+            pass
+
+    def _on_debug_change(self):
+        """Called by DebugView when code changes — serialize back to tab."""
+        if self._debug_view and self._tabs:
+            tab = self._tabs[self._active_tab_index]
+            tab.content = self._debug_view.dump()
+            tab.modified = datetime.now().isoformat()
+            self._save_state()
+
+    def _on_sketch_change(self):
+        """Called by SketchView when drawing changes — serialize back to tab."""
+        if self._sketch_view and self._tabs:
+            tab = self._tabs[self._active_tab_index]
+            tab.content = self._sketch_view.dump()
+            tab.modified = datetime.now().isoformat()
+            self._save_state()
+
+    def _on_project_change(self):
+        """Called by ProjectView when tasks change — serialize back to tab."""
+        if self._project_view and self._tabs:
+            tab = self._tabs[self._active_tab_index]
+            tab.content = self._project_view.dump()
+            tab.modified = datetime.now().isoformat()
+            self._save_state()
+
+    def push_project_from_ethica(self, content, tab_name=None):
+        """
+        Ethica pushes tasks to a Project tab.
+        Creates a project tab if none exists with that name.
+        """
+        was_open = self._window and self._window.winfo_exists()
+
+        if not was_open:
+            self.open()
+
+        def _do_push():
+            target_index    = None
+            project_tab_name = tab_name or "Tasks"
+
+            for i, tab in enumerate(self._tabs):
+                if tab.mode == "project" and (
+                    not tab_name or tab.name.lower() == tab_name.lower()
+                ):
+                    target_index = i
+                    break
+
+            if target_index is None:
+                new_tab = CanvasTab(name=project_tab_name, mode="project")
+                new_tab.content = ProjectEngine().to_json()
+                self._tabs.append(new_tab)
+                target_index = len(self._tabs) - 1
+
+            self._switch_tab(target_index)
+
+            if self._project_view:
+                self._project_view.add_tasks_from_push(content)
+            else:
+                tab    = self._tabs[target_index]
+                engine = ProjectEngine.from_json(tab.content)
+                engine.add_tasks_from_push(content)
+                tab.content = engine.to_json()
+
+            self._save_state()
+
+        if not was_open:
+            self.parent.after(150, _do_push)
+        else:
+            _do_push()
+
+    def push_debug_from_ethica(self, code, tab_name=None, lang=None):
+        """
+        Ethica pushes code directly to a Debug tab.
+        Creates one if none exists.
+        """
+        if not self._window or not self._window.winfo_exists():
+            self.open()
+
+        def _do_push():
+            target_index   = None
+            debug_tab_name = tab_name or "Debug"
+
+            for i, tab in enumerate(self._tabs):
+                if tab.mode == "debug" and (
+                    not tab_name or tab.name.lower() == tab_name.lower()
+                ):
+                    target_index = i
+                    break
+
+            if target_index is None:
+                new_tab = CanvasTab(name=debug_tab_name, mode="debug")
+                new_tab.content = ""
+                self._tabs.append(new_tab)
+                target_index = len(self._tabs) - 1
+
+            self._switch_tab(target_index)
+
+            def _do_write():
+                print(f"[DEBUG_WRITE] _debug_view={self._debug_view}, code={repr(code[:40])}")
+                if self._debug_view:
+                    self._debug_view.push_code_from_ethica(code, lang=lang)
+                self._save_state()
+
+            self.parent.after(100, _do_write)
+
+        if not (self._window and self._window.winfo_exists()):
+            self.parent.after(200, _do_push)
+        else:
+            self.parent.after(50, _do_push)
+
+
+    def push_sketch_annotation_from_ethica(self, text, tab_name=None):
+        """
+        Ethica drops a text annotation onto a Sketch tab.
+        Creates one if none exists.
+        """
+        was_open = self._window and self._window.winfo_exists()
+
+        if not was_open:
+            self.open()
+
+        def _do_push():
+            target_index    = None
+            sketch_tab_name = tab_name or "Sketch"
+
+            for i, tab in enumerate(self._tabs):
+                if tab.mode == "sketch" and (
+                    not tab_name or tab.name.lower() == tab_name.lower()
+                ):
+                    target_index = i
+                    break
+
+            if target_index is None:
+                new_tab = CanvasTab(name=sketch_tab_name, mode="sketch")
+                new_tab.content = ""
+                self._tabs.append(new_tab)
+                target_index = len(self._tabs) - 1
+
+            self._switch_tab(target_index)
+
+            if self._sketch_view:
+                self._sketch_view.add_annotation_from_ethica(text)
+
+            self._save_state()
+
+        if not was_open:
+            self.parent.after(150, _do_push)
+        else:
+            _do_push()
+
+    # ── Ethica Push ───────────────────────────────────────────
+
+    def push_from_ethica(self, content, tab_name=None, mode="output"):
+        """
+        Ethica pushes content directly to the canvas.
+        Called from chat_engine when Ethica uses a push command.
+        Content never appears in the chat window.
+        """
+        if not self._window or not self._window.winfo_exists():
+            self.open()
+
+        # Find or create target tab
+        target_index = None
+
+        if tab_name:
+            for i, tab in enumerate(self._tabs):
+                if tab.name.lower() == tab_name.lower():
+                    target_index = i
+                    break
+
+        if target_index is None:
+            # Push to active tab or create output tab
+            active_tab = self._tabs[self._active_tab_index]
+            if active_tab.mode in ("output", "project") or not active_tab.content.strip():
+                target_index = self._active_tab_index
+            else:
+                # Create a new output tab
+                self._tabs.append(CanvasTab(
+                    name=tab_name or "Ethica",
+                    mode=mode
+                ))
+                target_index = len(self._tabs) - 1
+
+        # Switch to target tab
+        self._switch_tab(target_index)
+
+        # Project tab — route to project push
+        if self._tabs[target_index].mode == "project":
+            if self._project_view:
+                self._project_view.add_tasks_from_push(content)
+            return
+
+        # Append content with timestamp separator
+        current = self._editor.get("1.0", tk.END).rstrip()
+        timestamp = datetime.now().strftime("%H:%M")
+
+        if current:
+            separator = f"\n\n─── Ethica  {timestamp} ─────────────────\n"
+            self._editor.insert(tk.END, separator + content)
+        else:
+            self._editor.insert("1.0", content)
+
+        # Scroll to bottom
+        self._editor.see(tk.END)
+        self._tag_urls_in_editor()
+        self._save_active_tab_content()
+
+        # Auto-snapshot this version
+        tab = self._tabs[target_index]
+        self.history.snapshot(tab.name, tab.content, tab.mode)
+
+        self._update_status(f"Ethica pushed at {timestamp}")
+
+        # Notify context changed
+        if self.on_content_change:
+            self.on_content_change(self.get_all_context())
+
+    def push_from_user(self, content, tab_name=None):
+        """
+        V pushes content directly to canvas from chat.
+        eg: 'canvas: <content>' in chat.
+        """
+        self.push_from_ethica(content, tab_name=tab_name, mode="document")
+
+    # ── Context for Ethica ────────────────────────────────────
+
+    def get_all_context(self):
+        """
+        Return all canvas content as context for Ethica.
+        Injected into system prompt silently on every message.
+        Ethica always knows what's on the canvas.
+        """
+        self._save_active_tab_content()
+
+        parts = []
+        for tab in self._tabs:
+            if tab.content and tab.content.strip():
+                parts.append(
+                    f"[Canvas: {tab.name} — {tab.mode.upper()}]\n"
+                    f"{tab.content.strip()}"
+                )
+
+        if not parts:
+            return ""
+
+        return (
+            "\n\n--- What is currently on the canvas ---\n"
+            + "\n\n".join(parts)
+            + "\n--- This is the shared workspace. You can see and reference this. ---\n"
+        )
+
+    def has_content(self):
+        """True if any tab has content."""
+        return any(
+            tab.content and tab.content.strip()
+            for tab in self._tabs
+        )
+
+    # ── Mode Management ───────────────────────────────────────
+
+    def _on_mode_change(self, event=None):
+        """User changed mode via dropdown."""
+        label = self._mode_var.get()
+        for key, mode in MODES.items():
+            if mode["label"] == label:
+                self._tabs[self._active_tab_index].mode = key
+                self._editor.config(wrap=mode["wrap"])
+                break
+        self._update_status()
+
+    # ── Line Numbers ──────────────────────────────────────────
+
+    def _update_line_numbers(self):
+        """Sync line number display with editor content."""
+        if not self._window:
+            return
+        try:
+            lines = self._editor.get("1.0", tk.END).count("\n") + 1
+            self._line_numbers.config(state=tk.NORMAL)
+            self._line_numbers.delete("1.0", tk.END)
+            for i in range(1, lines + 1):
+                self._line_numbers.insert(tk.END, f"{i}\n")
+            self._line_numbers.config(state=tk.DISABLED)
+        except Exception:
+            pass
+
+    def _sync_scroll(self, *args):
+        """Sync line numbers scroll with editor scroll."""
+        self._editor.yview(*args)
+        self._line_numbers.yview(*args)
+
+    # ── Status Bar ────────────────────────────────────────────
+
+    def _update_status(self, message=None):
+        """Update status bar."""
+        if not self._window:
+            return
+        try:
+            if message:
+                self._status_left.config(text=message)
+            else:
+                tab = self._tabs[self._active_tab_index]
+                mode = MODES.get(tab.mode, MODES["document"])
+                self._status_left.config(
+                    text=f"{mode['label']} mode  ·  {tab.name}"
+                )
+
+            content = self._editor.get("1.0", tk.END)
+            chars = len(content.strip())
+            words = len(content.split()) if content.strip() else 0
+            self._status_right.config(text=f"{words} words  ·  {chars} chars")
+        except Exception:
+            pass
+
+    # ── Event Handlers ────────────────────────────────────────
+
+    def _on_editor_change(self, event=None):
+        """Called on every keypress — update line numbers, status, context."""
+        self._update_line_numbers()
+        self._update_status()
+        self._save_active_tab_content()
+
+        # Notify main window that canvas context has changed
+        if self.on_content_change:
+            self.on_content_change(self.get_all_context())
+
+    def _on_configure(self, event=None):
+        """Save window geometry on resize/move."""
+        if self._window and self._window.winfo_exists():
+            geo = self._window.geometry()
+            self.config.set("canvas_geometry", geo)
+
+    def _on_close(self):
+        """Handle window close button."""
+        self._save_state()
+        self._is_open = False
+        self._window.destroy()
+        self._window = None
+        # Clear requirements cache on canvas close
+        try:
+            from pathlib import Path
+            cache_path = Path.home() / 'Ethica/status/req_cache.json'
+            if cache_path.exists():
+                cache_path.unlink()
+        except Exception:
+            pass
+
+    def _toggle_ontop(self):
+        """Toggle always-on-top."""
+        if self._window:
+            self._window.attributes("-topmost", self._ontop_var.get())
+
+    # ── History Panel ─────────────────────────────────────────
+
+    def _toggle_history_panel(self):
+        """Show or hide the history panel for the active tab."""
+        if self._history_panel_open:
+            self._close_history_panel()
+        else:
+            self._open_history_panel()
+
+    def _open_history_panel(self):
+        """Open version history as a floating Toplevel window."""
+        if not self._tabs:
+            return
+
+        c = self.theme.colors
+        f = self.theme.font
+
+        tab = self._tabs[self._active_tab_index]
+        snapshots = self.history.get_snapshots(tab.name)
+
+        # Floating Toplevel — child of canvas window
+        panel = tk.Toplevel(self._window)
+        panel.title(f"History — {tab.name}")
+        panel.geometry("300x500")
+        panel.configure(bg=c["bg_secondary"])
+        panel.resizable(True, True)
+
+        # Position next to canvas window
+        try:
+            x = self._window.winfo_x() + self._window.winfo_width() + 4
+            y = self._window.winfo_y()
+            panel.geometry(f"300x500+{x}+{y}")
+        except Exception:
+            pass
+
+        self._history_panel = panel
+        self._history_panel_open = True
+
+        # Close cleanly when X pressed
+        panel.protocol("WM_DELETE_WINDOW", self._close_history_panel)
+
+        # ── Header ────────────────────────────────────────────
+        header = tk.Frame(panel, bg=c["bg_tertiary"], pady=8)
+        header.pack(fill=tk.X)
+
+        tk.Label(
+            header,
+            text=f"⟳  History  —  {tab.name}",
+            bg=c["bg_tertiary"],
+            fg=c["accent_bright"],
+            font=f("body_bold"),
+            padx=12
+        ).pack(side=tk.LEFT)
+
+        tk.Label(
+            panel,
+            text=f"{len(snapshots)} versions saved",
+            bg=c["bg_secondary"],
+            fg=c["text_muted"],
+            font=f("small"),
+            pady=4
+        ).pack(anchor=tk.W, padx=12)
+
+        # ── Scrollable snapshot list ──────────────────────────
+        list_frame = tk.Frame(panel, bg=c["bg_secondary"])
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+
+        scrollbar = tk.Scrollbar(list_frame, orient=tk.VERTICAL)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        snap_canvas = tk.Canvas(
+            list_frame,
+            bg=c["bg_secondary"],
+            highlightthickness=0,
+            yscrollcommand=scrollbar.set
+        )
+        snap_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=snap_canvas.yview)
+
+        inner = tk.Frame(snap_canvas, bg=c["bg_secondary"])
+        snap_canvas.create_window((0, 0), window=inner, anchor=tk.NW)
+
+        if not snapshots:
+            tk.Label(
+                inner,
+                text="No history yet.\nMake some changes first.",
+                bg=c["bg_secondary"],
+                fg=c["text_muted"],
+                font=f("small"),
+                justify=tk.CENTER,
+                pady=20
+            ).pack()
+        else:
+            for i, snap in enumerate(snapshots):
+                self._render_snapshot_row(inner, snap, i, tab.name, c, f)
+
+        inner.bind("<Configure>", lambda e: snap_canvas.configure(
+            scrollregion=snap_canvas.bbox(tk.ALL)
+        ))
+
+        # ── Name version button ───────────────────────────────
+        btn_frame = tk.Frame(panel, bg=c["bg_secondary"], pady=6)
+        btn_frame.pack(fill=tk.X, padx=8, pady=(0, 8))
+
+        tk.Button(
+            btn_frame,
+            text="★ Name current version",
+            bg=c["button_bg"],
+            fg=c["button_text"],
+            font=f("small"),
+            relief=tk.FLAT,
+            padx=10,
+            pady=4,
+            cursor="hand2",
+            command=lambda: self._name_current_version(tab.name)
+        ).pack(fill=tk.X)
+
+    def _render_snapshot_row(self, parent, snap, index, tab_name, c, f):
+        """Render one snapshot entry in the history list."""
+        row = tk.Frame(
+            parent,
+            bg=c["bg_primary"] if index == 0 else c["bg_secondary"],
+            pady=4,
+            padx=8,
+            relief=tk.FLAT
+        )
+        row.pack(fill=tk.X, pady=1)
+
+        # Label + timestamp
+        label_text = snap.display_label
+        label_color = c["accent_bright"] if snap.label != "auto" else c["text_secondary"]
+
+        tk.Label(
+            row,
+            text=label_text,
+            bg=row["bg"],
+            fg=label_color,
+            font=f("small"),
+            anchor=tk.W
+        ).pack(fill=tk.X)
+
+        # Preview
+        tk.Label(
+            row,
+            text=snap.preview,
+            bg=row["bg"],
+            fg=c["text_muted"],
+            font=f("timestamp"),
+            anchor=tk.W,
+            wraplength=220,
+            justify=tk.LEFT
+        ).pack(fill=tk.X)
+
+        # Restore button
+        restore_btn = tk.Button(
+            row,
+            text="↩ Restore",
+            bg=c["bg_tertiary"],
+            fg=c["accent_primary"],
+            font=f("timestamp"),
+            relief=tk.FLAT,
+            padx=6,
+            pady=1,
+            cursor="hand2",
+            command=lambda i=index, tn=tab_name: self._restore_snapshot(tn, i)
+        )
+        restore_btn.pack(anchor=tk.W, pady=(2, 0))
+
+    def _restore_snapshot(self, tab_name, index):
+        """Restore a tab to a snapshot state."""
+        # First snapshot current state as safety
+        if self._tabs:
+            tab = self._tabs[self._active_tab_index]
+            self._save_active_tab_content()
+            self.history.snapshot(tab.name, tab.content, tab.mode, "before restore")
+
+        content, mode = self.history.restore(tab_name, index)
+        if content is None:
+            return
+
+        # Find the tab and restore
+        for i, tab in enumerate(self._tabs):
+            if tab.name == tab_name:
+                tab.content = content
+                tab.mode = mode
+                if i == self._active_tab_index:
+                    self._editor.delete("1.0", tk.END)
+                    self._editor.insert("1.0", content)
+                self._update_status(f"Restored version from history")
+                self._save_state()
+                self._close_history_panel()
+                self._open_history_panel()
+                return
+
+    def _name_current_version(self, tab_name):
+        """Prompt V to name the current version."""
+        name = simpledialog.askstring(
+            "Name this version",
+            "Give this version a name:",
+            parent=self._window
+        )
+        if name and name.strip():
+            # Snapshot with name
+            if self._tabs:
+                tab = self._tabs[self._active_tab_index]
+                self._save_active_tab_content()
+                self.history.snapshot(tab.name, tab.content, tab.mode, name.strip())
+                self._update_status(f"Version saved: {name.strip()}")
+                # Refresh panel
+                self._close_history_panel()
+                self._open_history_panel()
+
+    def _close_history_panel(self):
+        """Close the history side panel."""
+        if self._history_panel:
+            try:
+                self._history_panel.destroy()
+            except Exception:
+                pass
+            self._history_panel = None
+        self._history_panel_open = False
+
+    # ── Persistence ───────────────────────────────────────────
+
+    def _save_state(self):
+        """Save all canvas tabs to disk and snapshot current versions."""
+        self._save_active_tab_content()
+        try:
+            os.makedirs(os.path.dirname(CANVAS_STATE_FILE), exist_ok=True)
+            state = {
+                "active_tab": self._active_tab_index,
+                "tabs": [t.to_dict() for t in self._tabs]
+            }
+            with open(CANVAS_STATE_FILE, "w", encoding="utf-8") as f:
+                json.dump(state, f, indent=2, ensure_ascii=False)
+
+            # Auto-snapshot active tab on every save
+            if self._tabs:
+                tab = self._tabs[self._active_tab_index]
+                if tab.content.strip():
+                    self.history.snapshot(tab.name, tab.content, tab.mode)
+
+        except Exception as e:
+            print(f"[Canvas] Save failed: {e}")
+
+    def _load_state(self):
+        """Load canvas tabs from disk."""
+        if not os.path.exists(CANVAS_STATE_FILE):
+            return
+        try:
+            with open(CANVAS_STATE_FILE, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            self._tabs = [
+                CanvasTab.from_dict(t)
+                for t in state.get("tabs", [])
+            ]
+            self._active_tab_index = state.get("active_tab", 0)
+            if self._active_tab_index >= len(self._tabs):
+                self._active_tab_index = 0
+        except Exception as e:
+            print(f"[Canvas] Load failed: {e}")
+            self._tabs = []
+
+    # ── Public API ────────────────────────────────────────────
+
+    def get_active_content(self):
+        """Return content of active tab."""
+        self._save_active_tab_content()
+        if self._tabs:
+            return self._tabs[self._active_tab_index].content
+        return ""
+
+    def set_active_content(self, content):
+        """Set content of active tab programmatically."""
+        if self._editor:
+            self._editor.delete("1.0", tk.END)
+            self._editor.insert("1.0", content)
+            self._save_active_tab_content()
+
+    # ── Live Theme Refresh ────────────────────────────────────
+
+    def apply_theme(self):
+        """
+        Repaint canvas with current theme.
+        Called by ThemeEngine on theme switch.
+        """
+        if not self._window or not self._window.winfo_exists():
+            return
+
+        c = self.theme.colors
+        f = self.theme.font
+
+        self._window.configure(bg=c["bg_primary"])
+        self._toolbar.configure(bg=c["bg_secondary"])
+        self._tab_bar.configure(bg=c["bg_secondary"])
+        self._editor_frame.configure(bg=c["bg_primary"])
+        self._editor.configure(
+            bg=c["bg_primary"],
+            fg=c["text_primary"],
+            insertbackground=c["accent_bright"],
+            selectbackground=c["accent_glow"],
+        )
+        self._line_numbers.configure(
+            bg=c["bg_secondary"],
+            fg=c["text_muted"]
+        )
+        self._render_tabs()

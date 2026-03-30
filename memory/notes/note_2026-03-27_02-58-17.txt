@@ -1,0 +1,53 @@
+[Quick Note — 2026-03-27 02:58]
+Q: python3 << 'EOF'
+with open('/home/trinity/Ethica/ui/canvas_window.py', 'r') as f:
+    content = f.read()
+
+old = '        notification = f\'V dropped image "{filename}" into the canvas.\'\n        if self.notify_fn:\n            self.parent.after(200, lambda n=notification: self.notify_fn(n))\n        _notify_canvas_drop(filename)'
+new = '        notification = f\'V dropped image "{filename}" into the canvas.\'\n        if self.notify_fn:\n            self.parent.after(200, lambda n=notification: self.notify_fn(n))\n        _notify_canvas_drop(filename)\n        self.parent.after(100, self._write_canvas_context)'
+
+if old in content:
+    content = content.replace(old, new)
+    open('/home/trinity/Ethica/ui/canvas_window.py', 'w').write(content)
+    print('✓ patched')
+else:
+    print('✗ not found')
+
+import ast
+try:
+    ast.parse(content)
+    print('✓ clean')
+except SyntaxError as e:
+    print(f'✗ line {e.lineno}: {e.msg}')
+EOF
+✓ patched
+✓ clean
+A: WormBot — python  ✗ broken
+
+Issues (24):
+  • 1868:37: f-string is missing placeholders
+  • 206:9: local variable 'f' is assigned to but never used
+  • 379:9: 'io' imported but unused
+  • 1252:9: local variable 'f' is assigned to but never used
+  • 1970:9: local variable 'f' is assigned to but never used
+  • Duplicate import: from datetime import datetime
+  • Duplicate import: import json
+  • Duplicate import: from pathlib import Path
+  • Duplicate import: import os
+  • Duplicate import: from pathlib import Path
+  • Duplicate import: import os
+  • Duplicate import: import os
+  • Duplicate import: import os
+  • Duplicate import: from pathlib import Path
+  • Duplicate import: import json
+  • Duplicate import: from pathlib import Path
+  • Duplicate import: from pathlib import Path
+  • Line 261: print() found — consider logging
+  • Line 969: print() found — consider logging
+  • Line 1095: print() found — consider logging
+  • Line 1426: print() found — consider logging
+  • Line 1923: print() found — consider logging
+  • Line 1940: print() found — consider logging
+  • Deep nesting detected (max indent: 32) — consider refactoring
+
+Fixed code pushed to debug tab.

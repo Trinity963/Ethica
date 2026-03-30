@@ -1,0 +1,10 @@
+{
+  "agent": "Debugtron",
+  "title": "Debugger",
+  "state": "IDLE",
+  "task": "Awaiting directive",
+  "current_task": "Awaiting directive",
+  "last_action": "\u2014",
+  "progress": 0,
+  "updated": "\u2014"
+}

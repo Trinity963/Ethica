@@ -1,0 +1,41 @@
+{
+  "name": "DepChecker",
+  "version": "1.0",
+  "entry": "dep_checker.py",
+  "description": "Trinity-built dependency scanner and auto-fixer. Scans APT and PIP packages for vulnerabilities, outdated versions, and broken dependencies. Auto-fix ON with V approval.",
+  "author": "Victory + Trinity",
+  "autonomous": true,
+  "autonomous_triggers": [
+    "check dependencies",
+    "scan dependencies",
+    "dependency check",
+    "check packages",
+    "vulnerable packages",
+    "fix dependencies",
+    "dep check",
+    "depchecker"
+  ],
+  "tools": [
+    {
+      "name": "depchecker_scan",
+      "description": "Scan system APT and PIP packages for vulnerabilities and deprecated packages. Returns a full report.",
+      "syntax": "[TOOL:depchecker_scan: full]",
+      "autonomous": true,
+      "example": "[TOOL:depchecker_scan: full]"
+    },
+    {
+      "name": "depchecker_fix",
+      "description": "Auto-fix detected dependency issues. Reinstalls broken APT packages, upgrades deprecated PIP packages.",
+      "syntax": "[TOOL:depchecker_fix: apply]",
+      "autonomous": false,
+      "example": "[TOOL:depchecker_fix: apply]"
+    },
+    {
+      "name": "depchecker_report",
+      "description": "Show last dependency scan report.",
+      "syntax": "[TOOL:depchecker_report: last]",
+      "autonomous": false,
+      "example": "[TOOL:depchecker_report: last]"
+    }
+  ]
+}

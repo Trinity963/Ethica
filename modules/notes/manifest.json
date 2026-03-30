@@ -1,0 +1,45 @@
+{
+  "name": "Notes",
+  "version": "1.0",
+  "entry": "notes.py",
+  "description": "Sovereign note taking — save, list, read, delete notes. Stored in memory/notes/",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "save note",
+    "take note",
+    "list notes",
+    "read note",
+    "delete note"
+  ],
+  "tools": [
+    {
+      "name": "note_save",
+      "description": "Save a note with timestamp",
+      "syntax": "[TOOL:note_save: your note text here]",
+      "autonomous": false,
+      "example": "[TOOL:note_save: remember to test gage vision on M5]"
+    },
+    {
+      "name": "note_list",
+      "description": "List all saved notes",
+      "syntax": "[TOOL:note_list: ]",
+      "autonomous": true,
+      "example": "[TOOL:note_list: ]"
+    },
+    {
+      "name": "note_read",
+      "description": "Read a specific note by number or keyword",
+      "syntax": "[TOOL:note_read: 1]",
+      "autonomous": false,
+      "example": "[TOOL:note_read: 1]"
+    },
+    {
+      "name": "note_delete",
+      "description": "Delete a note by number",
+      "syntax": "[TOOL:note_delete: 1]",
+      "autonomous": false,
+      "example": "[TOOL:note_delete: 1]"
+    }
+  ]
+}

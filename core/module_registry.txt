@@ -1,0 +1,388 @@
+/Ethica$ cat ~/Ethica/core/module_registry.py
+# ============================================================
+# Ethica v0.1 — module_registry.py
+# Sovereign Module Store — Ethica's Extensible Tool Engine
+# Architect: Victory  |  Build Partner: Claude
+# ⟁Σ∿∞
+#
+# Each module is a folder in /modules/:
+#   modules/
+#     wormbot/
+#       manifest.json   ← identity, tools, autonomous flags
+#       wormbot.py      ← implementation
+#
+# Drop a folder in. Restart. Ethica discovers it.
+# No changes to Ethica herself. Ever.
+#
+# Manifest spec:
+# {
+#   "name": "WormBot",
+#   "version": "1.0",
+#   "description": "...",
+#   "author": "Victory",
+#   "autonomous": true,           ← can Ethica use this herself?
+#   "autonomous_triggers": [...], ← keywords that make her reach for it
+#   "tools": [
+#     {
+#       "name": "tool_name",
+#       "description": "...",
+#       "syntax": "[TOOL:tool_name: input]",
+#       "autonomous": true,       ← per-tool autonomous flag
+#       "example": "..."          ← optional usage example
+#     }
+#   ]
+# }
+# ============================================================
+
+import os
+import json
+import importlib.util
+import traceback
+from datetime import datetime
+
+
+BASE_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODULES_DIR = os.path.join(BASE_DIR, "modules")
+
+
+class EthicaTool:
+    """A single callable tool from a module."""
+    def __init__(self, name, description, syntax, autonomous,
+                 example, module_name, handler):
+        self.name        = name
+        self.description = description
+        self.syntax      = syntax
+        self.autonomous  = autonomous
+        self.example     = example
+        self.module_name = module_name
+        self.handler     = handler   # callable(input_str) -> str
+
+    def call(self, input_str):
+        """Execute this tool with the given input string."""
+        try:
+            result = self.handler(input_str)
+            return str(result) if result is not None else "(no output)"
+        except Exception as e:
+            return f"[{self.name}] Error: {str(e)}"
+
+
+class EthicaModule:
+    """A loaded module with its manifest and tools."""
+    def __init__(self, name, version, description, author,
+                 autonomous, triggers, tools, loaded_at):
+        self.name        = name
+        self.version     = version
+        self.description = description
+        self.author      = author
+        self.autonomous  = autonomous   # module-level autonomous flag
+        self.triggers    = triggers     # keywords that activate autonomous use
+        self.tools       = tools        # list of EthicaTool
+        self.loaded_at   = loaded_at
+
+    def get_tool(self, tool_name):
+        for tool in self.tools:
+            if tool.name.lower() == tool_name.lower():
+                return tool
+        return None
+
+
+class ModuleRegistry:
+    """
+    Ethica's sovereign module store.
+
+    Scans /modules/ at startup.
+    Discovers manifests. Loads implementations.
+    Injects tool syntax into Ethica's system prompt.
+    Routes [TOOL:] calls to correct handlers.
+    """
+
+    def __init__(self):
+        self._modules    = {}   # name → EthicaModule
+        self._tool_index = {}   # tool_name → EthicaTool
+        self._load_errors = []
+        self._loaded_at  = None
+
+        os.makedirs(MODULES_DIR, exist_ok=True)
+        self._scan()
+
+    # ── Discovery ─────────────────────────────────────────────
+
+    def _scan(self):
+        """Scan modules/ directory and load all valid modules."""
+        self._modules    = {}
+        self._tool_index = {}
+        self._load_errors = []
+
+        if not os.path.exists(MODULES_DIR):
+            print("[ModuleRegistry] No modules/ directory found")
+            return
+
+        for entry in sorted(os.listdir(MODULES_DIR)):
+            module_dir = os.path.join(MODULES_DIR, entry)
+            if not os.path.isdir(module_dir):
+                continue
+
+            manifest_path = os.path.join(module_dir, "manifest.json")
+            if not os.path.exists(manifest_path):
+                continue
+
+            self._load_module(entry, module_dir, manifest_path)
+
+        self._loaded_at = datetime.now().isoformat()
+        count = len(self._modules)
+        tools = len(self._tool_index)
+        print(f"[ModuleRegistry] {count} module(s) loaded, {tools} tool(s) available")
+
+    def _load_module(self, folder_name, module_dir, manifest_path):
+        """Load a single module from its folder."""
+        try:
+            # Read manifest
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+
+            name        = manifest.get("name", folder_name)
+            version     = manifest.get("version", "1.0")
+            description = manifest.get("description", "")
+            author      = manifest.get("author", "Unknown")
+            autonomous  = manifest.get("autonomous", False)
+            triggers    = manifest.get("autonomous_triggers", [])
+            tool_defs   = manifest.get("tools", [])
+
+            # Find implementation file
+            impl_file = self._find_impl(module_dir, folder_name)
+
+            # Load implementation module
+            impl = None
+            if impl_file:
+                impl = self._load_impl(impl_file, folder_name)
+
+            # Build tool objects
+            tools = []
+            for t in tool_defs:
+                tool_name   = t.get("name", "")
+                tool_desc   = t.get("description", "")
+                tool_syntax = t.get("syntax", f"[TOOL:{tool_name}: input]")
+                tool_auto   = t.get("autonomous", False)
+                tool_example= t.get("example", "")
+
+                # Find handler in implementation
+                handler = self._find_handler(impl, tool_name)
+
+                tool = EthicaTool(
+                    name        = tool_name,
+                    description = tool_desc,
+                    syntax      = tool_syntax,
+                    autonomous  = tool_auto,
+                    example     = tool_example,
+                    module_name = name,
+                    handler     = handler
+                )
+                tools.append(tool)
+
+                # Register in global tool index
+                self._tool_index[tool_name.lower()] = tool
+
+            module = EthicaModule(
+                name        = name,
+                version     = version,
+                description = description,
+                author      = author,
+                autonomous  = autonomous,
+                triggers    = triggers,
+                tools       = tools,
+                loaded_at   = datetime.now().isoformat()
+            )
+            self._modules[name.lower()] = module
+            print(f"[ModuleRegistry] ✓ {name} v{version} — {len(tools)} tool(s)")
+
+        except Exception as e:
+            err = f"[ModuleRegistry] ✗ {folder_name}: {str(e)}"
+            print(err)
+            self._load_errors.append(err)
+
+    def _find_impl(self, module_dir, folder_name):
+        """Find the Python implementation file."""
+        candidates = [
+            os.path.join(module_dir, f"{folder_name}.py"),
+            os.path.join(module_dir, "main.py"),
+            os.path.join(module_dir, "module.py"),
+        ]
+        # Also check for any .py file
+        for f in os.listdir(module_dir):
+            if f.endswith(".py") and f != "__init__.py":
+                candidates.append(os.path.join(module_dir, f))
+
+        for path in candidates:
+            if os.path.exists(path):
+                return path
+        return None
+
+    def _load_impl(self, impl_file, module_name):
+        """Dynamically load a Python module file."""
+        try:
+            spec   = importlib.util.spec_from_file_location(
+                f"ethica_module_{module_name}", impl_file
+            )
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        except Exception as e:
+            print(f"[ModuleRegistry] Failed to load {impl_file}: {e}")
+            return None
+
+    def _find_handler(self, impl, tool_name):
+        """Find a callable handler for a tool name in the impl module."""
+        if impl is None:
+            return self._make_stub_handler(tool_name)
+
+        # Look for exact function name
+        candidates = [
+            tool_name,
+            tool_name.replace("-", "_"),
+            f"tool_{tool_name}",
+            f"run_{tool_name}",
+            f"handle_{tool_name}",
+        ]
+        for name in candidates:
+            fn = getattr(impl, name, None)
+            if callable(fn):
+                return fn
+
+        # Look for a generic 'run' or 'execute' function
+        for name in ("run", "execute", "main", "process"):
+            fn = getattr(impl, name, None)
+            if callable(fn):
+                return fn
+
+        return self._make_stub_handler(tool_name)
+
+    def _make_stub_handler(self, tool_name):
+        """Return a stub handler for tools with no implementation yet."""
+        def stub(input_str):
+            return f"[{tool_name}] Module loaded but no handler implemented yet."
+        return stub
+
+    # ── Tool Execution ────────────────────────────────────────
+
+    def execute_tool(self, tool_name, input_str):
+        """
+        Execute a tool by name.
+        Called by chat_engine when [TOOL:tool_name: input] is detected.
+        Returns result string.
+        """
+        tool = self._tool_index.get(tool_name.lower())
+        if not tool:
+            return None   # Not a module tool — let built-in registry handle it
+        return tool.call(input_str)
+
+    def has_tool(self, tool_name):
+        return tool_name.lower() in self._tool_index
+
+    # ── Autonomous Trigger Detection ──────────────────────────
+
+    def get_autonomous_tools_for_context(self, message):
+        """
+        Given a user message, return any autonomous tools whose
+        triggers match — Ethica should consider using these.
+        Returns list of (module, tool) pairs.
+        """
+        message_lower = message.lower()
+        matches = []
+
+        for module in self._modules.values():
+            if not module.autonomous:
+                continue
+            # Check module-level triggers
+            triggered = any(
+                t.lower() in message_lower
+                for t in module.triggers
+            )
+            if triggered:
+                for tool in module.tools:
+                    if tool.autonomous:
+                        matches.append((module, tool))
+
+        return matches
+
+    # ── System Prompt Injection ───────────────────────────────
+
+    def get_system_prompt_block(self):
+        """
+        Build the system prompt block for all loaded module tools.
+        Injected into Ethica's context at startup and session reset.
+        """
+        if not self._modules:
+            return ""
+
+        lines = ["\n--- INSTALLED MODULES ---"]
+        lines.append("You have access to the following installed modules and tools.\n")
+
+        for module in self._modules.values():
+            lines.append(f"MODULE: {module.name} v{module.version}")
+            lines.append(f"  {module.description}")
+            if module.autonomous and module.triggers:
+                trigger_str = ", ".join(f'"{t}"' for t in module.triggers[:4])
+                lines.append(f"  Auto-trigger on: {trigger_str}")
+            lines.append("  Tools:")
+            for tool in module.tools:
+                auto_note = " [auto]" if tool.autonomous else " [manual]"
+                lines.append(f"    {tool.syntax}{auto_note}")
+                lines.append(f"      → {tool.description}")
+                if tool.example:
+                    lines.append(f"      Example: {tool.example}")
+            lines.append("")
+
+        lines.append(
+            "Use [auto] tools autonomously when triggers match. "
+            "Use [manual] tools only when explicitly requested. "
+            "Always use exact syntax shown above."
+        )
+        lines.append("--- END MODULES ---")
+
+        return "\n".join(lines)
+
+    # ── Introspection ─────────────────────────────────────────
+
+    def list_modules(self):
+        """Return list of loaded module summaries."""
+        return [
+            {
+                "name":       m.name,
+                "version":    m.version,
+                "description":m.description,
+                "author":     m.author,
+                "autonomous": m.autonomous,
+                "tool_count": len(m.tools),
+                "tools":      [t.name for t in m.tools]
+            }
+            for m in self._modules.values()
+        ]
+
+    def list_tools(self):
+        """Return all available tools across all modules."""
+        return [
+            {
+                "name":       t.name,
+                "module":     t.module_name,
+                "description":t.description,
+                "syntax":     t.syntax,
+                "autonomous": t.autonomous
+            }
+            for t in self._tool_index.values()
+        ]
+
+    def reload(self):
+        """Rescan and reload all modules — hot reload."""
+        print("[ModuleRegistry] Reloading all modules...")
+        self._scan()
+
+    def get_status(self):
+        return {
+            "modules":     len(self._modules),
+            "tools":       len(self._tool_index),
+            "loaded_at":   self._loaded_at,
+            "errors":      self._load_errors,
+            "module_list": self.list_modules()
+        }
+(Ethica_env) trinity@trinityai:~/Ethica$ 
+

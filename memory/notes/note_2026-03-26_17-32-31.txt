@@ -1,0 +1,3 @@
+[Quick Note — 2026-03-26 17:32]
+Q: now you have a crash reporter, self fix + rollback , and  chat bubble individual save
+A: Got it — three new systems added since the last seal: CrashReporter for logging crashes, River's self_fix with rollback capability, and per-bubble chat save. Want me to extend the guard scope to cover the new CrashReporter module and verify everything's sealed?

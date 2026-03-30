@@ -1,0 +1,28 @@
+{
+  "module": "EthicaGuard",
+  "version": "1.0",
+  "description": "Hash integrity verification and self-healing for Ethica core files",
+  "tools": [
+    {
+      "name": "guard_status",
+      "description": "Show vault status — sealed or unsealed, file count, seal date, quick integrity summary",
+      "input": "ignored"
+    },
+    {
+      "name": "guard_seal",
+      "description": "Seal Ethica — hash all core files and modules, copy to vault, write manifest. The lock moment. To reseal: guard seal confirm",
+      "input": "optional: 'confirm' to reseal an already-sealed vault"
+    },
+    {
+      "name": "guard_verify",
+      "description": "Verify integrity of all protected files against vault manifest. Reports clean, modified, and missing files.",
+      "input": "ignored"
+    },
+    {
+      "name": "guard_heal",
+      "description": "Restore tampered or missing files from vault. Usage: guard heal all | guard heal core/chat_engine.py",
+      "input": "'all' to heal everything, or a partial file path to target specific files"
+    }
+  ],
+  "name": "EthicaGuard"
+}

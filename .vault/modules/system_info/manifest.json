@@ -1,0 +1,51 @@
+{
+  "name": "SystemInfo",
+  "version": "1.0",
+  "entry": "system_info.py",
+  "description": "Ecosystem heartbeat. Machine awareness — CPU, RAM, disk, processes, network, Ollama status. Foundation for full VIVARIUM awareness.",
+  "author": "Victory + River",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "system status",
+    "system info",
+    "how is the system",
+    "system health"
+  ],
+  "tools": [
+    {
+      "name": "sysinfo_status",
+      "description": "Full system snapshot — OS, CPU, RAM, disk, uptime, Ollama status",
+      "syntax": "[TOOL:sysinfo_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:sysinfo_status: check]"
+    },
+    {
+      "name": "sysinfo_memory",
+      "description": "Detailed RAM breakdown — used, available, cached, swap",
+      "syntax": "[TOOL:sysinfo_memory: check]",
+      "autonomous": false,
+      "example": "[TOOL:sysinfo_memory: check]"
+    },
+    {
+      "name": "sysinfo_disk",
+      "description": "Disk usage for all mounted partitions",
+      "syntax": "[TOOL:sysinfo_disk: check]",
+      "autonomous": false,
+      "example": "[TOOL:sysinfo_disk: check]"
+    },
+    {
+      "name": "sysinfo_procs",
+      "description": "Top 10 processes by CPU usage",
+      "syntax": "[TOOL:sysinfo_procs: check]",
+      "autonomous": false,
+      "example": "[TOOL:sysinfo_procs: check]"
+    },
+    {
+      "name": "sysinfo_network",
+      "description": "Network interfaces, IP addresses, and IO counters",
+      "syntax": "[TOOL:sysinfo_network: check]",
+      "autonomous": false,
+      "example": "[TOOL:sysinfo_network: check]"
+    }
+  ]
+}

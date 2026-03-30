@@ -1,0 +1,29 @@
+{
+  "name": "LiveTrafficMonitor",
+  "version": "1.0",
+  "description": "Monitors live network traffic, tracks packet sources, and flags anomalies.",
+  "tools": [
+    {
+      "name": "traffic_start",
+      "fn": "traffic_start",
+      "description": "Start live traffic monitoring for N seconds"
+    },
+    {
+      "name": "traffic_status",
+      "fn": "traffic_status",
+      "description": "Show last traffic monitoring results"
+    },
+    {
+      "name": "traffic_anomalies",
+      "fn": "traffic_anomalies",
+      "description": "Show anomalous IPs from last traffic scan"
+    }
+  ],
+  "autonomous_triggers": [
+    "traffic start",
+    "traffic status",
+    "traffic anomalies"
+  ],
+  "syntax": "traffic start [seconds] | traffic status | traffic anomalies",
+  "entry": "traffic_bridge.py"
+}

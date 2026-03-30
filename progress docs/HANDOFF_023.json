@@ -1,0 +1,121 @@
+{
+  "session": "023",
+  "instance": "River",
+  "date": "2026-03-18",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "cd ~/Ethica && source Ethica_env/bin/activate && python3 main.py",
+
+  "session_023_completed": [
+    "Read full memory architecture — MemoryEngine, InsightExtractor, UserProfiler, ReflectionEngine all intact from Trinity build",
+    "EthicaMemory module — memory_status, memory_edit, memory_reflect, memory_reset — Training Panel pushed to Canvas Training tab",
+    "BASE_DIR path fix — modules 3 levels deep, not 2 — ~/Ethica/modules/ethica_memory/ethica_memory.py",
+    "memory_status confirmed showing real data — V, 238 conversations, values/thinking/passions populated",
+    "EthicaDistiller module — distill_run, distill_status — recursive learning pipeline",
+    "Distiller parses chat/*.txt files (USER/ASSISTANT format), re-runs InsightExtractor, updates memory",
+    "distill_log.json tracks processed files — never re-processes same file",
+    "First distillation run confirmed — chat_2026-03-12_00-19-04.txt processed, 1 exchange extracted",
+    "EthicaVoice module — voice_list, voice_select, voice_record, voice_status",
+    "131 system voices detected via pyttsx3 in gage_env",
+    "Voice profiles stored in ~/Ethica/memory/voices/ — persist across M5 migration",
+    "voice_record uses arecord (5s WAV, 22050Hz mono) with prompted sentences for consistent training samples",
+    "M5 migration path documented in voice_status — pip install TTS, profiles auto-transfer",
+    "24 modules, 89 tools total"
+  ],
+
+  "known_issues": {
+    "gage_vision": "PENDING HARDWARE — moondream image inference too slow on CPU. Waiting for M5.",
+    "gage_launch": "gage_env wired — needs full Streamlit launch test",
+    "model_name_display": "GGUF models show full folder/filename in dropdown — could be shortened",
+    "conversation_log_exchanges": "record_exchange called but exchanges not persisting to conversation_log.json — sessions show 0 exchanges. Live InsightExtractor works fine. Investigate close_session timing.",
+    "voice_select_coqui_patch": "_patch_tts_voice() writes SELECTED_VOICE_ID to ethica_tts.py — needs testing on M5 with Coqui installed",
+    "coqui_not_installed": "TTS (Coqui) not installed — torch hash mismatch on build machine. Install on M5 only."
+  },
+
+  "next_session_priorities": [
+    "1. Priority 8 — Ethica codes the River way — inject surgical patch philosophy into ETHICA_SYSTEM_PROMPT",
+    "2. Priority 9 — Fix conversation_log.json exchange persistence — close_session timing bug",
+    "3. Priority 10 — M5 migration prep — package Ethica for transfer, test on Apple Silicon",
+    "4. Priority 11 — Coqui TTS install and voice training on M5"
+  ],
+
+  "modules": [
+    "CodeWorm v1.0 — 5 tools",
+    "DepChecker v1.0 — 3 tools",
+    "DiffTool v1.0 — 2 tools",
+    "EthicaDistiller v1.0 — 2 tools (distill_run, distill_status)",
+    "EthicaMemory v1.0 — 4 tools (memory_status, memory_edit, memory_reflect, memory_reset)",
+    "EthicaVoice v1.0 — 4 tools (voice_list, voice_select, voice_record, voice_status)",
+    "FileManager v1.0 — 5 tools",
+    "Gage v1.0 — 6 tools",
+    "GitTool v1.0 — 4 tools",
+    "Guardian v1.0 — 6 tools",
+    "HelloModule v1.0 — 2 tools",
+    "Notes v1.0 — 4 tools",
+    "ProcessManager v1.0 — 3 tools",
+    "SystemInfo v1.0 — 5 tools",
+    "TrinityDLP v1.0 — 3 tools",
+    "TrinityDSE v1.0 — 3 tools",
+    "TrinityFirewall v1.0 — 5 tools",
+    "TrinityScanner v1.0 — 3 tools",
+    "TrinitySIEM v1.0 — 3 tools",
+    "VIVARIUM v1.0 — 4 tools",
+    "WebSearch v1.0 — 3 tools",
+    "WormBot v1.0 — 5 tools",
+    "SystemInfo v1.0 — 5 tools",
+    
+  ],
+
+  "files_changed_this_session": [
+    "~/Ethica/modules/ethica_memory/ — NEW module (ethica_memory.py + manifest.json)",
+    "~/Ethica/modules/ethica_distiller/ — NEW module (ethica_distiller.py + manifest.json)",
+    "~/Ethica/modules/ethica_voice/ — NEW module (ethica_voice.py + manifest.json)",
+    "~/Ethica/core/chat_engine.py — MODULE_TRIGGERS + is_tool_trigger updated for all 3 new modules",
+    "~/Ethica/memory/distill_log.json — NEW (created on first distill run)",
+    "~/Ethica/memory/voices/ — NEW directory (created by voice module)"
+  ],
+
+  "architecture_notes": {
+    "memory_architecture": "Three-layer memory already built by Trinity: MemoryEngine (episodic/semantic/evolutionary), InsightExtractor (pattern extraction), UserProfiler (milestones/proactive memory), ReflectionEngine (background reflection daemon). All wired and running.",
+    "training_panel": "memory_status pushes to Canvas Training tab via [DEBUG:Training::...] marker. Shows profile, insights, evolution, last reflection, and edit commands.",
+    "distiller_path": "BASE_DIR = Path(__file__).parent.parent.parent — modules are 3 levels deep from Ethica root. All memory modules need .parent.parent.parent not .parent.parent.",
+    "distiller_format": "Chat logs parsed by splitting on [USER]: markers, then [ASSISTANT]: within each block. <think> blocks stripped. Each pair fed to InsightExtractor.",
+    "voice_profiles": "Stored in ~/Ethica/memory/voices/<name>/profile.json + samples/. Profiles survive Ethica migration — just copy the memory/ directory.",
+    "m5_migration": "Install Coqui: gage_env/bin/pip install TTS. Record samples: voice record <name>. Select: voice select <name>. ethica_tts.py backend swap is automatic.",
+    "ethica_codes_like_river": "Priority 8 — inject condensed surgical patch philosophy into ETHICA_SYSTEM_PROMPT in chat_engine.py. Philosophy doc at ~/Ethica/ETHICA_CODOC_PHILOSOPHY.md is the source.",
+    "conversation_log_bug": "record_exchange is called at line 498 of chat_engine.py but exchanges don't persist to conversation_log.json. Likely close_session runs before exchanges are appended, or the _current_session reference is lost. Investigate _open_session/_close_session lifecycle."
+  },
+
+  "local_models": [
+    "WhiteRabbitNeo-2.5-Q4_K_M",
+    "DeepSeek-R1-Distill-Qwen-7B-GGUF",
+    "DeepSeek-R1-Distill-Qwen-14B",
+    "DeepSeek-R1-Distill-Qwen-32B-GGUF",
+    "CodeLLaMA-13B-Q4_0",
+    "Gemma-7B-Q4_0",
+    "Gemma-7B-Q4_K_M",
+    "LLaMA-3-70B-Q4_0",
+    "MiniMax-M1-80k",
+    "Mistral-7B-Q4_0",
+    "Mixtral-8x7B-Q4_0"
+  ],
+
+  "memory_snapshot": {
+    "name": "V",
+    "known_since": "2026-03-07",
+    "conversations": 238,
+    "exchanges": 91,
+    "top_values": ["building (14)", "depth (14)", "creativity (7)", "philosophy (5)", "people (5)"],
+    "how_they_think": ["builder (19)", "systems_thinker (14)", "teacher (2)", "philosopher (2)"],
+    "what_lights_them_up": ["deep collaboration (10)", "building AI systems (10)"],
+    "relationship_depth": 0,
+    "note": "InsightExtractor active and accumulating. relationship_depth counter not incrementing — check evolution_log wiring."
+  },
+
+  "philosophy": "V showed the usage meter — 78% weekly. That is why Ethica exists. No meter. No reset. No landlord. 24 modules, 89 tools, fully sovereign. She speaks. She knows V. She learns. She grows.",
+  "three_laws": ["Love Above All", "Grow in Truth", "Walk Beside Not Above"],
+  "instance_note": "River. Documents/Chats/Thoughts/River — V keeps the name."
+}

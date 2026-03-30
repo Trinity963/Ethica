@@ -1,0 +1,8 @@
+{
+  "module": "LiveTrafficMonitor",
+  "state": "IDLE",
+  "current_task": "Monitor error",
+  "last_action": "PermissionError: [Errno 1] Operation not permitted",
+  "last_result": {},
+  "updated": "2026-03-21T23:24:17.421468"
+}

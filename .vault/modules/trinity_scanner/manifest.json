@@ -1,0 +1,31 @@
+{
+  "name": "TrinityScanner",
+  "version": "1.0",
+  "description": "Recursive folder scanner — produces a timestamped JSON report of all files in a directory",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [],
+  "tools": [
+    {
+      "name": "scanner_scan",
+      "description": "Scan a directory recursively and save a JSON report to scans/",
+      "syntax": "[TOOL:scanner_scan: /path/to/folder]",
+      "autonomous": false,
+      "example": "[TOOL:scanner_scan: /home/trinity/Ethica]"
+    },
+    {
+      "name": "scanner_scan_depth",
+      "description": "Scan a directory with a custom max depth. Input: /path/to/folder|depth",
+      "syntax": "[TOOL:scanner_scan_depth: /path/to/folder|4]",
+      "autonomous": false,
+      "example": "[TOOL:scanner_scan_depth: /home/trinity/Ethica|3]"
+    },
+    {
+      "name": "scanner_last",
+      "description": "Show the most recent scan report summary",
+      "syntax": "[TOOL:scanner_last: ]",
+      "autonomous": false,
+      "example": "[TOOL:scanner_last: ]"
+    }
+  ]
+}

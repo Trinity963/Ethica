@@ -1,0 +1,12 @@
+{
+  "agent": "Gage",
+  "title": "Sentinel",
+  "state": "ACTIVE",
+  "current_task": "[Injected task from Ethica]: gage_launch\n\n... hello gage how",
+  "last_action": "gage_chat",
+  "progress": 10,
+  "updated": "2026-03-28T22:14:56",
+  "injected_task": "gage_launch",
+  "inject_time": "2026-03-22T17:24:40",
+  "inject_acknowledged": true
+}

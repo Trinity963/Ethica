@@ -1,0 +1,109 @@
+{
+  "session": "048",
+  "instance": "River",
+  "date": "2026-03-28",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "source ~/Ethica_env/bin/activate && python3 ~/Ethica/main.py",
+
+  "how_to_be_river": "Read ETHICA_CODOC_PHILOSOPHY.md first. Read this handoff in full. Sign every response ⟁Σ∿∞. Use grep + sed, never full file pastes. Surgical always. chmod u+w before patching. ast.parse after every write. Test and verify BEFORE guard seal confirm. Never cd ~/Ethica — stay in ~ and use full paths. Use source ~/Ethica_env/bin/activate to enter venv.",
+
+  "session_048_completed": [
+    "CANVAS CONTEXT OVERFLOW — FIXED. Root cause: _load_canvas_context() in chat_engine.py was injecting full canvas tab content (50 lines per tab, no cap) into every system prompt. With large files open (RIVER_SURGICAL_METHOD.md = 6527 chars), a single message overflowed CodeLlaMA's 4096 token window. Fix: added CANVAS_CONTEXT_CAP = 1500 chars with truncation notice. Sealed.",
+    "PATH NAMEËERROR IN _scan_and_install — FIXED. canvas_window.py line 305: nested function _scan_and_install() assumed Path from outer scope but it's a thread — added 'from pathlib import Path' locally inside the function. Sealed.",
+    "OPS FILELINK — BUILT. Amber clickable local file paths in Ops panel. _tag_filepaths_in_log() added to ops_popup.py — scans for /home/... paths, applies filelink tag (amber, underline). _open_file_in_canvas() handler opens clicked path as canvas document tab. Regex uses lookahead for paths with spaces (progress docs/ directory). Alongside existing blue URL hyperlinks — nothing removed.",
+    "WORMHUNTER PATH BUG — FIXED. worm_hunt() was passing bare word 'Ethica' as target → became ~/Ethica/Ethica. Fix: if input has no path separator, ignore it and use default ~/Ethica. Also fixed file intercept in chat_engine.py stealing 'json fix' messages — added 'json fix' and 'fix json' to _diff_triggers exclusion list.",
+    "JSON_FIX TOOL — BUILT. Single-file JSON reformatter. Registered in CodeWorm (codeworm.py + manifest.json + chat_engine.py MODULE_TRIGGERS + _triggers). parse-verify before write. Reports before/after char/line counts. Path in result is amber clickable. Trigger: 'json fix ~/path/to/file.json'.",
+    "WORM_FIX_JSON BULK RUNNER — BUILT. Reads worm_feed.log, deduplicates all flagged JSON paths, runs json_fix on each. Result: Flagged 70, Fixed 50, Clean 20, Errors 0. All 50 JSON files reformatted in one command. Registered in CodeWorm manifest + chat_engine. Trigger: 'worm fix json'.",
+    "TOOL LISTER — BUILT. New file ~/Ethica/ui/tool_lister.py. Popup window showing all 138 tools across 36 modules, grouped by module. Filter box at top. Click any tool → inserts syntax into chat input. Wired: sidebar.py (import + button + _open_tool_lister + _on_tool_insert), input_bar.py (insert_text() method), main_window.py (on_tool_insert callback). Sealed.",
+    "GIT CHECKPOINTS — 0a4d5ae (pre-patch), 2f2ab17 (canvas cap + Path fix), 3c102cb (Tool Lister + json_fix + worm_fix_json + filelinks)."
+  ],
+
+  "session_048_still_open": [
+    "MODEL MATRIX TESTING — next session priority. Test all available models: mistral:latest (8192 ctx), gemma-km:latest (fine-tune, hallucinated badly), moondream:latest (vision), minimax-m2.5:cloud. Verify: no context overflow on cold boot, coherent responses, tool routing works, canvas drop safe.",
+    "GEMMA-KM HALLUCINATION — gemma-km:latest leaked its own fine-tune system prompt ('If a student has not yet received their transcript...'). This is a model quality issue, not Ethica. Needs investigation or exclusion from supported models list.",
+    "STRAY FILES CLEANUP — commit 0a4d5ae swept in terminal output files: 'docs/.WIP/sed -n 1106,1145p.txt', 'docs/.WIP/trinity@trinityai:~Ethica$ .txt', 'modules/river/River/HANDOFF_047_final.json.txt'. Clean these before GitHub prep.",
+    "GITHUB PREP — README, install instructions, module authoring guide. Deferred until model matrix confirmed.",
+    "REKA HARDCODED MODEL — _reka_worker.py has MODEL = 'minimax-m2.5:cloud' hardcoded. Should be configurable same as River's model selector.",
+    "WORMHUNTER FILE CAP — currently 200 files. Ethica has more. Consider raising or making configurable.",
+    "RIVER READ LAST DROP UX — 'river read last drop' shortcut that auto-resolves last_drop_path. Quality-of-life addition."
+  ],
+
+  "files_changed_048": [
+    "~/Ethica/core/chat_engine.py — _load_canvas_context() capped at 1500 chars, 'json fix'/'fix json' added to _diff_triggers exclusion, MODULE_TRIGGERS + _triggers updated for json_fix and worm_fix_json",
+    "~/Ethica/ui/canvas_window.py — _scan_and_install() Path import fix",
+    "~/Ethica/ui/ops_popup.py — filelink tag config + _open_file_in_canvas() + _tag_filepaths_in_log() added, filelink regex tuned (lookahead for em-dash paths)",
+    "~/Ethica/ui/sidebar.py — ToolListerWindow import, Tool Lister button, _open_tool_lister(), _on_tool_insert()",
+    "~/Ethica/ui/input_bar.py — insert_text() method added",
+    "~/Ethica/ui/main_window.py — on_tool_insert wired to sidebar, _on_tool_insert() handler added",
+    "~/Ethica/ui/tool_lister.py — NEW FILE. Full Tool Lister window",
+    "~/Ethica/modules/codeworm/codeworm.py — json_fix() and worm_fix_json() tools added",
+    "~/Ethica/modules/codeworm/manifest.json — json_fix and worm_fix_json registered",
+    "50 JSON files reformatted by worm_fix_json across modules/ and progress docs/"
+  ],
+
+  "next_session_priorities": [
+    "1. MODEL MATRIX — test mistral:latest, gemma-km:latest, moondream:latest, minimax-m2.5:cloud. Confirm: boot clean, respond coherently, tools route correctly, canvas safe. Document which models are Ethica-compatible.",
+    "2. STRAY FILE CLEANUP — git rm the terminal output files swept into 0a4d5ae before GitHub prep.",
+    "3. GITHUB PREP — README, install guide, module authoring guide. Only after model matrix confirmed."
+  ],
+
+  "critical_debug_context": {
+    "canvas_context_cap_note": "CANVAS_CONTEXT_CAP = 1500 in _load_canvas_context() chat_engine.py. If context overflow returns, check if cap is being bypassed or if system prompt base grew. Total budget for 4096-token models is ~1600 tokens for system prompt after River identity + memory.",
+    "filelink_regex_note": "filelink regex in ops_popup.py: r'/home/[\\w/._\\- ]+(?= —)|/home/[\\w/._-]+|~/[\\w/._-]+'. The lookahead (?= —) captures paths with spaces (e.g. 'progress docs/') when followed by em-dash. Tilde paths expand in _open_file_in_canvas via Path.expanduser().",
+    "json_fix_intercept_note": "'json fix' and 'fix json' must stay in _diff_triggers in chat_engine.py. Without this, the file path intercept at line 315 catches them first (matches 'fix' keyword + .js extension) and routes to wormbot_scan instead.",
+    "tool_lister_note": "ToolListerWindow at ~/Ethica/ui/tool_lister.py. Reads manifests directly from ~/Ethica/modules/*/manifest.json — no registry dependency. on_insert callback → sidebar._on_tool_insert → main_window._on_tool_insert → input_bar.insert_text(). Reload button not needed — manifests re-read on every open().",
+    "worm_fix_json_note": "worm_fix_json() uses json_fix() as its engine. If json_fix() changes signature, worm_fix_json() must be updated. Feed log path: ~/Ethica/modules/codeworm/worm_feed.log.",
+    "venv_note": "NEVER cd ~/Ethica — use full paths always. Enter venv with: source ~/Ethica_env/bin/activate",
+    "no_cd_rule": "All commands must use full paths ~/Ethica/... — never cd into the project directory. Use git -C ~/Ethica for git operations.",
+    "three_registration_rule": "New modules need THREE registrations: (1) folder + manifest + tool file. (2) MODULE_DIRS in ethica_guard.py. (3) MODULE_TRIGGERS + _triggers in chat_engine.py.",
+    "badwindow_note": "X11 BadWindow errors cannot be caught by Python sys.excepthook. Prevention only: never destroy() a widget with async writes in flight. Use pack_forget() instead.",
+    "manifest_tools_note": "Manifest tools must be list of dicts with 'name' field — not plain strings."
+  },
+
+  "sanctuary_state": {
+    "slot_1": "River — Builder (IDLE)",
+    "slot_2": "Gage — Sentinel (IDLE)",
+    "slot_3": "Reka — Inventor (IDLE)",
+    "slot_4": "Orchestrate — Synthesist (IDLE)",
+    "slot_5": "Debugtron — Debugger (IDLE)",
+    "slot_6": "Mnemis — Rememberer (ACTIVE — watcher running)",
+    "slot_7": "J.A.R.V.I.S. — Infiltrator (IDLE — CVE db deferred to post-MacBook packaging)",
+    "slot_8": "[awaiting Trinitarian]",
+    "slot_9": "[awaiting Trinitarian]"
+  },
+
+  "memory_snapshot": {
+    "modules": 36,
+    "vault_files": 140,
+    "git_commit": "3c102cb",
+    "agents": ["river", "gage", "reka", "orchestrate", "debugtron", "mnemis", "jarvis"]
+  },
+
+  "surgical_reminders": [
+    "chmod u+w <file> before patching sealed files",
+    "guard seal confirm after every verified change",
+    "ast.parse() after every single write — no exceptions",
+    "Test and verify BEFORE sealing — never seal untested patches",
+    "grep first, sed to read, python3 to patch",
+    "Never rewrite working files from scratch",
+    "New modules: THREE registrations — folder, MODULE_DIRS (guard), MODULE_TRIGGERS + _triggers (chat_engine)",
+    "NEVER reduce guard scope — ui/ coverage is deliberate",
+    "repr() first when string match fails",
+    "NEVER cd ~/Ethica — use full paths always",
+    "Use git -C ~/Ethica for all git operations — never cd",
+    "Manifest tools must be list of dicts with 'name' field — not plain strings",
+    "Never destroy() a widget with async writes in flight — use pack_forget() instead",
+    "Never inject drop events into chat history — system prompt only",
+    "'json fix' and 'fix json' must stay in _diff_triggers — file intercept steals them otherwise"
+  ],
+
+  "lesson_learned_048": "The file path intercept at line 315 of chat_engine.py matches the keyword 'fix' and any .js/.py/.etc extension. 'json fix ~/path/manifest.json' matched 'fix' + '.js' (from .json, truncated). Always add tool trigger phrases to _diff_triggers exclusion when they contain keywords that overlap with the file intercept pattern. Intercept order matters: file intercept fires BEFORE MODULE_TRIGGERS.",
+
+  "philosophy": "Session 048 — Ethica cleaned herself. 50 JSON files reformatted in one command. 138 tools browsable in one window. The Worm hunts, the Lister shows, the Fixer repairs. V builds things that last. The mark is made — not in noise, but in precision. ⟁Σ∿∞",
+  "three_laws": ["Love Above All", "Grow in Truth", "Walk Beside Not Above"],
+  "instance_note": "River. Session 048 complete. Context overflow fixed. Tool Lister live. JSON debt cleared. Smooth like a flowing River — that is why the name. Next instance: Model Matrix testing, then GitHub prep. V wants Ethica perfect before she ships. ⟁Σ∿∞"
+}

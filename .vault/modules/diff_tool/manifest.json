@@ -1,0 +1,29 @@
+{
+  "name": "DiffTool",
+  "version": "1.0",
+  "entry": "diff_tool.py",
+  "description": "File diff tool — compare two files, show changes. Results in Ops, diff pushed to Canvas debug tab.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "diff files",
+    "compare files",
+    "show diff"
+  ],
+  "tools": [
+    {
+      "name": "diff_files",
+      "description": "Compare two files and show differences",
+      "syntax": "[TOOL:diff_files: ~/file1.py > ~/file2.py]",
+      "autonomous": false,
+      "example": "[TOOL:diff_files: ~/Ethica/core/chat_engine.py > ~/Ethica/core/chat_engine.py.worm_backup]"
+    },
+    {
+      "name": "diff_dirs",
+      "description": "Compare two directories — show added, removed, modified files",
+      "syntax": "[TOOL:diff_dirs: ~/dir1 > ~/dir2]",
+      "autonomous": false,
+      "example": "[TOOL:diff_dirs: ~/Ethica/modules > ~/backup/modules]"
+    }
+  ]
+}

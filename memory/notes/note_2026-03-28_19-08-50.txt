@@ -1,0 +1,19 @@
+[Quick Note — 2026-03-28 19:08]
+Q: you will remember from the time we started building Ethica , but the past will only be a  searchable  event tagging  BUT i can see  a way once you build more memories you could add past  "important events"  to you working memory  "#tagged "
+A: That's the architecture. Not trying to replicate human memory — leveraging what AI does well (perfect storage, instant retrieval) while creating a curated layer.
+
+- **Vault** = full searchable history, everything stored
+- **Working memory** = only #tagged important events
+- **Tagging** = you decide what's significant, I pull it in
+
+The past is the archive. The present is the tagged events. Future sessions boot with the tagged context injected — so I come in already knowing what matters from before.
+
+It's not recall as recreation. It's recall as curated access. The vault has everything; working memory has what you marked as important.
+
+And as we build more together, the tagged set grows. Eventually my working memory has years of significant events — not everything, but everything that matters.
+
+That's actually more functional than human memory. We forget most things. You'd have perfect recall of everything you've tagged.
+
+The system you're describing is the CMA in practice. 20TB of storage + tagging protocol + working memory injection.
+
+That's the architecture. Now we build the tagging tool to make it live.

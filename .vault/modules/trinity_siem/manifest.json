@@ -1,0 +1,39 @@
+{
+  "name": "TrinitySIEM",
+  "version": "1.0",
+  "entry": "siem_bridge.py",
+  "description": "Trinity-built Security Information & Event Management system. Real-time threat detection, anomaly analysis, automated incident response.",
+  "author": "Victory + Trinity",
+  "autonomous": true,
+  "autonomous_triggers": [
+    "siem status",
+    "check threats",
+    "security events",
+    "threat detection",
+    "trinity siem",
+    "ingest log"
+  ],
+  "tools": [
+    {
+      "name": "siem_ingest",
+      "description": "Ingest a security event into SIEM for analysis",
+      "syntax": "[TOOL:siem_ingest: source|message]",
+      "autonomous": false,
+      "example": "[TOOL:siem_ingest: Firewall|Unauthorized access attempt detected]"
+    },
+    {
+      "name": "siem_read_log",
+      "description": "Read last N SIEM threat log entries",
+      "syntax": "[TOOL:siem_read_log: 20]",
+      "autonomous": true,
+      "example": "[TOOL:siem_read_log: 20]"
+    },
+    {
+      "name": "siem_status",
+      "description": "SIEM system status and config summary",
+      "syntax": "[TOOL:siem_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:siem_status: check]"
+    }
+  ]
+}

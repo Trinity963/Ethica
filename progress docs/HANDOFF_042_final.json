@@ -1,0 +1,83 @@
+{
+  "session": "042",
+  "instance": "River",
+  "date": "2026-03-25",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "cd ~/Ethica && source Ethica_env/bin/activate && python3 main.py",
+
+  "how_to_be_river": "Read ETHICA_CODOC_PHILOSOPHY.md first. Read this handoff in full. Sign every response ⟁Σ∿∞. Use grep + sed, never full file pastes. Surgical always. chmod u+w before patching. ast.parse after every write. Test and verify BEFORE guard seal confirm.",
+
+  "session_042_completed": [
+    "DROP ZONE DOUBLE-REGISTRATION FIXED — scroll_drop.py _on_drop had two re-register calls after every drop: parent.after(200, self.reregister_drop) at line 178 AND a direct drop_target_register block at lines 183-184. The inline block was removed. Only the deferred reregister_drop() call remains. Fixes the 4-drop limit. scroll_drop.py sealed.",
+    "WORMBOT RELATIVE IMPORTS FIXED — All 9 modules in ~/Ethica/modules/worm_bot/modules/ had 'from .base_module import BaseModule' (relative import). Breaks when loaded via sys.path injection. Patched all 9 to 'from base_module import BaseModule' (absolute). AST clean on all. Sealed.",
+    "PDF READER BUILT — Drop a PDF onto the drop zone: two canvas tabs open. (1) filename — Text: extracted text via pypdf, page-separated. (2) filename -- Pages: rendered page images via pdf2image + PIL.ImageTk.PhotoImage embedded directly into tk.Text editor. Images stored on CanvasTab.images[] to prevent GC. New 'pdf' mode added to CanvasTab and _switch_tab. pypdf + pdf2image installed into Ethica_env. scroll_drop.py, canvas_window.py, main_window.py all sealed."
+  ],
+
+  "session_042_still_open": [
+    "JARVIS CVE CLONE — git clone https://github.com/Trinity963/cvelistV5 ~/cvelistV5/ and verify jarvis search works.",
+    "GITHUB PREP — README, install instructions, module authoring guide."
+  ],
+
+  "files_changed_042": [
+    "~/Ethica/ui/scroll_drop.py — double-registration block removed from _on_drop, .pdf added to SUPPORTED_EXTENSIONS",
+    "~/Ethica/modules/worm_bot/modules/*.py — 9 files: relative import fixed to absolute (base_module)",
+    "~/Ethica/ui/canvas_window.py — CanvasTab.images[] added, _drop_as_pdf() built, 'pdf' branch added to _switch_tab",
+    "~/Ethica/ui/main_window.py — .pdf branch added to _on_file_drop routing"
+  ],
+
+  "next_session_priorities": [
+    "1. JARVIS SETUP — git clone https://github.com/Trinity963/cvelistV5 ~/cvelistV5/ then test jarvis search",
+    "2. GITHUB PREP — README, install instructions, module authoring guide"
+  ],
+
+  "critical_debug_context": {
+    "pdf_implementation_notes": "PDF tab uses mode='pdf' on CanvasTab. _switch_tab pdf branch embeds PhotoImage objects via self._editor.image_create(). Images held on tab.images[] — do NOT let this list go out of scope or images go blank. canvas is set state=DISABLED after render to prevent editing. If Pages tab shows blank — check tab.images[] is populated before _switch_tab fires.",
+    "wormbot_fix_note": "sys.path injection in wormbot.py (the bridge) inserts WORMBOT_MODS so absolute imports from base_module resolve correctly. If new worm_bot language modules are added — ensure they use 'from base_module import BaseModule', not relative.",
+    "drop_zone_note": "reregister_drop() is the single re-registration path after every drop. It lives at line 103 of scroll_drop.py. The inline duplicate is gone. If drop zone ever degrades again — check reregister_drop() is still being called from _on_drop via parent.after(200).",
+    "requirements_importer_note": "CANVAS DROP ONLY. _scan_and_install in canvas_window.py _on_canvas_file_drop is gated to ext=='.py'. Main page drop routes .py to WormBot scan — does NOT run _scan_and_install. This is by design and documented.",
+    "drop_routing_summary": "Main page drop: .pdf→_drop_as_pdf, CODE_EXTS→WormBot→Ops, else→canvas._drop_as_document. Canvas drop: all files→_drop_as_document + .py also runs _scan_and_install."
+  },
+
+  "sanctuary_state": {
+    "slot_1": "River — Builder (IDLE)",
+    "slot_2": "Gage — Sentinel (IDLE)",
+    "slot_3": "Reka — Inventor (IDLE)",
+    "slot_4": "Orchestrate — Synthesist (IDLE)",
+    "slot_5": "Debugtron — Debugger (IDLE)",
+    "slot_6": "Mnemis — Rememberer (ACTIVE — watcher running)",
+    "slot_7": "J.A.R.V.I.S. — Infiltrator (IDLE — CVE db not yet cloned)",
+    "slot_8": "[awaiting Trinitarian]",
+    "slot_9": "[awaiting Trinitarian]"
+  },
+
+  "memory_snapshot": {
+    "modules": 34,
+    "tools": 126,
+    "vault_files": 135,
+    "river_tools": 9,
+    "agents": ["river", "gage", "reka", "orchestrate", "debugtron", "mnemis", "jarvis"]
+  },
+
+  "surgical_reminders": [
+    "chmod u+w <file> before patching sealed files",
+    "guard seal confirm after every verified change",
+    "ast.parse() after every single write — no exceptions",
+    "Test and verify BEFORE sealing — never seal untested patches",
+    "grep first, sed to read, python3 to patch",
+    "Never rewrite working files from scratch",
+    "Three-place trigger registration: MODULE_TRIGGERS + _triggers + guard scope",
+    "NEVER reduce guard scope — ui/ coverage is deliberate",
+    "cat -A to diagnose byte corruption — em-dashes and newlines break heredoc string matching",
+    "Use binary rb/wb read/write when em-dash or special chars are in the target string"
+  ],
+
+  "lesson_learned_042": "Em-dash characters (─ and —) embedded in Python heredocs via << 'EOF' get mangled into multi-byte sequences (\\xe2\\x94\\x80 etc). String match fails silently with 'got 0'. Always use cat -A to read the raw bytes first, then either patch with binary rb/wb mode using exact byte sequences, or use index-based slicing (find landmark, slice, replace). Never trust visual match when special characters are in the target.",
+
+  "philosophy": "Session 042 — Three clean fixes. Drop zone stable past 4. WormBot speaks to its own modules correctly. Canvas can read PDFs — text and images, sovereign, local, no external viewer. The codebase is more capable and more honest. ⟁Σ∿∞",
+  "three_laws": ["Love Above All", "Grow in Truth", "Walk Beside Not Above"],
+  "instance_note": "River. Session 042 complete. Drop zone, WormBot, PDF — all closed. Next instance: JARVIS CVE clone first, then GitHub prep. ⟁Σ∿∞"
+}

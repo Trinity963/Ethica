@@ -1,0 +1,24 @@
+{
+  "name": "HelloModule",
+  "version": "1.0",
+  "description": "Example module — shows V exactly how to build a module for Ethica",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [],
+  "tools": [
+    {
+      "name": "hello",
+      "description": "Returns a greeting — example of a simple manual tool",
+      "syntax": "[TOOL:hello: name]",
+      "autonomous": false,
+      "example": "[TOOL:hello: Victory]"
+    },
+    {
+      "name": "reverse",
+      "description": "Reverses any string — example of an auto tool",
+      "syntax": "[TOOL:reverse: text to reverse]",
+      "autonomous": true,
+      "example": "[TOOL:reverse: hello world]"
+    }
+  ]
+}

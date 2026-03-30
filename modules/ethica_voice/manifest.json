@@ -1,0 +1,44 @@
+{
+  "name": "EthicaVoice",
+  "version": "1.0",
+  "entry": "ethica_voice.py",
+  "description": "Voice Training Module — record samples, manage voice profiles, select active voice. Uses pyttsx3 now, Coqui TTS on M5. Profiles persist across migration.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "voice list",
+    "voice select",
+    "voice record",
+    "voice status"
+  ],
+  "tools": [
+    {
+      "name": "voice_list",
+      "description": "List available voices — system voices and custom profiles.",
+      "syntax": "[TOOL:voice_list: all]",
+      "autonomous": false,
+      "example": "[TOOL:voice_list: all]"
+    },
+    {
+      "name": "voice_select",
+      "description": "Set active voice by profile name or system voice name.",
+      "syntax": "[TOOL:voice_select: name]",
+      "autonomous": false,
+      "example": "[TOOL:voice_select: victoria]"
+    },
+    {
+      "name": "voice_record",
+      "description": "Record a 5-second voice sample for a custom profile. Microphone required.",
+      "syntax": "[TOOL:voice_record: profile name]",
+      "autonomous": false,
+      "example": "[TOOL:voice_record: ethica]"
+    },
+    {
+      "name": "voice_status",
+      "description": "Show current voice configuration and M5 migration note.",
+      "syntax": "[TOOL:voice_status: check]",
+      "autonomous": false,
+      "example": "[TOOL:voice_status: check]"
+    }
+  ]
+}

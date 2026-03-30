@@ -1,0 +1,24 @@
+[Quick Note — 2026-03-27 02:58]
+Q: python3 << 'EOF'
+with open('/home/trinity/Ethica/ui/canvas_window.py', 'r') as f:
+    content = f.read()
+
+old = '        notification = f\'V dropped image "{filename}" into the canvas.\'\n        if self.notify_fn:\n            self.parent.after(200, lambda n=notification: self.notify_fn(n))\n        _notify_canvas_drop(filename)'
+new = '        notification = f\'V dropped image "{filename}" into the canvas.\'\n        if self.notify_fn:\n            self.parent.after(200, lambda n=notification: self.notify_fn(n))\n        _notify_canvas_drop(filename)\n        self.parent.after(100, self._write_canvas_context)'
+
+if old in content:
+    content = content.replace(old, new)
+    open('/home/trinity/Ethica/ui/canvas_window.py', 'w').write(content)
+    print('✓ patched')
+else:
+    print('✗ not found')
+
+import ast
+try:
+    ast.parse(content)
+    print('✓ clean')
+except SyntaxError as e:
+    print(f'✗ line {e.lineno}: {e.msg}')
+EOF
+✓ patched
+✓ clean

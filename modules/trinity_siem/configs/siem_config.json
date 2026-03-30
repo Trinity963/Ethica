@@ -1,0 +1,7 @@
+{
+  "siem_name": "TrinityAI SIEM",
+  "version": "1.0",
+  "log_retention_days": 30,
+  "alert_threshold": 3,
+  "monitoring_interval": 60
+}

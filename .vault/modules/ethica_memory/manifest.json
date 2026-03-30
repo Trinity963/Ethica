@@ -1,0 +1,44 @@
+{
+  "name": "EthicaMemory",
+  "version": "1.0",
+  "entry": "ethica_memory.py",
+  "description": "Training Panel — see and shape what Ethica knows. View live memory state, edit insights, trigger reflection, reset sections. The architect's window into Ethica's living memory.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "memory status",
+    "memory edit",
+    "memory reflect",
+    "memory reset"
+  ],
+  "tools": [
+    {
+      "name": "memory_status",
+      "description": "Show full current memory state — profile, insights, evolution, last reflection. Pushed to Canvas Training tab.",
+      "syntax": "[TOOL:memory_status: check]",
+      "autonomous": false,
+      "example": "[TOOL:memory_status: check]"
+    },
+    {
+      "name": "memory_edit",
+      "description": "Edit a memory field. section.field=value or significant_moments.add=text",
+      "syntax": "[TOOL:memory_edit: section.field=value]",
+      "autonomous": false,
+      "example": "[TOOL:memory_edit: values.building=20]"
+    },
+    {
+      "name": "memory_reflect",
+      "description": "Trigger Ethica's reflection on demand — writes to reflection_log.json.",
+      "syntax": "[TOOL:memory_reflect: now]",
+      "autonomous": false,
+      "example": "[TOOL:memory_reflect: now]"
+    },
+    {
+      "name": "memory_reset",
+      "description": "Reset a specific memory section. Surgical — never wipes everything.",
+      "syntax": "[TOOL:memory_reset: section]",
+      "autonomous": false,
+      "example": "[TOOL:memory_reset: tone_patterns]"
+    }
+  ]
+}

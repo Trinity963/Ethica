@@ -1,0 +1,24 @@
+{
+  "name": "ModuleForge",
+  "version": "1.0",
+  "description": "Drop-and-build module creator. Fill a form — Ethica builds the module, registers the triggers, hot-loads. No terminal required.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [],
+  "tools": [
+    {
+      "name": "forge_open",
+      "description": "Open the ModuleForge builder UI",
+      "syntax": "[TOOL:forge_open: ]",
+      "autonomous": false,
+      "example": "forge module"
+    },
+    {
+      "name": "forge_remove",
+      "description": "Open the ModuleForge removal UI — uninstall any forge-built module",
+      "syntax": "[TOOL:forge_remove: ]",
+      "autonomous": false,
+      "example": "remove module"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+[Quick Note — 2026-03-26 21:01]
+Q: i dont know if its the LLM that freezes in mid sentence   , some times you come back but some times i wait to see if it crashes  ,,, but not all leave breadcrumbs
+A: That's a different layer entirely. If it's the LLM freezing mid-generation — no trace, no exception, just silence — that's not something River's surgical fixes can catch. It's happening before it reaches my output.
+
+A few things that might help on that layer:
+
+- **Request/response timestamps** — log when we send to the LLM vs when we get the first token back. If there's a gap, that's data.
+- **Timeout on generation** — if it stalls, cancel and log what was being generated
+- **Streaming check** — if we're using streaming, track whether tokens keep coming. Silence = freeze.
+
+But honestly? If it's the model itself — network hiccup, inference stall, something on the provider side — we might not have visibility into it at all.
+
+The build history repo will help though. Over time you'll see: "every time I asked about X, it froze" — pattern emerges from the record, not the code.

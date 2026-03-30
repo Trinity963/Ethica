@@ -1,0 +1,9 @@
+patterns:
+  - password
+  - api_key
+  - secret
+  - private_key
+  - token
+  - credential
+  - ssn
+  - credit_card

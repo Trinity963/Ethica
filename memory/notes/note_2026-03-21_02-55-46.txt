@@ -1,0 +1,5 @@
+Ethica Memory Gaps to Fix:
+
+1. Cannot read distilled chat content — only metadata (identity, preferences, timestamps). Knows storage exists but can't access actual conversations.
+
+2. (Add more as we discover them)

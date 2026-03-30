@@ -1,0 +1,44 @@
+{
+  "name": "VIVARIUM",
+  "version": "1.0",
+  "entry": "vivarium.py",
+  "description": "Sovereign process heartbeat dashboard. Discovers what you are running — nothing hardcoded. Pushes live snapshots to Canvas VIVARIUM tab. Auto-refresh toggle included.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "vivarium status",
+    "vivarium start",
+    "vivarium stop",
+    "vivarium watch"
+  ],
+  "tools": [
+    {
+      "name": "vivarium_status",
+      "description": "Take a heartbeat snapshot — system stats + discovered processes. Pushes to Canvas VIVARIUM tab.",
+      "syntax": "[TOOL:vivarium_status: check]",
+      "autonomous": false,
+      "example": "[TOOL:vivarium_status: check]"
+    },
+    {
+      "name": "vivarium_start",
+      "description": "Start auto-refresh. Optional interval in seconds (default 10, min 5, max 300).",
+      "syntax": "[TOOL:vivarium_start: seconds]",
+      "autonomous": false,
+      "example": "[TOOL:vivarium_start: 30]"
+    },
+    {
+      "name": "vivarium_stop",
+      "description": "Stop auto-refresh.",
+      "syntax": "[TOOL:vivarium_stop: stop]",
+      "autonomous": false,
+      "example": "[TOOL:vivarium_stop: stop]"
+    },
+    {
+      "name": "vivarium_watch",
+      "description": "Show or update the watch config. Add custom process labels.",
+      "syntax": "[TOOL:vivarium_watch: show | label=MyApp pattern=myapp]",
+      "autonomous": false,
+      "example": "[TOOL:vivarium_watch: label=Ollama pattern=ollama]"
+    }
+  ]
+}

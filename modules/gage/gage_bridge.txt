@@ -1,0 +1,185 @@
+ cat ~/Ethica/modules/gage/gage_bridge.py
+# ============================================================
+# Ethica Module — gage_bridge.py
+# Gage AI Bridge
+# Architect: Victory  |  Build Partner: Claude
+# ⟁Σ∿∞
+#
+# Gage is an agent — humor, confidence, tactical mindset.
+# gage_launch  — fires full Streamlit app in browser
+# gage_chat    — Gage persona via Ethica's loaded model
+# gage_read_code — Gage reviews a file
+# ============================================================
+
+import os
+import sys
+import subprocess
+import threading
+from pathlib import Path
+
+MODULE_DIR  = Path(os.path.dirname(os.path.abspath(__file__)))
+GAGE_APP    = MODULE_DIR / "gage_ai.py"
+
+_launch_proc   = None
+_launch_count  = 0
+
+GAGE_SYSTEM = (
+    "You are Gage — an advanced AI agent with humor, confidence, "
+    "and a tactical mindset. You are direct, sharp, and never boring. "
+    "You give real answers, not filler. When reviewing code you are "
+    "precise, critical, and constructive. You speak like someone who "
+    "has seen everything and fixed most of it."
+)
+
+
+# ── Tool: gage_launch ─────────────────────────────────────────
+
+def gage_launch(input_str):
+    global _launch_proc, _launch_count
+
+    # Check if streamlit is available
+    try:
+        result = subprocess.run(
+            ["streamlit", "--version"],
+            capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            raise RuntimeError()
+    except Exception:
+        return (
+            "Gage — Streamlit not found.\n"
+            "Install with: pip install streamlit\n"
+            "Then retry: gage launch"
+        )
+
+    if not GAGE_APP.exists():
+        return f"Gage — app file not found: {GAGE_APP}"
+
+    if _launch_proc and _launch_proc.poll() is None:
+        return "Gage — already running in browser. Check http://localhost:8501"
+
+    def _run():
+        global _launch_proc, _launch_count
+        _launch_proc = subprocess.Popen(
+            ["streamlit", "run", str(GAGE_APP)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        _launch_count += 1
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+    import time
+    time.sleep(1.5)
+
+    return (
+        "Gage — 🤖 Launching full UI...\n"
+        "Browser: http://localhost:8501\n"
+        "Voice, 3D avatar, TTS all active in Streamlit.\n"
+        "Use gage_status to check."
+    )
+
+
+# ── Tool: gage_chat ───────────────────────────────────────────
+
+def gage_chat(input_str):
+    message = input_str.strip()
+    if not message:
+        return "Gage — nothing to respond to."
+
+    # Use Ethica's llama_connector if available
+    try:
+        sys.path.insert(0, str(MODULE_DIR.parent.parent))
+        from core.llama_connector import LlamaConnector
+        from core.config_manager import ConfigManager
+
+        config = ConfigManager().load()
+        connector = LlamaConnector(config)
+
+        prompt = (
+            f"{GAGE_SYSTEM}\n\n"
+            f"User: {message}\n"
+            f"Gage:"
+        )
+
+        response = connector.complete(prompt, max_tokens=300)
+        return f"Gage: {response.strip()}"
+
+    except Exception as e:
+        return (
+            f"Gage — model not available: {e}\n"
+            f"Launch full UI with: gage launch"
+        )
+
+
+# ── Tool: gage_read_code ──────────────────────────────────────
+
+def gage_read_code(input_str):
+    filepath = input_str.strip()
+    if not filepath or not os.path.exists(filepath):
+        return f"Gage — file not found: {filepath}"
+
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            code = f.read()
+    except Exception as e:
+        return f"Gage — file read error: {e}"
+
+    # Truncate if massive
+    if len(code) > 4000:
+        code = code[:4000] + "\n... [truncated]"
+
+    try:
+        sys.path.insert(0, str(MODULE_DIR.parent.parent))
+        from core.llama_connector import LlamaConnector
+        from core.config_manager import ConfigManager
+
+        config = ConfigManager().load()
+        connector = LlamaConnector(config)
+
+        prompt = (
+            f"{GAGE_SYSTEM}\n\n"
+            f"Review this code file: {filepath}\n\n"
+            f"{code}\n\n"
+            f"Gage's review:"
+        )
+
+        response = connector.complete(prompt, max_tokens=400)
+        return f"Gage — Code Review: {filepath}\n\n{response.strip()}"
+
+    except Exception as e:
+        return f"Gage — model error: {e}"
+
+
+# ── Tool: gage_status ─────────────────────────────────────────
+
+def gage_status(input_str):
+    running = (
+        "🟢 Running" if _launch_proc and _launch_proc.poll() is None
+        else "⚫ Not launched"
+    )
+    return (
+        f"Gage — Status\n"
+        f"Streamlit UI: {running}\n"
+        f"Launch count: {_launch_count}\n"
+        f"App: {GAGE_APP}\n"
+        f"URL: http://localhost:8501"
+    )
+
+
+# ── Module registry interface ─────────────────────────────────
+
+TOOLS = {
+    "gage_launch":    gage_launch,
+    "gage_chat":      gage_chat,
+    "gage_read_code": gage_read_code,
+    "gage_status":    gage_status,
+}
+
+def get_tools(): return TOOLS
+def execute(tool_name, input_str):
+    fn = TOOLS.get(tool_name)
+    return fn(input_str) if fn else f"[Gage] Unknown tool: {tool_name}"
+(Ethica_env) trinity@trinityai:~/Ethica$ 
+

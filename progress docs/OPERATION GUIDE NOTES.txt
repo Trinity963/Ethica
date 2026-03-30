@@ -1,0 +1,58 @@
+ ── OPERATION GUIDE NOTES ─────────────────────────────────────
+#
+# CRITICAL — VENV RULE:
+#   NEVER cd ~/Ethica — it creates a new .venv and breaks the environment.
+#   Always stay in ~ and use full paths ~/Ethica/...
+#   Enter venv with: source ~/Ethica_env/bin/activate
+#   Run Ethica with: python3 ~/Ethica/main.py
+#
+# IMAGE VIEWER (as of Session 045):
+#   PNG/JPG drops open as image tabs in canvas (mode='pdf', images[] list)
+#   Both drop zones handle images: main_window._on_file_drop and canvas_window._on_canvas_file_drop
+#   PIL.Image.open → thumbnail(900,900) → ImageTk.PhotoImage stored in tab.images[]
+#   GC rule: never clear tab.images[] — PhotoImage refs must persist or display goes blank
+#
+# BADWINDOW RULE (as of Session 045):
+#   X11 BadWindow errors bypass Python sys.excepthook — crash reporter CANNOT catch them
+#   Prevention only: never destroy() a widget with async writes in flight
+#   Use pack_forget() instead — hides widget, keeps window ID alive
+#   _debug_view is specifically at risk (async DEBUG_WRITE operations)
+#
+# DROP ZONE BEHAVIOR (as of Session 045):
+#   MAIN PAGE DROP (main_window._on_file_drop):
+#     - CODE_EXTS (.py .js .rs .sh .css .html) → WormBot → Ops
+#     - .pdf → canvas._drop_as_pdf()
+#     - .png/.jpg/.jpeg → canvas._drop_as_image()
+#     - ALL OTHER → Canvas Document tab
+#   CANVAS DROP (canvas_window._on_canvas_file_drop):
+#     - .png/.jpg/.jpeg → _drop_as_image()
+#     - DEBUG_MAP exts (.py .js .ts etc) → push_debug_from_ethica()
+#     - .md/.txt/.rst/.yaml/.yml etc → _drop_as_document()
+#     - .py also triggers requirements auto-importer
+#
+# CRASH REPORTER (as of Session 044):
+#   install_excepthook() — wired in main.py before root.mainloop()
+#   check_crash_log(root) — wired in main.py after MainWindow build
+#   Catches Python-level exceptions only — NOT X11 BadWindow errors
+#   Crash files: ~/Ethica/memory/crashes/crash_TIMESTAMP.json
+#   Tools: crash status / crash log / crash clear
+#
+# RIVER SELF-FIX (as of Session 044):
+#   Trigger: river fix /path/file.py | old string | new string
+#   Snapshots: ~/Ethica/memory/snapshots/filename.py.N (max 5 generations)
+#   Auto-rollback on ast.parse failure
+#
+# QUICK NOTES (as of Session 044):
+#   Right-click any chat bubble → Save to Quick Notes
+#   Right-click user bubble → saves Q only
+#   Right-click Tinity bubble → saves Q+A pair
+#
+# NEW MODULE REGISTRATION RULE:
+#   New modules need THREE registrations:
+#   1. folder + manifest + tool file in modules/
+#   2. folder name added to MODULE_DIRS in ethica_guard.py
+#   3. phrases added to MODULE_TRIGGERS + _triggers in chat_engine.py
+#
+# MANIFEST TOOLS FORMAT:
+#   CORRECT:  "tools": [{"name": "tool_name", "description": "...", "syntax": "..."}]
+#   WRONG:    "tools": ["tool_name"]  ← silent Tool not available failure

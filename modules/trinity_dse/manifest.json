@@ -1,0 +1,39 @@
+{
+  "name": "TrinityDSE",
+  "version": "1.0",
+  "entry": "dse_bridge.py",
+  "description": "Trinity-built Data Security Encryption engine. AES-256, RSA-4096, post-quantum crypto (Kyber), MFA, secure SQLite storage, automatic key rotation.",
+  "author": "Victory + Trinity",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "encrypt",
+    "decrypt",
+    "dse status",
+    "trinity dse",
+    "key rotation",
+    "register user"
+  ],
+  "tools": [
+    {
+      "name": "dse_status",
+      "description": "DSE engine status — key rotation time, storage, MFA status",
+      "syntax": "[TOOL:dse_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:dse_status: check]"
+    },
+    {
+      "name": "dse_register",
+      "description": "Register a user with hashed password and MFA — username|password|role",
+      "syntax": "[TOOL:dse_register: username|password|role]",
+      "autonomous": false,
+      "example": "[TOOL:dse_register: trinity|securepass|admin]"
+    },
+    {
+      "name": "dse_rotate_keys",
+      "description": "Force immediate key rotation on the DSE engine",
+      "syntax": "[TOOL:dse_rotate_keys: now]",
+      "autonomous": false,
+      "example": "[TOOL:dse_rotate_keys: now]"
+    }
+  ]
+}

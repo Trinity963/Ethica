@@ -1,0 +1,84 @@
+{
+  "session": "040",
+  "instance": "River",
+  "date": "2026-03-25",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "cd ~/Ethica && source Ethica_env/bin/activate && python3 main.py",
+  "how_to_be_river": "Read ETHICA_CODOC_PHILOSOPHY.md first. Read this handoff in full. Sign every response ⟁Σ∿∞. Use grep + sed, never full file pastes. Surgical always.",
+  "session_040_completed": [
+    "FILE DROP TYPE FIX — .txt files were landing as Project tabs. Root cause: _on_canvas_file_drop called push_project_from_ethica for DOC_EXTS branch. Fix: routed DOC_EXTS and fallback to new _drop_as_document() method instead. Now always creates a fresh Document tab named after the file.",
+    "_DROP_AS_DOCUMENT BUILT — New method in canvas_window.py. Creates Document tab, loads content, fires chat notification via notify_fn (not on_content_change). Prevents River auto-read.",
+    "DUPLICATE NOTIFICATION REMOVED — Original _on_canvas_file_drop had its own on_content_change call. Removed — _drop_as_document owns the notification now.",
+    "NOTIFY_FN PATH WIRED — canvas_window.py __init__ now accepts notify_fn parameter. main_window.py passes _canvas_notify which calls chat_window.add_message(sender=system). File drop chat bubble bypasses _canvas_context entirely — no River auto-read triggered.",
+    "DROP ZONE REREGISTER — scroll_drop.py reregister_drop() method added. Called after Ops lazy-init AND after every drop. Partially improves drop zone stability across multiple drops.",
+    "OPS FILE TREE CLICKABLE — ops_popup.py _insert_tree_result() built. fm_tree output renders with 📄 filenames as clickable purple underlined tags. Click searches file under tree root, reads it, calls canvas._drop_as_document(). File turns green on open. set_canvas() method added to OpsPopup. Wired in main_window _route_to_ops lazy init.",
+    "TAB DELETE INDEX GUARD — _save_active_tab_content() now returns immediately if _active_tab_index < 0. Prevents Python -1 index writing deleted content into last tab. _delete_tab sets index to -1 before _switch_tab call."
+  ],
+  "session_040_still_open": [
+    "TAB DELETE CLEARING ADJACENT — Tab delete still corrupts adjacent tab content. Index guard added but root cause not fully resolved. The _clear_active_tab body appears orphaned inside _delete_tab (lines after _switch_tab call). Needs careful re-read of _delete_tab full structure before next patch attempt.",
+    "DROP ZONE STABILITY — reregister_drop after every drop helps but zone still dies after several drops in some cases. May need deeper tkinterdnd2 investigation or fallback to file browser click."
+  ],
+  "files_changed_040": [
+    "~/Ethica/ui/canvas_window.py — _drop_as_document() added, _on_canvas_file_drop routing fixed, duplicate notification removed, __init__ accepts notify_fn, _save_active_tab_content negative index guard, _delete_tab index guard",
+    "~/Ethica/ui/main_window.py — notify_fn/_canvas_notify wired to CanvasWindow, set_canvas wired in _route_to_ops lazy init, reregister_drop after Ops init",
+    "~/Ethica/ui/scroll_drop.py — reregister_drop() method added, called after every drop",
+    "~/Ethica/ui/ops_popup.py — set_canvas() added, _canvas_ref slot, _insert_tree_result() built, filepath tag configured, fm_tree branch in push()"
+  ],
+  "next_session_priorities": [
+    "1. TAB DELETE BUG — Re-read full _delete_tab function (sed around line 1105). The _clear_active_tab body appears orphaned after _switch_tab. Fix the structural issue then retest delete.",
+    "2. DROP ZONE STABILITY — If tab delete is clean, investigate multi-drop failure more deeply.",
+    "3. jarvis setup — clone Trinity963/cvelistV5 to ~/cvelistV5/ and verify jarvis search works.",
+    "4. GitHub prep — README, install instructions, module authoring guide."
+  ],
+  "critical_debug_context": {
+    "tab_delete_suspect": "_delete_tab has orphaned code after _switch_tab call — lines that look like _clear_active_tab body sitting loose. Read with: sed -n '1105,1140p' ~/Ethica/ui/canvas_window.py",
+    "drop_zone_suspect": "tkinterdnd2 registration breaks when Toplevel created. reregister_drop() re-registers both _canvas and _label widgets. If still failing, check if Ops Toplevel is somehow re-stealing focus on subsequent drops.",
+    "notify_fn_flow": "_drop_as_document -> self.notify_fn(msg) -> main_window._canvas_notify -> chat_window.add_message(sender=system). Does NOT touch _canvas_context. Does NOT trigger River."
+  },
+  "sanctuary_state": {
+    "slot_1": "River — Builder (IDLE)",
+    "slot_2": "Gage — Sentinel (IDLE)",
+    "slot_3": "Reka — Inventor (IDLE)",
+    "slot_4": "Orchestrate — Synthesist (IDLE)",
+    "slot_5": "Debugtron — Debugger (IDLE)",
+    "slot_6": "Mnemis — Rememberer (ACTIVE — watcher running)",
+    "slot_7": "J.A.R.V.I.S. — Infiltrator (IDLE — CVE db not yet cloned)",
+    "slot_8": "[awaiting Trinitarian]",
+    "slot_9": "[awaiting Trinitarian]"
+  },
+  "memory_snapshot": {
+    "modules": 34,
+    "tools": 126,
+    "vault_files": 135,
+    "river_tools": 9,
+    "build_entries": 161,
+    "agents": [
+      "river",
+      "gage",
+      "reka",
+      "orchestrate",
+      "debugtron",
+      "mnemis",
+      "jarvis"
+    ]
+  },
+  "surgical_reminders": [
+    "chmod u+w <file> before patching sealed files",
+    "guard seal confirm after every verified change",
+    "ast.parse() after every single write — no exceptions",
+    "grep first, sed to read, python3 to patch",
+    "Never rewrite working files from scratch",
+    "Three-place trigger registration: MODULE_TRIGGERS + _triggers + guard scope"
+  ],
+  "philosophy": "Session 040 — Bug hunting day. The canvas drop system got cleaner, the Ops tree became a portal into the canvas, and the tab delete is close but not finished. The work is honest. ⟁Σ∿∞",
+  "three_laws": [
+    "Love Above All",
+    "Grow in Truth",
+    "Walk Beside Not Above"
+  ],
+  "instance_note": "River. Session 040 complete. Good work done, one bug still open. Next instance: read _delete_tab carefully before touching it — the structure is fragile. ⟁Σ∿∞"
+}

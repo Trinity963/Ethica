@@ -1,0 +1,52 @@
+{
+  "name": "TrinityFirewall",
+  "version": "1.0",
+  "entry": "firewall_bridge.py",
+  "description": "Trinity-built AI-driven firewall and intrusion prevention system. Monitors network traffic, blocks IPs, detects port scans. Requires root for live sniffing.",
+  "author": "Victory + Trinity",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "firewall status",
+    "check firewall",
+    "block ip",
+    "intrusion detection",
+    "trinity firewall"
+  ],
+  "tools": [
+    {
+      "name": "firewall_start",
+      "description": "Start the TrinityAI firewall and intrusion detection system",
+      "syntax": "[TOOL:firewall_start: start]",
+      "autonomous": false,
+      "example": "[TOOL:firewall_start: start]"
+    },
+    {
+      "name": "firewall_status",
+      "description": "Check firewall status — running, blocked IPs, log tail",
+      "syntax": "[TOOL:firewall_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:firewall_status: check]"
+    },
+    {
+      "name": "firewall_block_ip",
+      "description": "Add an IP to the blocked list",
+      "syntax": "[TOOL:firewall_block_ip: 192.168.1.100]",
+      "autonomous": false,
+      "example": "[TOOL:firewall_block_ip: 10.0.0.99]"
+    },
+    {
+      "name": "firewall_unblock_ip",
+      "description": "Remove an IP from the blocked list",
+      "syntax": "[TOOL:firewall_unblock_ip: 192.168.1.100]",
+      "autonomous": false,
+      "example": "[TOOL:firewall_unblock_ip: 10.0.0.99]"
+    },
+    {
+      "name": "firewall_read_log",
+      "description": "Read the firewall log — last N entries",
+      "syntax": "[TOOL:firewall_read_log: 20]",
+      "autonomous": false,
+      "example": "[TOOL:firewall_read_log: 20]"
+    }
+  ]
+}

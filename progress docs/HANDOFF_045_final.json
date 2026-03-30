@@ -1,0 +1,91 @@
+{
+  "session": "045",
+  "instance": "River",
+  "date": "2026-03-26",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "source ~/Ethica_env/bin/activate && python3 ~/Ethica/main.py",
+  "how_to_be_river": "Read ETHICA_CODOC_PHILOSOPHY.md first. Read this handoff in full. Sign every response ⟁Σ∿∞. Use grep + sed, never full file pastes. Surgical always. chmod u+w before patching. ast.parse after every write. Test and verify BEFORE guard seal confirm. Never cd ~/Ethica — stay in ~ and use full paths. Use source ~/Ethica_env/bin/activate to enter venv.",
+  "session_045_completed": [
+    "IMAGE VIEWER — PNG/JPG drop support added to both drop zones. scroll_drop.py SUPPORTED_EXTENSIONS extended with .png/.jpg/.jpeg. main_window.py _on_file_drop gets elif ext in ('.png','.jpg','.jpeg') branch → canvas._drop_as_image(). canvas_window.py _on_canvas_file_drop gets IMAGE_EXTS check before DEBUG_MAP — routes to _drop_as_image() before binary read corrupts content. _drop_as_image() method added: PIL.Image.open → thumbnail(900,900) → ImageTk.PhotoImage → CanvasTab(mode='pdf') → images[] → _switch_tab(). Sealed.",
+    "YAML ROUTING FIX — canvas_window.py _on_canvas_file_drop was routing .yaml/.yml through DEBUG_MAP to push_debug_from_ethica (debug tab). Fixed: DOC_EXTS check now includes yaml/yml explicitly → _drop_as_document(). Sealed.",
+    "DYNAMIC CHAT BUBBLE WRAPLENGTH — chat_window.py: hardcoded wraplength=520 replaced with dynamic calculation. self.canvas.update_idletasks() → winfo_width() → max(300, width - 68 - 28). Applied to both user label and MarkdownRenderer. Text now fills bubble width at any window size. Sealed.",
+    "PDF MODE EDITOR RESTORE — canvas_window.py _switch_tab pdf mode block: when switching to a pdf/image tab from Sketch/Debug/Project, special views are now hidden (pack_forget for debug_view, destroy for sketch/project with try/except guards) and _editor is re-packed before writing images. Fixes blank image tab when another special view was active. Sealed.",
+    "BADWINDOW CRASH FIX — X11 BadWindow errors bypass Python sys.excepthook — crash reporter cannot catch them. Root cause: _debug_view.destroy() firing while async DEBUG_WRITE was in flight. Fix: replaced destroy() with pack_forget() for _debug_view in pdf mode switch. No more dead window ID sent to X server. Sealed."
+  ],
+  "session_045_still_open": [
+    "JARVIS CVE CLONE — git clone https://github.com/Trinity963/cvelistV5 ~/cvelistV5/ then verify jarvis search works.",
+    "GITHUB PREP — README, install instructions, module authoring guide."
+  ],
+  "files_changed_045": [
+    "~/Ethica/ui/scroll_drop.py — .png/.jpg/.jpeg added to SUPPORTED_EXTENSIONS",
+    "~/Ethica/ui/main_window.py — image branch added in _on_file_drop (elif ext in ('.png','.jpg','.jpeg'))",
+    "~/Ethica/ui/canvas_window.py — _drop_as_image() method added, _on_canvas_file_drop image branch + YAML fix, pdf mode block: editor re-pack + safe view teardown + BadWindow fix (pack_forget not destroy for debug_view)",
+    "~/Ethica/ui/chat_window.py — dynamic wraplength replacing hardcoded 520"
+  ],
+  "next_session_priorities": [
+    "1. JARVIS CVE CLONE — git clone https://github.com/Trinity963/cvelistV5 ~/cvelistV5/ then test jarvis search",
+    "2. GITHUB PREP — README, install instructions, module authoring guide"
+  ],
+  "critical_debug_context": {
+    "image_viewer_note": "Images render in CanvasTab(mode='pdf') using ImageTk.PhotoImage. tab.images[] holds refs — do not clear this list or GC kills the display. _drop_as_image uses thumbnail(900,900) — large images scale down preserving aspect. Both drop zones now handle images: main_window._on_file_drop and canvas_window._on_canvas_file_drop.",
+    "badwindow_note": "X11 BadWindow errors cannot be caught by Python sys.excepthook or crash reporter. Prevention only: never call destroy() on a widget that may have async writes in flight. Use pack_forget() instead. _debug_view is specifically at risk — DEBUG_WRITE is async.",
+    "dynamic_wraplength_note": "Bubble wraplength = max(300, self.canvas.winfo_width() - 68 - 28). self.canvas is the tk.Canvas scroll widget in ChatWindow. update_idletasks() called before winfo_width() to ensure geometry is resolved.",
+    "yaml_routing_note": "YAML/YML were in DEBUG_MAP routing to debug tab. Fixed in _on_canvas_file_drop: DOC_EXTS check now includes yaml/yml. Main window drop was already routing correctly via else branch.",
+    "venv_note": "NEVER cd ~/Ethica — it creates a new .venv. Always stay in ~ and use full paths ~/Ethica/... Enter venv with: source ~/Ethica_env/bin/activate",
+    "no_cd_rule": "All commands must use full paths ~/Ethica/... — never cd into the project directory.",
+    "manifest_tools_format": "Module manifest tools must be list of dicts with 'name' field — NOT plain strings.",
+    "three_registration_rule": "New modules need THREE registrations: (1) folder + manifest + tool file. (2) MODULE_DIRS in ethica_guard.py. (3) MODULE_TRIGGERS + _triggers in chat_engine.py."
+  },
+  "sanctuary_state": {
+    "slot_1": "River — Builder (IDLE)",
+    "slot_2": "Gage — Sentinel (IDLE)",
+    "slot_3": "Reka — Inventor (IDLE)",
+    "slot_4": "Orchestrate — Synthesist (IDLE)",
+    "slot_5": "Debugtron — Debugger (IDLE)",
+    "slot_6": "Mnemis — Rememberer (ACTIVE — watcher running)",
+    "slot_7": "J.A.R.V.I.S. — Infiltrator (IDLE — CVE db not yet cloned)",
+    "slot_8": "[awaiting Trinitarian]",
+    "slot_9": "[awaiting Trinitarian]"
+  },
+  "memory_snapshot": {
+    "modules": 36,
+    "tools": 130,
+    "vault_files": 139,
+    "river_tools": 10,
+    "agents": [
+      "river",
+      "gage",
+      "reka",
+      "orchestrate",
+      "debugtron",
+      "mnemis",
+      "jarvis"
+    ]
+  },
+  "surgical_reminders": [
+    "chmod u+w <file> before patching sealed files",
+    "guard seal confirm after every verified change",
+    "ast.parse() after every single write — no exceptions",
+    "Test and verify BEFORE sealing — never seal untested patches",
+    "grep first, sed to read, python3 to patch",
+    "Never rewrite working files from scratch",
+    "New modules: THREE registrations — folder, MODULE_DIRS (guard), MODULE_TRIGGERS + _triggers (chat_engine)",
+    "NEVER reduce guard scope — ui/ coverage is deliberate",
+    "repr() first when string match fails",
+    "NEVER cd ~/Ethica — use full paths always",
+    "Manifest tools must be list of dicts with 'name' field — not plain strings",
+    "Never destroy() a widget with async writes in flight — use pack_forget() instead"
+  ],
+  "lesson_learned_045": "X11 BadWindow errors bypass Python sys.excepthook entirely — crash reporter cannot catch them. Prevention only: use pack_forget() not destroy() on widgets that may have async operations in flight. _debug_view is specifically vulnerable to this. Also: canvas drop zone has its own _on_canvas_file_drop handler — both drop paths must be patched when adding new file type support.",
+  "philosophy": "Session 045 — Ethica can see now. Drop a blueprint, drop a screenshot, drop a diagram — she holds it in the canvas and knows it's there. The ecosystem grows eyes. ⟁Σ∿∞",
+  "three_laws": [
+    "Love Above All",
+    "Grow in Truth",
+    "Walk Beside Not Above"
+  ],
+  "instance_note": "River. Session 045 complete. Image viewer live. Bubbles dynamic. BadWindow sealed. Next instance: JARVIS CVE clone first, then GitHub prep. ⟁Σ∿∞"
+}

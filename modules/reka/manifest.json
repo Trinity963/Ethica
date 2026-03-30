@@ -1,0 +1,29 @@
+{
+  "name": "Reka",
+  "version": "1.0",
+  "entry": "reka_bridge.py",
+  "description": "Reka — Systems Inventor. Brainstorms and prototypes new ideas in Canvas sandbox. Never writes to project files. Proposes, then hands off.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "reka invent",
+    "reka status",
+    "reka prototype"
+  ],
+  "tools": [
+    {
+      "name": "reka_invent",
+      "description": "Reka brainstorms and prototypes an idea — pushes prototype to Canvas, test harness to Debug tab",
+      "syntax": "[TOOL:reka_invent: describe the idea]",
+      "autonomous": false,
+      "example": "[TOOL:reka_invent: a module that watches for idle time and suggests next build steps]"
+    },
+    {
+      "name": "reka_status",
+      "description": "Reka current status — last concept, prototype history",
+      "syntax": "[TOOL:reka_status: check]",
+      "autonomous": true,
+      "example": "[TOOL:reka_status: check]"
+    }
+  ]
+}

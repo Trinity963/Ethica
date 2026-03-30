@@ -1,0 +1,26 @@
+{
+  "name": "CrashReporter",
+  "version": "1.0.0",
+  "description": "Global exception handler, crash logger, auto-save on crash, startup crash reporter popup.",
+  "author": "Victory — The Architect",
+  "tools": [
+    {
+      "name": "crash_status",
+      "description": "Show summary of crash history.",
+      "syntax": "crash status",
+      "example": "crash status"
+    },
+    {
+      "name": "crash_log",
+      "description": "Read the most recent crash log in full.",
+      "syntax": "crash log",
+      "example": "crash log"
+    },
+    {
+      "name": "crash_clear",
+      "description": "Clear all crash logs.",
+      "syntax": "crash clear",
+      "example": "crash clear"
+    }
+  ]
+}

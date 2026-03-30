@@ -1,0 +1,31 @@
+{
+  "name": "kernel",
+  "label": "Dashboard",
+  "tab": "DASHBOARD",
+  "icon": "⟁",
+  "version": "0.1.0",
+  "author": "Victory — The Architect",
+  "description": "Ethica Kernel Operations Dashboard — system state, agent ops, quick control, sanctuary.",
+  "autonomous": true,
+  "autonomous_triggers": [
+    "dashboard",
+    "open dashboard",
+    "ops panel",
+    "show dashboard",
+    "kernel status"
+  ],
+  "tools": [
+    {
+      "name": "dashboard",
+      "description": "Open the Ethica Kernel Dashboard — mission control for all agents and system state.",
+      "syntax": "[TOOL:dashboard: ]",
+      "autonomous": true,
+      "example": "[TOOL:dashboard: ]"
+    }
+  ],
+  "status_dir": "~/Ethica/status/",
+  "agents": [
+    "river",
+    "gage"
+  ]
+}

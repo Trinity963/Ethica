@@ -1,0 +1,12 @@
+{
+  "agent": "River",
+  "title": "Builder",
+  "state": "ACTIVE",
+  "current_task": "Reading /home/trinity/Ethica/modules/River/river_state.json | patter",
+  "last_action": "river_read",
+  "progress": 10,
+  "updated": "2026-03-29T04:14:35",
+  "injected_task": "chat",
+  "inject_time": "2026-03-22T15:44:18",
+  "inject_acknowledged": true
+}

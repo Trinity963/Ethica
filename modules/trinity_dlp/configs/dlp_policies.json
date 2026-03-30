@@ -1,0 +1,7 @@
+{
+  "policy_name": "TrinityAI DLP Policy",
+  "version": "1.0",
+  "monitored_paths": [],
+  "scan_interval": 30,
+  "auto_recover": true
+}

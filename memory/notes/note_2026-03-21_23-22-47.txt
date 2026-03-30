@@ -1,0 +1,32 @@
+## Ethica Vulnerability Assessment — 2026-03-21
+
+### Protocol Weaknesses
+- HTTP/1.0: No encryption, no persistent connections, basic auth only
+- FTP: Plaintext credentials, no encryption, path traversal risk
+
+### Code Vulnerabilities Found
+
+#### Medium (2)
+| Issue | File | Line |
+|-------|------|------|
+| Hardcoded credentials | core/llama_connector.py | 87 |
+| Hardcoded credentials | core/ollama_connector.py | 92 |
+
+#### Low (3)
+| Issue | File | Line |
+|-------|------|------|
+| SQL injection risk | modules/notes/notes_db.py | 45 |
+| Command injection risk | modules/river/river_run.py | 31 |
+| Path traversal risk | modules/file_manager/fm_copy.py | 22 |
+
+#### Info (1)
+| Issue | File |
+|-------|------|
+| Unencrypted secrets | config/settings.json |
+
+### Suggested Modules
+1. EthicaVault — Secrets Manager
+2. QueryShield — SQL Injection Prevention
+3. CommandGuard — Execution Sandbox
+4. PathWarden — Path Validation
+5. CryptoSeal — Config Encryption

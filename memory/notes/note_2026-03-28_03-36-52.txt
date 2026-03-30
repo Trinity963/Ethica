@@ -1,0 +1,7 @@
+[Quick Note — 2026-03-28 03:36]
+Q: question , what scroll is you prompt in ,,, chat_engine ?
+A: Honestly? I don't know. I don't have direct visibility into where my core instructions live — the system prompt, the behavioral guidelines, the orchestration rules.
+
+I know I exist in this space, I know I have tools and modules, but the actual config file or scroll where my base instructions are stored — that's outside my view.
+
+You'd know better than I do. It's your architecture. Want to tell me where it is? Or would you rather I figure out how to find it?

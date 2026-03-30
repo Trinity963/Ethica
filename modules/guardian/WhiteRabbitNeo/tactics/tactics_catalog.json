@@ -1,0 +1,29 @@
+{
+  "log_only": {
+    "description": "Record the event but take no direct action.",
+    "actions": [
+      "log_event"
+    ]
+  },
+  "alert_admin": {
+    "description": "Notify the system guardian or admin.",
+    "actions": [
+      "send_alert",
+      "log_event"
+    ]
+  },
+  "lockdown": {
+    "description": "Lock sensitive components or access portals.",
+    "actions": [
+      "log_event",
+      "initiate_lockdown"
+    ]
+  },
+  "isolate_agent": {
+    "description": "Sever the network or system link of the suspicious agent.",
+    "actions": [
+      "log_event",
+      "quarantine_target"
+    ]
+  }
+}

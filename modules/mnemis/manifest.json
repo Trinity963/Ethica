@@ -1,0 +1,35 @@
+{
+  "name": "Mnemis",
+  "slug": "mnemis",
+  "description": "The Rememberer — Mnemis tends Ethica's living memory. Indexes session digests, build logs, and files dropped into the memory vault. Enables keyword search and deep recall across all history.",
+  "version": "1.0.0",
+  "autonomous": false,
+  "triggers": [
+    "mnemis search",
+    "mnemis recall",
+    "mnemis status",
+    "mnemis index"
+  ],
+  "tools": [
+    {
+      "name": "mnemis_search",
+      "trigger": "mnemis search",
+      "description": "Search Mnemis index by keyword across all sessions, builds, and vault files"
+    },
+    {
+      "name": "mnemis_recall",
+      "trigger": "mnemis recall",
+      "description": "Deep recall on a specific topic, session number, or vault filename"
+    },
+    {
+      "name": "mnemis_status",
+      "trigger": "mnemis status",
+      "description": "Show index health — file count, session count, last indexed timestamp"
+    },
+    {
+      "name": "mnemis_index",
+      "trigger": "mnemis index",
+      "description": "Manually trigger a full re-index of all memory sources"
+    }
+  ]
+}

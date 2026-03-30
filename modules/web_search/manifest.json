@@ -1,0 +1,38 @@
+{
+  "name": "WebSearch",
+  "version": "1.0",
+  "entry": "web_search.py",
+  "description": "Sovereign web search — DuckDuckGo, no API key required. Search the web, fetch pages, research topics.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "search for",
+    "look up",
+    "web search",
+    "find online",
+    "search the web"
+  ],
+  "tools": [
+    {
+      "name": "web_search",
+      "description": "Search the web via DuckDuckGo — returns top results with titles, URLs, snippets",
+      "syntax": "[TOOL:web_search: your query here]",
+      "autonomous": false,
+      "example": "[TOOL:web_search: python tkinter dark theme]"
+    },
+    {
+      "name": "web_fetch",
+      "description": "Fetch and extract text content from a URL",
+      "syntax": "[TOOL:web_fetch: https://example.com]",
+      "autonomous": false,
+      "example": "[TOOL:web_fetch: https://docs.python.org/3/library/tkinter.html]"
+    },
+    {
+      "name": "web_news",
+      "description": "Search DuckDuckGo News — returns top 5 recent news articles with dates",
+      "syntax": "[TOOL:web_news: your topic here]",
+      "autonomous": false,
+      "example": "[TOOL:web_news: artificial intelligence 2026]"
+    }
+  ]
+}

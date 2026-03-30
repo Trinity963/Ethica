@@ -1,0 +1,8 @@
+{
+    "timestamp": "2025-04-11T21:04:18.782228",
+    "event": {
+        "log": "Suspicious connection from IP 10.42.0.66",
+        "source": "netmon"
+    },
+    "matched_profile": "None"
+}

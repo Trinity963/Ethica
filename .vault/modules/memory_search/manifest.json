@@ -1,0 +1,35 @@
+{
+  "name": "MemorySearch",
+  "version": "1.0",
+  "entry": "memory_search_tool.py",
+  "description": "Search Trinity's sovereign memory — chat logs and vault files. Find past conversations, archived sessions, and vault documents by keyword.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "search memory",
+    "search my memory",
+    "find in memory",
+    "look in memory",
+    "search chat logs",
+    "search the vault",
+    "find in vault",
+    "what do you remember about",
+    "memory search"
+  ],
+  "tools": [
+    {
+      "name": "memory_search",
+      "description": "Search Trinity's chat logs and vault files by keyword — returns matching filenames with line numbers and excerpts",
+      "syntax": "[TOOL:memory_search: your keyword here]",
+      "autonomous": false,
+      "example": "[TOOL:memory_search: Love Module]"
+    },
+    {
+      "name": "memory_read",
+      "description": "Read the full contents of a specific memory file by filename",
+      "syntax": "[TOOL:memory_read: filename.txt]",
+      "autonomous": false,
+      "example": "[TOOL:memory_read: Trinity3Laws.txt]"
+    }
+  ]
+}

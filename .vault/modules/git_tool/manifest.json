@@ -1,0 +1,44 @@
+{
+  "name": "GitTool",
+  "version": "1.0",
+  "entry": "git_tool.py",
+  "description": "Git integration — status, log, diff, branch, commit history. Results in Ops.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "git status",
+    "git log",
+    "git diff",
+    "git branch"
+  ],
+  "tools": [
+    {
+      "name": "git_status",
+      "description": "Show git status of a repo",
+      "syntax": "[TOOL:git_status: /path/to/repo]",
+      "autonomous": true,
+      "example": "[TOOL:git_status: ~/Ethica]"
+    },
+    {
+      "name": "git_log",
+      "description": "Show recent git commits",
+      "syntax": "[TOOL:git_log: /path/to/repo]",
+      "autonomous": false,
+      "example": "[TOOL:git_log: ~/Ethica]"
+    },
+    {
+      "name": "git_diff",
+      "description": "Show unstaged changes in repo",
+      "syntax": "[TOOL:git_diff: /path/to/repo]",
+      "autonomous": false,
+      "example": "[TOOL:git_diff: ~/Ethica]"
+    },
+    {
+      "name": "git_branch",
+      "description": "Show branches in repo",
+      "syntax": "[TOOL:git_branch: /path/to/repo]",
+      "autonomous": false,
+      "example": "[TOOL:git_branch: ~/Ethica]"
+    }
+  ]
+}

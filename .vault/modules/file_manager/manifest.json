@@ -1,0 +1,54 @@
+{
+  "name": "FileManager",
+  "version": "1.0",
+  "entry": "file_manager.py",
+  "description": "Sovereign file manager — list, read, copy, move, delete, tree view. Results in Ops.",
+  "author": "Victory",
+  "autonomous": false,
+  "autonomous_triggers": [
+    "list files",
+    "show files",
+    "file tree",
+    "read file",
+    "copy file",
+    "move file",
+    "delete file"
+  ],
+  "tools": [
+    {
+      "name": "fm_list",
+      "description": "List files in a directory",
+      "syntax": "[TOOL:fm_list: ~/path]",
+      "autonomous": false,
+      "example": "[TOOL:fm_list: ~/Ethica/modules]"
+    },
+    {
+      "name": "fm_tree",
+      "description": "Show directory tree",
+      "syntax": "[TOOL:fm_tree: ~/path]",
+      "autonomous": false,
+      "example": "[TOOL:fm_tree: ~/Ethica]"
+    },
+    {
+      "name": "fm_read",
+      "description": "Read a text file",
+      "syntax": "[TOOL:fm_read: ~/path/file.txt]",
+      "autonomous": false,
+      "example": "[TOOL:fm_read: ~/Ethica/README.md]"
+    },
+    {
+      "name": "fm_copy",
+      "description": "Copy a file to destination",
+      "syntax": "[TOOL:fm_copy: ~/src.txt > ~/dest.txt]",
+      "autonomous": false,
+      "example": "[TOOL:fm_copy: ~/file.txt > ~/backup/file.txt]"
+    },
+    {
+      "name": "fm_delete",
+      "description": "Delete a file",
+      "syntax": "[TOOL:fm_delete: ~/path/file.txt]",
+      "autonomous": false,
+      "example": "[TOOL:fm_delete: ~/tmp/old.txt]"
+    }
+  ]
+}
