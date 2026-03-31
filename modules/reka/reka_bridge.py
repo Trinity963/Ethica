@@ -77,7 +77,7 @@ def reka_status(input_str):
         updated = data.get("updated", "—")
         history = data.get("history", [])
         lines = [
-            f"Reka — Systems Inventor",
+            "Reka — Systems Inventor",
             f"State:        {state}",
             f"Last concept: {concept}",
             f"Updated:      {updated}",

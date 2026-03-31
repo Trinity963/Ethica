@@ -88,11 +88,11 @@ def _generate_stub(mod_name, tools):
         desc = t["description"] or f"{fn} tool"
         lines += [
             f"def {fn}(input_str):",
-            f'    """',
+            '    """',
             f"    Tool: {fn}",
             f"    Trigger: {trigger}",
             f"    Description: {desc}",
-            f'    """',
+            '    """',
             f"    # TODO: implement {fn}",
             f'    return f"[{fn}] received: {{input_str}}"',
             "",

@@ -187,7 +187,7 @@ def voice_select(input_str):
 
     return (
         f"EthicaVoice — no voice found matching '{target}'\n"
-        f"Run 'voice list' to see available voices."
+        "Run 'voice list' to see available voices."
     )
 
 
@@ -277,7 +277,7 @@ def voice_record(input_str):
         f"EthicaVoice — recording for profile: {safe_name}",
         f"Sample #{profile['sample_count'] + 1}",
         "─" * 40,
-        f"Please read aloud:",
+        "Please read aloud:",
         f"  \"{prompt_text}\"",
         "",
         "Recording 5 seconds via arecord...",
