@@ -10,10 +10,9 @@
 # ============================================================
 
 import json
-import os
 import ast
+import re
 import tkinter as tk
-from tkinter import messagebox
 from pathlib import Path
 
 # ── colours (match Ethica palette) ───────────────────────────
@@ -527,7 +526,6 @@ def _find_forge_modules():
         if "# ModuleForge" not in line:
             continue
         # Parse lines like: "trigger phrase": ("tool_name", ...), # ModuleForge
-        import re
         m = re.search(r'"([^"]+)"\s*:\s*\("([^"]+)"', line)
         if not m:
             # Also handle flat trigger list: "trigger",  # ModuleForge
@@ -610,7 +608,6 @@ def _remove_module(mod, registry):
             if "# ModuleForge" not in line:
                 new_lines.append(line)
                 continue
-            import re
             m = re.search(r'"([^"]+)"\s*:\s*\("([^"]+)"', line)
             if m:
                 trig, tool = m.group(1), m.group(2)
