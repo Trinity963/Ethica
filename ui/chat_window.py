@@ -5,8 +5,8 @@
 # ⟁Σ∿∞
 # ============================================================
 
+import logging
 import tkinter as tk
-from tkinter import font as tkfont
 from datetime import datetime
 from ui.markdown_renderer import MarkdownRenderer
 from modules.notes.notes import note_save as _note_save
@@ -260,7 +260,7 @@ class ChatWindow:
             except Exception:
                 pass
         except Exception as e:
-            print(f"[QuickNote] save error: {e}")
+            logging.warning("[QuickNote] save error: %s", e)
 
     def _render_system_message(self, row, text):
         """Render a system/status message — centered, muted."""

@@ -19,6 +19,7 @@
 # Persistence: serialized as JSON in CanvasTab.content
 # ============================================================
 
+import logging
 import tkinter as tk
 from tkinter import simpledialog, colorchooser
 import json
@@ -507,7 +508,7 @@ class SketchView:
                     continue
                 self._elements.append(elem)
         except Exception as e:
-            print(f"[SketchView] Load error: {e}")
+            logging.warning("[SketchView] Load error: %s", e)
 
     def dump(self):
         """Serialize to JSON for CanvasTab.content."""
@@ -533,7 +534,6 @@ class SketchView:
         Ethica drops a text annotation onto the sketch surface.
         Positioned automatically if no coords given.
         """
-        c = self.theme.colors
         if x is None or y is None:
             # Stack annotations down the left side
             offset = len([e for e in self._elements if e.kind == "text"]) * 28
