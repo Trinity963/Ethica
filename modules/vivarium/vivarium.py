@@ -9,7 +9,6 @@
 # Pushes live snapshot to Canvas VIVARIUM tab.
 # ============================================================
 
-import os
 import json
 import threading
 import time

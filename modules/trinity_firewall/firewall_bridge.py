@@ -62,7 +62,6 @@ def firewall_start(input_str):
 
     try:
         # Patch paths before importing
-        import importlib.util, types
 
         # Read and patch the firewall source
         src_path = os.path.join(MODULE_DIR, "TrinityAI_Firewall.py")

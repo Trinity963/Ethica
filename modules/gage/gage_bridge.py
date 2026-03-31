@@ -134,7 +134,6 @@ def gage_chat(input_str):
     try:
         sys.path.insert(0, str(MODULE_DIR.parent.parent))
         from core.llama_connector import LlamaConnector
-        from core.config_manager import ConfigManager
 
         connector = LlamaConnector()
 
@@ -231,7 +230,6 @@ def gage_vision(input_str):
     VISION_PYTHON = shutil.which("python3") or GAGE_ENV_PYTHON
     vision_script = str(MODULE_DIR / "_vision_worker.py")
 
-    from pathlib import Path
     worker = Path(vision_script)
     if not worker.exists():
         worker.write_text(

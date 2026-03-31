@@ -632,7 +632,6 @@ def _remove_module(mod, registry):
     # ── 2. Hot-deregister ─────────────────────────────────────
     if registry:
         try:
-            folder_path = str(MODULES_DIR / mod["folder"])
             folder_name = mod["folder"]
             existing = [k for k in registry._modules
                         if folder_name.lower() in k.lower() or k.lower() in folder_name.lower()]
@@ -641,7 +640,7 @@ def _remove_module(mod, registry):
                 if m_obj:
                     for tool in m_obj.tools:
                         registry._tool_index.pop(tool.name.lower(), None)
-        except Exception as e:
+        except Exception:
             pass  # deregister best-effort
 
     # ── 3. Delete folder ──────────────────────────────────────

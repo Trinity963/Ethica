@@ -18,7 +18,7 @@ def read_active_code():
         if file_path and os.path.exists(file_path):
             with open(file_path, "r") as file:
                 return file.read()
-    except:
+    except Exception:
         return None
 
 # Use file content as part of AI input
@@ -29,7 +29,6 @@ else:
     prompt = "I have a coding question."
 
 # Load AI model
-import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 
 if "code_assistant" not in st.session_state:
