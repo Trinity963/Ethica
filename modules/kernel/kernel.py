@@ -5,7 +5,6 @@ Victory — The Architect ⟁Σ∿∞
 """
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -79,7 +78,6 @@ def inject_task(agent_name: str, task: str) -> str:
     if success:
         # Write inject log so Ethica's context feed picks it up
         try:
-            import json
             log_path = STATUS_DIR / "inject_log.json"
             log_path.write_text(json.dumps({
                 "agent": agent_name.capitalize(),
