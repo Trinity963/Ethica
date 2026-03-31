@@ -7,7 +7,6 @@
 
 import psutil
 import platform
-import os
 import subprocess
 from datetime import datetime, timedelta
 

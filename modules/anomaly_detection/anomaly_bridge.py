@@ -10,7 +10,6 @@
 # ============================================================
 
 import os
-import sys
 import json
 import subprocess
 from pathlib import Path
@@ -55,7 +54,7 @@ def anomaly_status(input_str):
     except Exception:
         pass
     return (
-        f"AnomalyDetection — Status\n"
+        "AnomalyDetection — Status\n"
         f"Model trained: {'✓ Yes' if trained else '✗ No — run anomaly train <data>'}\n"
         f"Model path: {data.get('model_path', 'unknown')}"
     )
@@ -71,9 +70,9 @@ def anomaly_train(input_str):
     if "error" in data:
         return f"AnomalyDetection — train error: {data['error']}"
     return (
-        f"AnomalyDetection — Model trained ✓\n"
+        "AnomalyDetection — Model trained ✓\n"
         f"Samples used: {data.get('samples', '?')}\n"
-        f"Model saved to status/anomaly_model.pkl"
+        "Model saved to status/anomaly_model.pkl"
     )
 
 
@@ -92,7 +91,7 @@ def anomaly_scan(input_str):
     anomalies = data.get("anomalies", 0)
 
     lines = [
-        f"AnomalyDetection — Scan Results",
+        "AnomalyDetection — Scan Results",
         f"Total samples: {total} | Anomalies: {anomalies}",
         "─" * 40,
     ]

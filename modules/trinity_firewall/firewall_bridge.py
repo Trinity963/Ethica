@@ -133,7 +133,7 @@ def firewall_status(input_str):
             with open(LOG_FILE, "r") as f:
                 log_lines = f.readlines()
             if log_lines:
-                lines.append(f"\nLog (last 5):")
+                lines.append("\nLog (last 5):")
                 for l in log_lines[-5:]:
                     lines.append(f"  {l.strip()}")
         except Exception:
