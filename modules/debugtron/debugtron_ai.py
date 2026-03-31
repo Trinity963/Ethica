@@ -45,16 +45,12 @@ def signature_verified():
         print(f"⚠️ Verification error: {e}")
         return False
 
-import os
-import json
 import hashlib
 import time
 import logging
 import traceback
-import hmac
 from datetime import datetime
 from cryptography.fernet import Fernet
-from flask import Flask, jsonify, request
 
 # Generate encryption key for secure logging
 ENCRYPTION_KEY = Fernet.generate_key()
