@@ -6,9 +6,7 @@
 # ============================================================
 
 from pathlib import Path
-import os
 import difflib
-import sys
 MODULE_DIR  = Path(__file__).parent
 
 def _expand(path_str):

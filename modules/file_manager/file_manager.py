@@ -8,7 +8,6 @@
 from pathlib import Path
 import os
 import shutil
-import sys
 
 MODULE_DIR  = Path(__file__).parent
 ETHICA_ROOT = MODULE_DIR.parent.parent
