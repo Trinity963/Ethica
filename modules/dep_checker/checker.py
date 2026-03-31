@@ -45,7 +45,6 @@ def signature_verified():
         print(f"⚠️ Verification error: {e}")
         return False
 
-import os
 import subprocess
 import json
 

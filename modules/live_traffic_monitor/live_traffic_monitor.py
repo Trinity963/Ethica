@@ -1,4 +1,3 @@
-import time
 import logging
 import requests
 from scapy.all import sniff, IP

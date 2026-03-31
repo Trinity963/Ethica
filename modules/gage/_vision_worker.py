@@ -1,7 +1,6 @@
 import sys
 import base64
 import requests
-from pathlib import Path
 
 filepath = sys.argv[1]
 

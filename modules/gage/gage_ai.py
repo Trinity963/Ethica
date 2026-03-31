@@ -7,7 +7,6 @@ import pyttsx3
 import pygame
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
 import trimesh
 
 # Load Whisper model for real-time speech recognition

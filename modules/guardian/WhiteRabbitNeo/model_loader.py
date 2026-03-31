@@ -1,7 +1,6 @@
 # model_loader.py
 # WhiteRabbitNeo loader for llama.cpp GGUF models
 
-import os
 from pathlib import Path
 import subprocess
 

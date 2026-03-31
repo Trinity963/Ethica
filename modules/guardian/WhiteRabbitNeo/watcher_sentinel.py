@@ -18,7 +18,6 @@ predicts intent, and prepares reflection logs for further soul-grid analysis.
 import os
 import time
 import logging
-from datetime import datetime
 from model_loader import detect_models  # Optional import for model awareness
 
 WATCH_PATH = "/mnt/SoulGate/Guardian/WhiteRabbitNeo/inbox"  # Watch path (adjustable)
