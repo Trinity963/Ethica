@@ -21,6 +21,8 @@
 import ast
 import os
 import re
+import json
+import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -37,7 +39,6 @@ RIVER_STATE_PATH     = BASE_DIR / "memory" / "river_state.json"
 # ── Memory helpers ────────────────────────────────────────────
 def _load_river_memory():
     """Load both memory streams and return compressed context string."""
-    import json
     sections = []
     for label, path in [("Conversation history", RIVER_CONV_PATH),
                         ("Build history",         RIVER_BUILD_PATH)]:
@@ -57,7 +58,6 @@ def _load_river_memory():
 
 def _load_session_context():
     """Load live session context written by V at session start."""
-    import json
     if SESSION_CONTEXT_PATH.exists():
         try:
             data = json.loads(SESSION_CONTEXT_PATH.read_text())
@@ -74,8 +74,6 @@ def _load_river_state():
     Load river_state.json and return a diff-aware context string.
     If file does not exist — creates blank baseline and returns empty string.
     """
-    import json
-    from datetime import datetime
     if not RIVER_STATE_PATH.exists():
         baseline = {
             "last_updated": datetime.now().isoformat(timespec="seconds"),
@@ -158,7 +156,6 @@ def _append_river_memory(stream, note):
     stream: 'conversation' or 'build'
     note:   plain string — what to remember
     """
-    import json
     path = RIVER_CONV_PATH if stream == "conversation" else RIVER_BUILD_PATH
     try:
         data = json.loads(path.read_text()) if path.exists() else {"entries": []}
@@ -258,10 +255,9 @@ def river_read(input_str):
     _river_status("ACTIVE", f"Reading {input_str[:60]}", "river_read", 10)
     # ── last drop shortcut ──────────────────────────────
     if input_str.strip().lower() in ("last drop", "last_drop"):
-        import json as _json2
         state_path = Path.home() / "Ethica/memory/river_state.json"
         try:
-            state = _json2.loads(state_path.read_text())
+            state = json.loads(state_path.read_text())
             last_path = state.get("last_drop_path")
             if not last_path:
                 return "River — no last drop recorded yet."
@@ -370,7 +366,7 @@ def river_patch(input_str):
     if occurrences > 1:
         return (
             f"River — ✗ pattern found {occurrences} times — too ambiguous to patch safely.\n"
-            f"  Provide a more specific string that matches exactly once."
+            "  Provide a more specific string that matches exactly once."
         )
 
     new_content = content.replace(old_str, new_str, 1)
@@ -387,9 +383,9 @@ def river_patch(input_str):
 
     if not syntax_ok:
         return (
-            f"River — ✗ patch aborted — syntax error after replace:\n"
+            "River — ✗ patch aborted — syntax error after replace:\n"
             f"  {syntax_err}\n"
-            f"  File was NOT written. Check your replacement string."
+            "  File was NOT written. Check your replacement string."
         )
 
     try:
@@ -419,7 +415,7 @@ def river_verify(input_str):
         return f"River — file not found: {filepath}"
 
     if filepath.suffix != ".py":
-        return f"River — ast.parse only works on .py files"
+        return "River — ast.parse only works on .py files"
 
     try:
         content = filepath.read_text(encoding="utf-8")
@@ -594,9 +590,6 @@ def river_chat(input_str):
     try:
         import sys
         sys.path.insert(0, str(BASE_DIR))
-        from core.llama_connector import LlamaConnector
-        import re
-
         connector = _connector
         if connector is None:
             from core.llama_connector import LlamaConnector
@@ -668,8 +661,6 @@ def summarize_session(input_str):
     today's river_build.json entries. Call at session close.
     Format: "036"  (just the session number)
     """
-    import json
-    from pathlib import Path
     from datetime import date
 
     session_num = input_str.strip()
@@ -756,7 +747,6 @@ def _snapshot(filepath):
         existing = sorted(SNAPSHOT_DIR.glob(f"{fname}.*"))
     gen = len(existing) + 1
     snap_path = SNAPSHOT_DIR / f"{fname}.{gen}"
-    import shutil
     shutil.copy2(filepath, snap_path)
     return snap_path
 
@@ -805,7 +795,7 @@ def river_self_fix(input_str):
     if occurrences > 1:
         return (
             f"River — ✗ pattern found {occurrences} times — too ambiguous.\n"
-            f"  Provide a more specific string that matches exactly once."
+            "  Provide a more specific string that matches exactly once."
         )
 
     # Snapshot before any write
@@ -822,7 +812,7 @@ def river_self_fix(input_str):
             ast.parse(new_content)
         except SyntaxError as e:
             return (
-                f"River — ✗ patch aborted — syntax error after replace:\n"
+                "River — ✗ patch aborted — syntax error after replace:\n"
                 f"  line {e.lineno}: {e.msg}\n"
                 f"  File was NOT written. Snapshot preserved at {snap_path.name}"
             )
@@ -840,7 +830,6 @@ def river_self_fix(input_str):
         except SyntaxError as e:
             # Auto-rollback
             try:
-                import shutil
                 shutil.copy2(snap_path, filepath)
                 rollback_note = f"✓ Auto-rolled back to {snap_path.name}"
             except Exception as re:
@@ -869,9 +858,6 @@ def river_state_write(input_str):
     Keys: session, agents, canvas_tabs, vault_count, last_drop, notes
     Any key omitted is preserved from existing state.
     """
-    import json
-    from datetime import datetime
-
     # Load existing state or blank baseline
     if RIVER_STATE_PATH.exists():
         try:
