@@ -10,6 +10,7 @@ from tkinter import ttk, font
 from datetime import datetime
 import json
 import logging
+import os
 
 from modules.kernel.kernel import read_all_agents, inject_task, read_agent_status
 
