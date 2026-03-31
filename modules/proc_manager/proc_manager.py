@@ -5,7 +5,6 @@
 # ⟁Σ∿∞
 # ============================================================
 
-import os
 import psutil
 from datetime import datetime
 from pathlib import Path
