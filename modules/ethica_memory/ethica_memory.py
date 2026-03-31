@@ -133,7 +133,7 @@ def memory_status(input_str):
             ts = m.get("timestamp", "")[:10]
             lines.append(f"    · [{ts}] {m.get('milestone', '')}")
     if growth:
-        lines.append(f"  Recent growth notes:")
+        lines.append("  Recent growth notes:")
         for g in growth[-3:]:
             lines.append(f"    · {g.get('note', '')[:80]}")
 
@@ -312,11 +312,11 @@ def memory_reflect(input_str):
         _write(REFLECT_FILE, reflect_data)
 
         return (
-            f"EthicaMemory — reflection written\n"
-            f"─" + "─"*40 + "\n"
+            "EthicaMemory — reflection written\n"
+            "─" + "─"*40 + "\n"
             f"{text}\n"
-            f"─" + "─"*40 + "\n"
-            f"Saved to memory/reflection_log.json"
+            "─" + "─"*40 + "\n"
+            "Saved to memory/reflection_log.json"
         )
 
     except Exception as e:
