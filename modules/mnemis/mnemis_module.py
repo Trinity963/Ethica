@@ -346,7 +346,7 @@ def mnemis_index(args: str = '') -> str:
     build_count   = len(index.get('builds', []))
     session_count = len(index.get('sessions', []))
     return (
-        f'✓ Mnemis index rebuilt — '
+        '✓ Mnemis index rebuilt — '
         f'{vault_count} vault files, '
         f'{build_count} build entries, '
         f'{session_count} session summaries'
@@ -391,7 +391,7 @@ def mnemis_recall(args: str = '') -> str:
         f'  Source  : {top["source"].upper()}',
         f'  Name    : {top["name"]}',
         f'  Indexed : {top["indexed"]}',
-        f'',
+        '',
         f'  {top["summary"]}',
     ]
 
@@ -400,12 +400,12 @@ def mnemis_recall(args: str = '') -> str:
         fname = top['name']
         entry = index['files'].get(fname, {})
         kws   = entry.get('keywords', [])[:20]
-        lines.append(f'')
+        lines.append('')
         lines.append(f'  Keywords: {", ".join(kws)}')
 
     # Show remaining results as context
     if len(results) > 1:
-        lines.append(f'')
+        lines.append('')
         lines.append(f'  Also found ({len(results)-1} more):')
         for r in results[1:4]:
             lines.append(f'    · {r["source"]} — {r["name"]} (score:{r["score"]})')
