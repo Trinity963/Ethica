@@ -5,7 +5,6 @@
 # Victory — The Architect ⟁Σ∿∞
 
 import json
-import os
 import re
 import subprocess
 from pathlib import Path
@@ -208,8 +207,6 @@ def jarvis_search(args: str = '') -> str:
     cve_id_match = re.search(r'CVE-\d{4}-\d+', query, re.IGNORECASE)
     if cve_id_match:
         cve_id = cve_id_match.group(0).upper()
-        year = cve_id.split('-')[1]
-        prefix = cve_id.split('-')[2][:4].ljust(4, 'x')
         # Search directly
         results = _search_cve_files(cve_p, cve_id, max_results=1)
         if results:
