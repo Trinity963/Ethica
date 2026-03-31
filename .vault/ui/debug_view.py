@@ -456,12 +456,23 @@ class DebugView:
                 delete=False,
                 encoding="utf-8"
             ) as tmp:
-                tmp.write(code)
+                # Inject Ethica root into sys.path for project-relative imports
+                if lang_def["ext"] == ".py":
+                    header = "import sys as _sys" + chr(10) + "_sys.path.insert(0, '/home/trinity/Ethica')" + chr(10)
+                    tmp.write(header + code)
+                else:
+                    tmp.write(code)
                 tmp_path = tmp.name
 
             # Run
+            # Use venv Python for .py to ensure Ethica packages are available
+            _runner = (
+                '/home/trinity/Ethica/Ethica_env/bin/python3'
+                if lang_def["ext"] == ".py"
+                else lang_def["runner"]
+            )
             result = subprocess.run(
-                [lang_def["runner"], tmp_path],
+                [_runner, tmp_path],
                 capture_output=True,
                 text=True,
                 timeout=30,

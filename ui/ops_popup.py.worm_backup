@@ -9,6 +9,7 @@
 # Brief marker in chat: "⟁ guardian start → Ops"
 # ============================================================
 
+import os
 import re
 import tkinter as tk
 from datetime import datetime
@@ -160,6 +161,7 @@ class OpsPopup:
 
     def _tag_urls_in_log(self):
         """Scan log content and apply hyperlink tag to all URLs."""
+        import re
         self._log.tag_remove("hyperlink", "1.0", tk.END)
         pattern = re.compile(r'https?://\S+')
         line_count = int(self._log.index(tk.END).split('.')[0])
@@ -172,6 +174,7 @@ class OpsPopup:
 
     def _open_file_in_canvas(self, event):
         """Open clicked local file path in canvas — routes by extension."""
+        from pathlib import Path
         index = self._log.index(f"@{event.x},{event.y}")
         tag_ranges = self._log.tag_ranges("filelink")
         for i in range(0, len(tag_ranges), 2):
@@ -203,6 +206,7 @@ class OpsPopup:
 
     def _insert_tree_result(self, result):
         """Render fm_tree output with clickable file lines."""
+        import os
 
         # Extract root path from header line: "FileManager Tree — /path/to/dir"
         root_path = None
@@ -247,6 +251,7 @@ class OpsPopup:
                     # Insert prefix (tree chars) as plain, filename as clickable
                     prefix = re.sub(r"📄.*", "", line)
                     self._log.insert(tk.END, prefix + "📄 ", "result")
+                    start = self._log.index(tk.END)
                     self._log.insert(tk.END, filename, (tag_name,))
                     self._log.insert(tk.END, "\n", "result")
                     self._log.tag_bind(tag_name, "<Button-1>",

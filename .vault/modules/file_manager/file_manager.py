@@ -16,7 +16,26 @@ ETHICA_ROOT = MODULE_DIR.parent.parent
 def _expand(path_str):
     if not path_str or str(path_str).strip().lower() in ("", "none"):
         path_str = "~"
-    return Path(os.path.expanduser(str(path_str).strip()))
+    s = str(path_str).strip()
+    # Auto-correct paths missing leading slash
+    if s.startswith("home/"):
+        s = "/" + s
+    # Auto-correct Ethica-relative paths missing /home/trinity prefix
+    _ethica_roots = ("/Ethica/", "/ui/", "/modules/", "/core/", "/tools/", "/docs/", "/assets/")
+    if any(s.startswith(r) for r in _ethica_roots):
+        s = "/home/trinity" + s
+    p = Path(os.path.expanduser(s))
+    # Bare filename fallback — search ~/Ethica recursively
+    if not p.is_absolute() or not p.exists():
+        name = Path(s).name
+        if name and "." in name:
+            ethica_root = Path(os.path.expanduser("~/Ethica"))
+            matches = [m for m in ethica_root.rglob(name)
+                       if ".git" not in m.parts and "Ethica_env" not in m.parts
+                       and "__pycache__" not in m.parts]
+            if matches:
+                return matches[0]
+    return p
 
 # ── Tool: fm_list ─────────────────────────────────────────────
 def fm_list(input_str):

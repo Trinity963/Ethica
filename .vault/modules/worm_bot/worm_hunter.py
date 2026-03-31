@@ -1,3 +1,4 @@
+import logging
 # ============================================================
 # WormBot — worm_hunter.py
 # Autonomous Bug Hunter Engine
@@ -18,6 +19,8 @@ from datetime import datetime
 from pathlib import Path
 
 # ── Config ───────────────────────────────────────────
+
+
 def _load_config():
     """Read worm_bot_config.json — never hardcoded."""
     config_path = Path(__file__).parent / "worm_bot_config.json"
@@ -27,14 +30,25 @@ def _load_config():
     except Exception:
         return {"max_files": 500, "warn_at": 400}
 
+
 _CONFIG = _load_config()
 _DEFAULT_MAX_FILES = _CONFIG.get("max_files", 500)
 
 # ── Paths ─────────────────────────────────────────────────────
 
-WORM_BOT_DIR  = Path(__file__).parent
-MODULES_DIR   = WORM_BOT_DIR / "modules"
-FEED_LOG      = WORM_BOT_DIR.parent / "codeworm" / "worm_feed.log"
+def _find_ethica_root():
+    # worm_hunter.py lives at <ethica_root>/modules/worm_bot/worm_hunter.py
+    # When run from Canvas tmp, __file__ is /tmp/xxx.py — use sys.path instead
+    for p in sys.path:
+        candidate = Path(p) / "modules" / "worm_bot" / "worm_hunter.py"
+        if candidate.exists():
+            return Path(p)
+    # Fallback: resolve from __file__ directly (normal invocation)
+    return Path(__file__).resolve().parent.parent.parent
+
+WORM_BOT_DIR = _find_ethica_root() / "modules" / "worm_bot"
+MODULES_DIR = WORM_BOT_DIR / "modules"
+FEED_LOG = WORM_BOT_DIR.parent / "codeworm" / "worm_feed.log"
 AWAKENED_FLAG = WORM_BOT_DIR / ".worm_awakened"
 
 # ── Extension → module name map ───────────────────────────────
@@ -80,6 +94,7 @@ AWAKENING = """
 
 _module_cache = {}
 
+
 def _load_module(module_name):
     if module_name in _module_cache:
         return _module_cache[module_name]
@@ -88,7 +103,7 @@ def _load_module(module_name):
         return None
     try:
         spec = importlib.util.spec_from_file_location(module_name, module_path)
-        mod  = importlib.util.module_from_spec(spec)
+        mod = importlib.util.module_from_spec(spec)
         if str(MODULES_DIR) not in sys.path:
             sys.path.insert(0, str(MODULES_DIR))
         spec.loader.exec_module(mod)
@@ -97,7 +112,7 @@ def _load_module(module_name):
             attr = getattr(mod, attr_name)
             if (isinstance(attr, type) and
                 attr_name not in ("BaseModule", "ABC") and
-                hasattr(attr, "analyze_code")):
+                    hasattr(attr, "analyze_code")):
                 cls = attr
                 break
         if cls is None:
@@ -117,7 +132,7 @@ def _discover_modules():
         if stem in ("base_module", "new_language_module", "test_module"):
             continue
         lang = stem.replace("_module", "")
-        ext  = f".{lang}"
+        ext = f".{lang}"
         if ext not in discovered:
             discovered[ext] = stem
     return discovered
@@ -144,7 +159,7 @@ def _maybe_awaken():
 def hunt(target_path, max_files=None):
     if max_files is None:
         max_files = _DEFAULT_MAX_FILES
-    target  = Path(target_path).expanduser().resolve()
+    target = Path(target_path).expanduser().resolve()
     ext_map = _discover_modules()
     results = {"scanned": 0, "broken": 0, "clean": 0, "skipped": 0, "findings": []}
     awakened = False
@@ -169,7 +184,7 @@ def hunt(target_path, max_files=None):
     _feed_write(f"[WORM][HUNT] Starting scan of {target} — {len(files)} files")
 
     for filepath in files:
-        ext         = filepath.suffix.lower()
+        ext = filepath.suffix.lower()
         module_name = ext_map.get(ext)
         if not module_name:
             results["skipped"] += 1
@@ -248,4 +263,4 @@ def hunt_summary(target_path, max_files=None):
 
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else "."
-    print(hunt_summary(target))
+    logging.info(hunt_summary(target))

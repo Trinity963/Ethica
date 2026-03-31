@@ -5,8 +5,8 @@
 # ⟁Σ∿∞
 # ============================================================
 
+import logging
 import tkinter as tk
-from tkinter import ttk
 from ui.chat_window import ChatWindow
 from ui.ops_popup import OpsPopup
 from ui.input_bar import InputBar
@@ -18,6 +18,8 @@ from ui.canvas_window import CanvasWindow
 from ui.dashboard_window import DashboardWindow
 from ui.scroll_drop import ScrollDrop
 import subprocess
+import os
+import re as _re
 import threading
 from pathlib import Path
 
@@ -328,7 +330,6 @@ class MainWindow:
 
     def _on_file_drop(self, filepath):
         """Called when a file is dropped onto scroll drop zone."""
-        import os
         filename = os.path.basename(filepath)
         ext = os.path.splitext(filepath)[1].lower()
 
@@ -343,7 +344,6 @@ class MainWindow:
             self.input_bar.set_enabled(False)
 
             def on_response(text):
-                import os
                 self.root.after(0, lambda: self._route_to_ops("WormBot", text, os.path.basename(filepath)))
 
             def on_error(err):
@@ -380,7 +380,6 @@ class MainWindow:
                     self.root.after(0, lambda: self.chat_window.add_message(
                         f"⟁ Mnemis: {msg}", sender="system"
                     ))
-                import importlib
                 mod = None
                 for m in self.engine.modules._modules.values():
                     if m.name == "Mnemis" and m.impl is not None:
@@ -389,7 +388,7 @@ class MainWindow:
                 if mod and hasattr(mod, 'init'):
                     mod.init(notify_fn=_notify)
         except Exception as e:
-            print(f"[Mnemis] boot error: {e}")
+            logging.warning(f"[Mnemis] boot error: {e}")
 
     def _start_health_bar(self):
         """Start the live CPU/RAM health bar — updates every 5s."""
@@ -503,9 +502,7 @@ class MainWindow:
 
     def _save_chat_to_disk(self):
         """Save current chat log to memory/chat/ as timestamped file."""
-        import os
         from datetime import datetime
-        from pathlib import Path
         history = self.engine.history if hasattr(self.engine, 'history') else []
         if not history:
             return
@@ -513,7 +510,6 @@ class MainWindow:
         chat_dir.mkdir(parents=True, exist_ok=True)
         ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filepath = chat_dir / f"chat_{ts}.txt"
-        import re as _re
         lines = []
         for msg in history:
             role = msg.get("role", "?").upper()
@@ -523,7 +519,7 @@ class MainWindow:
             if text:
                 lines.append(f"[{role}]: {text}")
         filepath.write_text("\n\n".join(lines), encoding="utf-8")
-        print(f"[ChatSave] Saved to {filepath}")
+        logging.info(f"[ChatSave] Saved to {filepath}")
 
     def _route_to_ops(self, tool_name, result, label=None):
         """Route tool result to Ops popup. Show brief marker in chat.
@@ -544,7 +540,7 @@ class MainWindow:
         try:
             processed = self.engine._handle_canvas_push(result, tool_result=True)
         except Exception as e:
-            print(f"[Ops] canvas push error: {e}")
+            logging.warning(f"[Ops] canvas push error: {e}")
             processed = result
         # Push processed result to ops
         self._ops.push(tool_name, processed)
@@ -587,7 +583,6 @@ class MainWindow:
         )
 
         # Detect tool triggers — route to ops instead of chat bubble
-        import re as _re
         _is_tool = self.engine.is_tool_trigger(message)
 
         if _is_tool:
@@ -717,7 +712,6 @@ class MainWindow:
         # Fallback — catch fenced code blocks the model wrote directly in chat
         # Extract them, push to canvas, keep only intent text in bubble
         if response and '```' in response:
-            import re as _re
             _fences = list(_re.finditer(r'```(\w*)\s*\n([\s\S]*?)```', response))
             if _fences:
                 _intent = response[:_fences[0].start()].strip()
@@ -758,7 +752,6 @@ class MainWindow:
         self._suppressed_buffer = []
         # Flush any remaining buffered tokens
         if hasattr(self, '_token_buffer') and self._token_buffer:
-            combined = "".join(self._token_buffer)
             self._token_buffer.clear()
         self.input_bar.set_enabled(True)
         self.input_bar.focus()
@@ -859,7 +852,6 @@ class MainWindow:
 
     def _check_connection(self):
         """Check if backend is reachable — thread-safe via queue."""
-        import threading
         import queue as _queue
         ui_queue = _queue.Queue()
 

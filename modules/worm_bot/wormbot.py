@@ -155,8 +155,29 @@ def wormbot_scan(input_str):
     filepath = input_str.strip()
     if not filepath:
         return "No file path provided."
+
+    # Resolve ~, missing /home/trinity prefix, and bare filenames
+    from pathlib import Path
+    import glob as _glob
+    p = Path(filepath).expanduser()
+    if not p.is_absolute():
+        p = Path(os.path.expanduser("~") + "/Ethica") / p
+    # Bare filename fallback — search ~/Ethica recursively
+    if not p.exists():
+        name = Path(filepath).name
+        if name and "." in name:
+            ethica_root = Path(os.path.expanduser("~/Ethica"))
+            matches = [m for m in ethica_root.rglob(name)
+                       if ".git" not in m.parts and "Ethica_env" not in m.parts
+                       and "__pycache__" not in m.parts]
+            if matches:
+                p = matches[0]
+    filepath = str(p)
+
     if not os.path.exists(filepath):
         return f"File not found: {filepath}"
+    if os.path.isdir(filepath):
+        return f"WormBot scans files, not directories: {filepath}"
 
     ext  = os.path.splitext(filepath)[1].lower()
     lang = EXT_MAP.get(ext)
@@ -182,18 +203,36 @@ def wormbot_scan(input_str):
 
     # Write fix in place if auto-fix on
     if result["auto_fixed"] and AUTO_FIX.get(lang, False):
+        fixed_code = result["fixed_code"]
+
+        # Surgical gate — verify fixed code is syntactically clean before writing
+        if lang == "python":
+            import ast as _ast
+            try:
+                _ast.parse(fixed_code)
+            except SyntaxError as e:
+                return (
+                    _format_result(result) +
+                    f"\n\n⚠ Auto-fix aborted — fixed code has syntax error at line {e.lineno}: {e.msg}\n"
+                    f"Original file unchanged."
+                )
+
+        # Verify fix actually differs from original
+        if fixed_code.strip() == code.strip():
+            result["_status_note"] = "No changes needed — file unchanged."
+            return _format_result(result)
+
         backup = filepath + ".worm_backup"
         try:
             with open(backup, "w", encoding="utf-8") as f:
                 f.write(code)
             with open(filepath, "w", encoding="utf-8") as f:
-                f.write(result["fixed_code"])
-            return (
-                _format_result(result) +
-                f"\n\nFile updated: {filepath}\nBackup: {backup}"
-            )
+                f.write(fixed_code)
+            result["_status_note"] = f"✓ File updated: {filepath}\nBackup: {backup}"
+            return _format_result(result)
         except Exception as e:
-            return _format_result(result) + f"\n\nCould not write fix: {e}"
+            result["_status_note"] = f"Could not write fix: {e}"
+            return _format_result(result)
 
     return _format_result(result)
 
@@ -350,6 +389,9 @@ def _format_result(result):
             lines.append("\nCode pushed to debug tab.")
         import os as _os
         fname = _os.path.basename(result.get("filepath", "WormBot"))
+        note = result.get("_status_note", "")
+        if note:
+            lines.append(f"\n{note}")
         lines.append(f"[DEBUG:{fname}:{lang}: {push_code}]")
 
     return "\n".join(lines)

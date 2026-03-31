@@ -967,7 +967,11 @@ class ChatEngine:
                 tab = tab_name.strip() if tab_name and tab_name.strip() else None
                 lang = lang_hint.strip() if lang_hint and lang_hint.strip() else None
                 if self._canvas:
-                    self._canvas.push_debug_from_ethica(code.strip(), tab_name=tab, lang=lang)
+                    # Strip trailing ] — greedy pattern captures it as part of code
+                    clean_code = code.strip()
+                    if clean_code.endswith(']'):
+                        clean_code = clean_code[:-1].rstrip()
+                    self._canvas.push_debug_from_ethica(clean_code, tab_name=tab, lang=lang)
             # Strip all debug blocks from response
             response = re.sub(r'\[DEBUG(?::([^:\]]*))?: *[\s\S]+', '', response).strip()
             if response:
@@ -1052,14 +1056,21 @@ class ChatEngine:
         return cleaned
 
     def _build_identity_context(self) -> str:
-        """Inject user name and AI name from config into system prompt."""
+        """Inject user name, AI name, and machine context into system prompt."""
+        import os
         ethica_name = self.config.get("ethica_name", "Ethica")
         user_name = self.config.get("user_name", "Friend")
+        home = os.path.expanduser("~")
+        ethica_root = os.path.join(home, "Ethica")
         return (
             f"\n\nYour name is {ethica_name}. "
             f"The person you are speaking with is called {user_name}. "
             f"The architecture you run inside is always called Ethica — this never changes. "
-            f"Your persona name ({ethica_name}) is what {user_name} has chosen to call you."
+            f"Your persona name ({ethica_name}) is what {user_name} has chosen to call you. "
+            f"Your home directory is {home}. "
+            f"Your Ethica root directory is {ethica_root}. "
+            f"All Ethica files live under {ethica_root}/. "
+            f"When referencing any file path, always use the full absolute path starting with {home}/."
         )
 
     def reset(self):

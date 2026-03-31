@@ -377,24 +377,45 @@ def worm_hunt(input_str):
     Syntax: [TOOL:worm_hunt: ~/myproject]
     """
     import sys
+    import queue
+    import threading
+    import importlib.util
     from pathlib import Path
 
-    worm_hunter_path = Path.home() / "Ethica/modules/worm_bot/worm_hunter.py"
+    # Portable path — walk sys.path for the real worm_hunter location
+    worm_hunter_path = None
+    for p in sys.path:
+        candidate = Path(p) / "modules" / "worm_bot" / "worm_hunter.py"
+        if candidate.exists():
+            worm_hunter_path = candidate
+            break
+    if worm_hunter_path is None:
+        worm_hunter_path = Path.home() / "Ethica/modules/worm_bot/worm_hunter.py"
     if not worm_hunter_path.exists():
-        return "WormHunter not found — expected at ~/Ethica/modules/worm_bot/worm_hunter.py"
+        return "WormHunter not found — expected at <ethica_root>/modules/worm_bot/worm_hunter.py"
 
     # Dynamic import
-    import importlib.util
     spec = importlib.util.spec_from_file_location("worm_hunter", worm_hunter_path)
     mod  = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
     raw = input_str.strip()
-    # If bare word with no path separators, ignore and use default
     target = raw if ("/" in raw or raw == "") else str(Path.home() / "Ethica")
     target = str(Path(target).expanduser().resolve())
 
-    try:
-        return mod.hunt_summary(target)
-    except Exception as e:
-        return f"WormHunter error: {e}"
+    # Run in isolated thread — never block Tkinter's main thread
+    result_queue = queue.Queue()
+
+    def _run():
+        try:
+            result_queue.put(mod.hunt_summary(target))
+        except Exception as e:
+            result_queue.put(f"WormHunter error: {e}")
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+    t.join(timeout=120)
+
+    if not result_queue.empty():
+        return result_queue.get()
+    return "WormHunter timed out after 120 seconds."

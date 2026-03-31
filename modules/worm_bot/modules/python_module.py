@@ -83,7 +83,7 @@ class PythonModule(BaseModule):
                 pass
 
         # 2. Remove duplicate imports
-        lines = fixed.splitlines()
+        lines = fixed.splitlines(keepends=True)
         seen = set()
         deduped = []
         for line in lines:
@@ -93,7 +93,7 @@ class PythonModule(BaseModule):
                     continue
                 seen.add(s)
             deduped.append(line)
-        fixed = "\n".join(deduped)
+        fixed = "".join(deduped)
 
         # 3. Replace print with logging
         if re.search(r"\bprint\s*\(", fixed):

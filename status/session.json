@@ -2,6 +2,16 @@
   "keep_last": 5,
   "sessions": [
     {
+      "session": "054",
+      "date": "2026-03-30",
+      "summary": "Canvas project imports fixed (sys.path injection + venv Python runner). ETHICA_LOCAL pip guard. WormHunter portable path anchor (_find_ethica_root via sys.path). Worm hunt segfault fixed (threading + queue). canvas_window.py clean. main_window.py clean. Lesson: use chr(10) not backslash-n in heredoc patches."
+    },
+    {
+      "session": "053",
+      "date": "2026-03-30",
+      "summary": "Filelink click fixed (tag timing). Canvas directory guard. Path resolution stack (ops_popup/FileManager/WormBot \u2014 expanduser+rglob). Trinity identity context with full home path. Filelink regex backtick support. WormBot surgical gate (ast.parse before write). DEBUG tab ] leak fixed. ops_popup cleanup (unused imports/dead vars). python_module keepends fix. WormHunter audit: 14/19 ui files broken \u2014 canvas_window.py and main_window.py priority next session."
+    },
+    {
       "session": "051",
       "date": "2026-03-29",
       "summary": "Integrity Shield built and tested \u2014 157 files SHA-256 sealed, boot modal, mid-session Ops hook. Guard seal expanded to assets/docs/tools/root. wormbot_env untracked (1542 files). secure_storage.db untracked. MODULE_AUTHORING_GUIDE.md written (593 lines). Venv path corrected: ~/Ethica/Ethica_env. Repo clean at 59caa10."
@@ -15,16 +25,6 @@
       "session": "049",
       "date": "2026-03-28",
       "summary": "Model matrix completed \u2014 minimax primary confirmed. Tool Lister filter fixed. Reka model configurable. WormHunter cap configurable (500). River read last drop built with Gage Vision handoff. Startup prompt measured (3315 tokens). 36 modules, 140 sealed. git 11a7c7b."
-    },
-    {
-      "session": "048",
-      "date": "2026-03-28",
-      "summary": "Canvas context overflow fixed (1500 char cap). Path NameError in _scan_and_install fixed. Ops amber filelinks built. json_fix single-file reformatter built. worm_fix_json bulk runner \u2014 50 files cleaned. Tool Lister built \u2014 138 tools, grouped, filter, click-to-insert. 36 modules, 140 sealed. git 3c102cb."
-    },
-    {
-      "session": "047",
-      "date": "2026-03-27",
-      "summary": "River path bug closed \u2014 last_drop_path now stored in river_state.json, injected into River context. WormHunter built \u2014 autonomous bug scanner, extensible language modules, Easter Egg awakening message live in worm_feed.log. worm_hunt tool wired into CodeWorm + chat_engine, routes to Ops. README.md written. Git commit 100f51f. 36 modules, 139 sealed."
     }
   ]
 }

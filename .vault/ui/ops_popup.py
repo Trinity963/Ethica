@@ -9,8 +9,10 @@
 # Brief marker in chat: "⟁ guardian start → Ops"
 # ============================================================
 
+import re
 import tkinter as tk
 from datetime import datetime
+from pathlib import Path
 
 
 class OpsPopup:
@@ -21,10 +23,10 @@ class OpsPopup:
 
     def __init__(self, parent, theme, config):
         self.parent = parent
-        self.theme  = theme
+        self.theme = theme
         self.config = config
-        self._win   = None
-        self._log   = None      # tk.Text widget
+        self._win = None
+        self._log = None      # tk.Text widget
         self._entry_count = 0
         self._canvas_ref = None   # Set by main_window after canvas init
         self._build()
@@ -106,36 +108,36 @@ class OpsPopup:
 
         # Tag styles
         self._log.tag_configure("timestamp",
-            foreground=c.get("text_muted", "#888888"),
-            font=f("small"))
+                                foreground=c.get("text_muted", "#888888"),
+                                font=f("small"))
         self._log.tag_configure("tool_name",
-            foreground=c.get("accent", "#9b59b6"),
-            font=f("small"))
+                                foreground=c.get("accent", "#9b59b6"),
+                                font=f("small"))
         self._log.tag_configure("result",
-            foreground=c["text_primary"],
-            font=f("small"))
+                                foreground=c["text_primary"],
+                                font=f("small"))
         self._log.tag_configure("filepath",
-            foreground="#c792ea", underline=True)
+                                foreground="#c792ea", underline=True)
         self._log.tag_configure("separator",
-            foreground=c.get("border", "#3a1a5a"),
-            font=f("small"))
+                                foreground=c.get("border", "#3a1a5a"),
+                                font=f("small"))
         self._log.tag_configure("error",
-            foreground="#e74c3c",
-            font=f("small"))
+                                foreground="#e74c3c",
+                                font=f("small"))
         self._log.tag_configure("hyperlink",
-            foreground="#7eb8f7", underline=True)
+                                foreground="#7eb8f7", underline=True)
         self._log.tag_bind("hyperlink", "<Button-1>", self._open_url)
         self._log.tag_bind("hyperlink", "<Enter>",
-            lambda e: self._log.config(cursor="hand2"))
+                           lambda e: self._log.config(cursor="hand2"))
         self._log.tag_bind("hyperlink", "<Leave>",
-            lambda e: self._log.config(cursor="arrow"))
+                           lambda e: self._log.config(cursor="arrow"))
         self._log.tag_configure("filelink",
-            foreground="#f7c97e", underline=True)
+                                foreground="#f7c97e", underline=True)
         self._log.tag_bind("filelink", "<Button-1>", self._open_file_in_canvas)
         self._log.tag_bind("filelink", "<Enter>",
-            lambda e: self._log.config(cursor="hand2"))
+                           lambda e: self._log.config(cursor="hand2"))
         self._log.tag_bind("filelink", "<Leave>",
-            lambda e: self._log.config(cursor="arrow"))
+                           lambda e: self._log.config(cursor="arrow"))
 
     # ── Public API ─────────────────────────────────────────────
 
@@ -158,7 +160,6 @@ class OpsPopup:
 
     def _tag_urls_in_log(self):
         """Scan log content and apply hyperlink tag to all URLs."""
-        import re
         self._log.tag_remove("hyperlink", "1.0", tk.END)
         pattern = re.compile(r'https?://\S+')
         line_count = int(self._log.index(tk.END).split('.')[0])
@@ -166,35 +167,29 @@ class OpsPopup:
             line = self._log.get(f"{lineno}.0", f"{lineno}.end")
             for match in pattern.finditer(line):
                 start_idx = f"{lineno}.{match.start()}"
-                end_idx   = f"{lineno}.{match.end()}"
+                end_idx = f"{lineno}.{match.end()}"
                 self._log.tag_add("hyperlink", start_idx, end_idx)
 
     def _open_file_in_canvas(self, event):
-        """Open clicked local file path in canvas as a document tab."""
-        from pathlib import Path
+        """Open clicked local file path in canvas — routes by extension."""
         index = self._log.index(f"@{event.x},{event.y}")
         tag_ranges = self._log.tag_ranges("filelink")
         for i in range(0, len(tag_ranges), 2):
             start = tag_ranges[i]
             end = tag_ranges[i + 1]
             if self._log.compare(start, "<=", index) and self._log.compare(index, "<=", end):
-                path_str = self._log.get(start, end).strip()
-                p = Path(path_str)
-                if not p.exists():
-                    return
-                try:
-                    text = p.read_text(encoding="utf-8", errors="ignore")
-                except Exception:
+                path_str = self._log.get(start, end).strip().strip('`\'\"')
+                p = Path(path_str).expanduser().resolve()
+                if not p.exists() or not p.is_file():
                     return
                 if self._canvas_ref:
-                    self._canvas_ref._drop_as_document(text, p.name)
+                    self._canvas_ref.open_file(str(p))
                 break
 
     def _tag_filepaths_in_log(self):
         """Scan log content and apply filelink tag to local file paths."""
-        import re
         self._log.tag_remove("filelink", "1.0", tk.END)
-        pattern = re.compile(r'/home/[\w/._\- ]+(?= —)|/home/[\w/._-]+|~/[\w/._-]+')
+        pattern = re.compile(r'`?/home/[\w/._\- ]+(?= —)`?|`?/home/[\w/._-]+`?|`?~/[\w/._-]+`?')
         line_count = int(self._log.index(tk.END).split('.')[0])
         for lineno in range(1, line_count + 1):
             line = self._log.get(f"{lineno}.0", f"{lineno}.end")
@@ -203,13 +198,11 @@ class OpsPopup:
                 # Only linkify if it looks like a real file (has an extension or is a known path)
                 if '.' in path_str.split('/')[-1] or path_str.count('/') > 2:
                     start_idx = f"{lineno}.{match.start()}"
-                    end_idx   = f"{lineno}.{match.end()}"
+                    end_idx = f"{lineno}.{match.end()}"
                     self._log.tag_add("filelink", start_idx, end_idx)
 
     def _insert_tree_result(self, result):
         """Render fm_tree output with clickable file lines."""
-        import os, re
-        from pathlib import Path
 
         # Extract root path from header line: "FileManager Tree — /path/to/dir"
         root_path = None
@@ -231,7 +224,7 @@ class OpsPopup:
                     # Reconstruct approximate full path by searching under root
                     tag_name = f"fp_{self._entry_count}_{filename}"
                     self._log.tag_configure(tag_name,
-                        foreground="#c792ea", underline=True)
+                                            foreground="#c792ea", underline=True)
 
                     def _make_open(fn, rp, tn):
                         def _open_in_canvas(event=None):
@@ -254,15 +247,14 @@ class OpsPopup:
                     # Insert prefix (tree chars) as plain, filename as clickable
                     prefix = re.sub(r"📄.*", "", line)
                     self._log.insert(tk.END, prefix + "📄 ", "result")
-                    start = self._log.index(tk.END)
                     self._log.insert(tk.END, filename, (tag_name,))
                     self._log.insert(tk.END, "\n", "result")
                     self._log.tag_bind(tag_name, "<Button-1>",
-                        _make_open(filename, root_path, tag_name))
+                                       _make_open(filename, root_path, tag_name))
                     self._log.tag_bind(tag_name, "<Enter>",
-                        lambda e, t=tag_name: self._log.config(cursor="hand2"))
+                                       lambda e, t=tag_name: self._log.config(cursor="hand2"))
                     self._log.tag_bind(tag_name, "<Leave>",
-                        lambda e: self._log.config(cursor=""))
+                                       lambda e: self._log.config(cursor=""))
                 else:
                     self._log.insert(tk.END, line + "\n", "result")
             else:
@@ -289,13 +281,12 @@ class OpsPopup:
             self._insert_tree_result(result.strip())
         else:
             self._log.insert(tk.END, result.strip() + "\n", "error" if is_error else "result")
-            self._tag_urls_in_log()
-            self._tag_filepaths_in_log()
 
         # 📋 Copy button for this entry
         _c = self.theme.colors
         _f = self.theme.font
         _snap = result.strip()
+
         def _make_copy(text):
             def _copy():
                 self._win.clipboard_clear()
@@ -315,6 +306,8 @@ class OpsPopup:
         _btn = _make_copy(_snap)
         self._log.window_create(tk.END, window=_btn)
         self._log.insert(tk.END, "\n")
+        self._tag_urls_in_log()
+        self._tag_filepaths_in_log()
         self._log.config(state=tk.DISABLED)
         self._log.see(tk.END)
         self._entry_count += 1

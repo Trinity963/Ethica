@@ -11,11 +11,6 @@ try:
     _DND = True
 except ImportError:
     _DND = False
-try:
-    from tkinterdnd2 import TkinterDnD
-    _DND = True
-except ImportError:
-    _DND = False
 import sys
 import os
 

@@ -18,6 +18,7 @@ from tkinter import ttk, simpledialog
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 from core.canvas_history import CanvasHistory
 from core.project_engine import ProjectEngine
 from ui.project_view import ProjectView
@@ -32,7 +33,6 @@ from ui.scroll_drop import ScrollDrop
 def _notify_canvas_drop(filename, filepath=None):
     """Write last_drop to river_state.json so Trinity has canvas awareness."""
     try:
-        from pathlib import Path
         state_path = Path.home() / 'Ethica/memory/river_state.json'
         if state_path.exists():
             state = json.loads(state_path.read_text())
@@ -202,7 +202,6 @@ class CanvasWindow:
     def _build_window(self):
         """Build the floating canvas window."""
         c = self.theme.colors
-        f = self.theme.font
 
         # Restore saved geometry or use defaults
         geo = self.config.get(
@@ -249,6 +248,10 @@ class CanvasWindow:
 
     def _on_canvas_file_drop(self, filepath):
         """Route dropped file to correct Canvas tab by extension."""
+        import pathlib as _pl
+        if not _pl.Path(filepath).is_file():
+            logging.info(f'[CanvasDrop] not a file, skipping: {filepath}')
+            return
         ext = os.path.splitext(filepath)[1].lower()
         filename = os.path.basename(filepath)
 
@@ -302,7 +305,6 @@ class CanvasWindow:
                 import ast as _ast
                 import subprocess
                 import sys
-                from pathlib import Path
                 cache_path = Path.home() / 'Ethica/status/req_cache.json'
                 try:
                     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
@@ -320,8 +322,10 @@ class CanvasWindow:
                     elif isinstance(node, _ast.ImportFrom) and node.module:
                         imports.add(node.module.split('.')[0])
                 stdlib = set(sys.stdlib_module_names) if hasattr(sys, 'stdlib_module_names') else set()
+                # Local Ethica packages — never pip-installable
+                ethica_local = {'core', 'modules', 'ui', 'agents', 'sanctuary', 'vault'}
                 for mod in imports:
-                    if mod in stdlib or mod in cache:
+                    if mod in stdlib or mod in cache or mod in ethica_local:
                         continue
                     try:
                         __import__(mod)
@@ -375,7 +379,6 @@ class CanvasWindow:
 
     def _drop_as_pdf(self, filepath):
         """Extract text and render pages from a dropped PDF — two Document tabs."""
-        import io
         filename = os.path.basename(filepath)
 
         if not self._window or not self._window.winfo_exists():
@@ -1248,7 +1251,6 @@ class CanvasWindow:
     def _tab_context_menu(self, event, index):
         """Right-click context menu for tabs — rename or delete."""
         c = self.theme.colors
-        f = self.theme.font
 
         menu = tk.Menu(
             self._window,
@@ -1862,7 +1864,7 @@ class CanvasWindow:
                 if i == self._active_tab_index:
                     self._editor.delete("1.0", tk.END)
                     self._editor.insert("1.0", content)
-                self._update_status(f"Restored version from history")
+                self._update_status("Restored version from history")
                 self._save_state()
                 self._close_history_panel()
                 self._open_history_panel()
@@ -1964,7 +1966,6 @@ class CanvasWindow:
             return
 
         c = self.theme.colors
-        f = self.theme.font
 
         self._window.configure(bg=c["bg_primary"])
         self._toolbar.configure(bg=c["bg_secondary"])
