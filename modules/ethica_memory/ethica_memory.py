@@ -13,8 +13,6 @@
 # ============================================================
 
 import json
-import os
-import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -189,7 +187,6 @@ def memory_edit(input_str):
 
     section = path_parts[0].lower()
     field   = path_parts[1].lower()
-    op      = path_parts[2].lower() if len(path_parts) > 2 else "set"
 
     # Route to correct file
     file_map = {
@@ -265,13 +262,11 @@ def memory_reflect(input_str):
         if ethica_root not in sys.path:
             sys.path.insert(0, ethica_root)
 
-        from core.reflection_engine import ReflectionEngine
 
         # We need a connector — check if one is accessible via chat_engine
         # If not available, build a minimal reflection from memory directly
         profile   = _read(PROFILE_FILE)
         insights  = _read(INSIGHTS_FILE)
-        evolution = _read(EVOLUTION_FILE)
 
         name      = profile.get("name", "V")
         convs     = profile.get("conversation_count", 0)
