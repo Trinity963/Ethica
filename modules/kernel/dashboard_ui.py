@@ -8,8 +8,8 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, font
 from datetime import datetime
-import threading
-import time
+import json
+import logging
 
 from modules.kernel.kernel import read_all_agents, inject_task, read_agent_status
 
@@ -457,18 +457,16 @@ class DashboardPanel(tk.Frame):
     def _launch_vault(self):
         """Open the Mnemis vault folder in the file manager."""
         import subprocess
-        from pathlib import Path
         vault = Path.home() / 'Ethica/memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         try:
             subprocess.Popen(['xdg-open', str(vault)])
         except Exception as e:
-            print(f'[Mnemis] vault open error: {e}')
+            logging.warning('[Mnemis] vault open error: %s', e)
 
     def _on_vault_drop(self, event):
         """Handle file drop onto vault drop zone — index via Mnemis."""
         import shutil
-        from pathlib import Path
         vault = Path.home() / 'Ethica/memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         filepaths = self._vault_drop.tk.splitlist(event.data)
@@ -502,7 +500,6 @@ class DashboardPanel(tk.Frame):
             self.app._on_send("show notes")
 
     def _open_agent_manager(self):
-        import json, os
         if hasattr(self, "_agent_manager_win") and self._agent_manager_win and self._agent_manager_win.winfo_exists():
             self._agent_manager_win.lift()
             return
@@ -726,9 +723,6 @@ class DashboardPanel(tk.Frame):
     # ── Memory ────────────────────────────────────────────────────────────────
 
     def _build_memory(self, parent):
-        from pathlib import Path
-        import json
-
         self._mem_parent = parent
         self._mem_path = {
             "conversational": Path.home() / "Ethica" / "memory" / "river_conversational.json",
@@ -787,8 +781,6 @@ class DashboardPanel(tk.Frame):
                  wraplength=700, justify="left").pack(anchor="w")
 
     def _mem_count(self, stream: str) -> int:
-        import json
-        from pathlib import Path
         path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
@@ -798,8 +790,6 @@ class DashboardPanel(tk.Frame):
             return 0
 
     def _last_entry(self, stream: str) -> str:
-        import json
-        from pathlib import Path
         path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
@@ -826,9 +816,6 @@ class DashboardPanel(tk.Frame):
         return default
 
     def _peek_stream(self, stream: str):
-        import json
-        from pathlib import Path
-
         path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
@@ -930,7 +917,6 @@ class DashboardPanel(tk.Frame):
 
     def _write_dashboard_context(self):
         """Write live dashboard snapshot for Ethica's context feed."""
-        import json, datetime
         try:
             agents = read_all_agents()
             online = [a["agent"] for a in agents if a["state"] != "OFFLINE"]
@@ -946,7 +932,6 @@ class DashboardPanel(tk.Frame):
                 "agent_details": agent_details,
                 "modified": datetime.datetime.now().strftime("%H:%M:%S"),
             }
-            from pathlib import Path
             ctx_path = Path.home() / "Ethica/status/dashboard_context.json"
             ctx_path.write_text(json.dumps(data, indent=2))
         except Exception:
