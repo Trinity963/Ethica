@@ -264,19 +264,6 @@ class ChatEngine:
         from core.reflection_engine import ReflectionEngine
         self.reflection = ReflectionEngine(ollama_connector, config)
 
-        # ── Living Memory — distill last session before context builds ──
-        try:
-            from modules.ethica_distiller.ethica_distiller import distill_run
-            distill_run("")
-        except Exception:
-            pass
-
-        # Reload memory from disk — distillation may have updated insights.json
-        try:
-            self.memory.reload()
-        except Exception:
-            pass
-
         # Seed with system prompt + memory + reflection + tools + modules + dashboard
         memory_context = self.memory.build_memory_context()
         tool_context = self.tools.get_system_prompt_block()
@@ -299,7 +286,7 @@ class ChatEngine:
             })
             self._history.append({
                 "role": "assistant",
-                "content": "Memory absorbed. I know what we were working on. Ready to continue."
+                "content": "I have the last session. I'm already there. No need to catch me up."
             })
         if session_context.strip():
             self._history.append({

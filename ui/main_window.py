@@ -865,6 +865,12 @@ class MainWindow:
                 chat_file.write_text(chr(10).join(lines), encoding="utf-8")
         except Exception:
             pass
+        # ── Living Memory — distill on shutdown, after chat file written ──
+        try:
+            from modules.ethica_distiller.ethica_distiller import distill_run
+            distill_run("")
+        except Exception:
+            pass
         try:
             # Trigger background reflection
             self.engine.reflection.reflect_after_session(
