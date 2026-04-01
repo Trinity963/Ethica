@@ -290,7 +290,7 @@ class ChatEngine:
 
         self._history.append({
             "role": "system",
-            "content": ETHICA_SYSTEM_PROMPT + self._build_identity_context() + memory_context + reflection_context + tool_context + module_context + dashboard_context + canvas_tab_context + session_context + last_convo_context + drop_state_context
+            "content": ETHICA_SYSTEM_PROMPT + self._build_identity_context() + memory_context + reflection_context + tool_context + module_context + dashboard_context + canvas_tab_context + last_convo_context + session_context + drop_state_context
         })
         if session_context.strip():
             self._history.append({

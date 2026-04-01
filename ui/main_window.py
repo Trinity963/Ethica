@@ -530,6 +530,12 @@ class MainWindow:
             self.chat_window.add_message("⟁ Dashboard open.", sender="system")
             self._set_tool_marker("⟁ Dashboard")
             return
+        # Canvas sentinel — open canvas instead of routing to ops
+        if result and result.strip() == "__OPEN_CANVAS__":
+            self.canvas.open()
+            self.chat_window.add_message("⟁ Canvas open.", sender="system")
+            self._set_tool_marker("⟁ Canvas")
+            return
         # Lazy init ops popup
         if self._ops is None:
             self._ops = OpsPopup(self.root, self.theme, self.config)
@@ -676,6 +682,14 @@ class MainWindow:
                 self._finalize_bubble = None
             self.dashboard.open()
             self.chat_window.add_message("⟁ Dashboard open.", sender="system")
+            self._restore_ready()
+            return
+        if response and "__OPEN_CANVAS__" in response:
+            if hasattr(self, '_finalize_bubble') and self._finalize_bubble:
+                self._finalize_bubble("")
+                self._finalize_bubble = None
+            self.canvas.open()
+            self.chat_window.add_message("⟁ Canvas open.", sender="system")
             self._restore_ready()
             return
         # Finalize the streaming bubble — swap live Text for static Label
@@ -840,11 +854,14 @@ class MainWindow:
                 lines = []
                 for msg in history:
                     role = msg.get("role", "")
-                    content = msg.get("content", "")
+                    txt = msg.get("content", "")
+                    # Skip system-injected trigger messages
+                    if role == "user" and txt.startswith("[Session start"):
+                        continue
                     if role == "user":
-                        lines.append(f"[USER]: {content}")
+                        lines.append(f"[USER]: {txt}")
                     elif role == "assistant":
-                        lines.append(f"[ASSISTANT]: {content}")
+                        lines.append(f"[ASSISTANT]: {txt}")
                 chat_file.write_text(chr(10).join(lines), encoding="utf-8")
         except Exception:
             pass
