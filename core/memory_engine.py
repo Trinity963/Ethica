@@ -1,3 +1,4 @@
+import logging
 # ============================================================
 # Ethica v0.1 — memory_engine.py
 # Soul Archive — Ethica's Living Memory
@@ -456,7 +457,7 @@ class MemoryEngine:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except IOError as e:
-            print(f"[Ethica Memory] Save failed for {path}: {e}")
+            logging.info(f"[Ethica Memory] Save failed for {path}: {e}")
 
     def _generate_session_id(self):
         """Generate a unique session ID."""
