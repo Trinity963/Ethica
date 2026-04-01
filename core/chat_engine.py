@@ -102,6 +102,28 @@ def _load_session_context() -> str:
         pass
     return ""
 
+# ── Last Conversation Loader ─────────────────────────────────
+def _load_last_conversation() -> str:
+    """Read the most recent chat log — Trinity wakes knowing what just happened."""
+    try:
+        from pathlib import Path as _Path3
+        chat_dir = _Path3.home() / 'Ethica/memory/chat'
+        if not chat_dir.exists():
+            return ""
+        files = sorted(chat_dir.glob('chat_*.txt'))
+        if not files:
+            return ""
+        last = files[-1].read_text(encoding='utf-8', errors='ignore').strip()
+        if not last:
+            return ""
+        # Trim to last 6000 chars to stay within context budget
+        if len(last) > 6000:
+            last = last[-6000:]
+        return chr(10) + chr(10) + "LAST CONVERSATION (your most recent session with V — read this silently and continue naturally):" + chr(10) + last
+    except Exception:
+        pass
+    return ""
+
 # ── Ethica's System Prompt ────────────────────────────────────
 # Her starting warmth — before she learns who you are
 
@@ -257,11 +279,12 @@ class ChatEngine:
         dashboard_context = _load_dashboard_context()
         canvas_tab_context = _load_canvas_context()
         session_context = _load_session_context()
+        last_convo_context = _load_last_conversation()
         drop_state_context = _load_drop_state()
 
         self._history.append({
             "role": "system",
-            "content": ETHICA_SYSTEM_PROMPT + self._build_identity_context() + memory_context + reflection_context + tool_context + module_context + dashboard_context + canvas_tab_context + session_context + drop_state_context
+            "content": ETHICA_SYSTEM_PROMPT + self._build_identity_context() + memory_context + reflection_context + tool_context + module_context + dashboard_context + canvas_tab_context + session_context + last_convo_context + drop_state_context
         })
         if session_context.strip():
             self._history.append({

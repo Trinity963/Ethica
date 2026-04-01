@@ -826,6 +826,28 @@ class MainWindow:
 
     def _on_close(self):
         """Called when app window closes — trigger reflection then exit."""
+        # ── Living Memory — write session to chat log for distillation ──
+        try:
+            from pathlib import Path
+            from datetime import datetime
+            import re as _re
+            history = self.engine._history[1:]  # skip system prompt
+            if history:
+                chat_dir = Path.home() / "Ethica" / "memory" / "chat"
+                chat_dir.mkdir(parents=True, exist_ok=True)
+                timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M")
+                chat_file = chat_dir / f"chat_{timestamp}.txt"
+                lines = []
+                for msg in history:
+                    role = msg.get("role", "")
+                    content = msg.get("content", "")
+                    if role == "user":
+                        lines.append(f"[USER]: {content}")
+                    elif role == "assistant":
+                        lines.append(f"[ASSISTANT]: {content}")
+                chat_file.write_text(chr(10).join(lines), encoding="utf-8")
+        except Exception:
+            pass
         try:
             # Trigger background reflection
             self.engine.reflection.reflect_after_session(
