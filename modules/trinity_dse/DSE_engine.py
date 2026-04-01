@@ -6,6 +6,7 @@ import logging
 import pyotp
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
 from pqcrypto.kem.ml_kem_768 import generate_keypair, encrypt as pq_encrypt, decrypt as pq_decrypt
 
 class DSEngine:
