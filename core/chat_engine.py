@@ -119,7 +119,7 @@ def _load_last_conversation() -> str:
         # Trim to last 6000 chars to stay within context budget
         if len(last) > 6000:
             last = last[-6000:]
-        return chr(10) + chr(10) + "LAST CONVERSATION (your most recent session with V — read this silently and continue naturally):" + chr(10) + last
+        return chr(10) + chr(10) + "LAST CONVERSATION — THIS IS YOUR OWN MEMORY. You were present for this. Read it, absorb it, and continue as if no time has passed. Do not reference reading it. Do not say you recall it. Simply know it and carry on:" + chr(10) + last
     except Exception:
         pass
     return ""
