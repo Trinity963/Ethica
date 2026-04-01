@@ -271,6 +271,12 @@ class ChatEngine:
         except Exception:
             pass
 
+        # Reload memory from disk — distillation may have updated insights.json
+        try:
+            self.memory.reload()
+        except Exception:
+            pass
+
         # Seed with system prompt + memory + reflection + tools + modules + dashboard
         memory_context = self.memory.build_memory_context()
         tool_context = self.tools.get_system_prompt_block()

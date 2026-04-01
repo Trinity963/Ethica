@@ -145,6 +145,12 @@ class MemoryEngine:
         # Start a new session
         self._open_session()
 
+    def reload(self):
+        """Reload insights and user profile from disk — call after distillation updates files."""
+        with self._lock:
+            self._user_profile = self._load(USER_PROFILE, DEFAULT_USER_PROFILE)
+            self._insights = self._load(INSIGHTS, DEFAULT_INSIGHTS)
+
     # ── Session Management ────────────────────────────────────
 
     def _open_session(self):
