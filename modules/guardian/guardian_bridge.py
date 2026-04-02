@@ -18,7 +18,19 @@ from datetime import datetime
 from pathlib import Path
 
 MODULE_DIR      = Path(os.path.dirname(os.path.abspath(__file__)))
-WRN_DIR         = MODULE_DIR / "WhiteRabbitNeo"
+
+# ── Config-driven sentinel directory — defaults to WhiteRabbitNeo ──
+_cfg_path = MODULE_DIR / "guardian_config.json"
+_cfg = {}
+if _cfg_path.exists():
+    try:
+        with open(_cfg_path) as _f:
+            _cfg = json.load(_f)
+    except Exception:
+        pass
+_sentinel_dir = _cfg.get("sentinel_dir", "WhiteRabbitNeo")
+
+WRN_DIR         = MODULE_DIR / _sentinel_dir
 INBOX_PATH      = WRN_DIR / "inbox"
 REFLECTIONS_DIR = WRN_DIR / "reflections"
 TACTICS_PATH    = WRN_DIR / "tactics" / "tactics_catalog.json"
