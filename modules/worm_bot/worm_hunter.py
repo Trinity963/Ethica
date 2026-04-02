@@ -72,6 +72,7 @@ SKIP_DIRS = {
     ".mypy_cache", ".pytest_cache", "dist", "build", ".vault",
     "worm_bot", "codeworm",
     "site-packages", "lib", "gage_env", "wormbot_env",
+    "memory", "docs",
 }
 
 # ── First-find awakening message ──────────────────────────────

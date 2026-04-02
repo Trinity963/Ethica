@@ -28,12 +28,59 @@ class PythonModule(BaseModule):
             issues.append(f"Syntax error line {e.lineno}: {e.msg}")
             return {"issues": issues}
 
-        # 2. Pyflakes — unused imports, undefined names
+        # 2. Alias-aware / scope-aware / lazy-load import analysis
+        import_entries = []  # (lineno, local_name, display, is_lazy)
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                # Detect lazy-load: inside a function or try/except
+                is_lazy = False
+                for parent in ast.walk(tree):
+                    if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Try)):
+                        for child in ast.walk(parent):
+                            if child is node:
+                                is_lazy = True
+                                break
+                    if is_lazy:
+                        break
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        local_name = alias.asname if alias.asname else alias.name.split(".")[0]
+                        display = f"import {alias.name}" + (f" as {alias.asname}" if alias.asname else "")
+                        import_entries.append((node.lineno, local_name, display, is_lazy))
+                elif isinstance(node, ast.ImportFrom):
+                    for alias in node.names:
+                        if alias.name == "*":
+                            continue
+                        local_name = alias.asname if alias.asname else alias.name
+                        mod = node.module or ""
+                        display = f"from {mod} import {alias.name}" + (f" as {alias.asname}" if alias.asname else "")
+                        import_entries.append((node.lineno, local_name, display, is_lazy))
+
+        # Collect all Name references across entire tree (all scopes)
+        used_names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+        # Also catch attribute access roots: import X; X.something
+        used_names |= {n.value.id for n in ast.walk(tree)
+                       if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)}
+
+        for lineno, local_name, display, is_lazy in import_entries:
+            if local_name not in used_names:
+                if is_lazy:
+                    issues.append(f"Line {lineno}: LAZY_LOAD not used in outer scope — {display}")
+                else:
+                    issues.append(f"Line {lineno}: UNUSED import — {display}")
+
+        # Pyflakes for non-import issues only (undefined names, redefined, etc.)
         if HAS_PYFLAKES:
             try:
                 w = pyflakes_checker.Checker(tree, "<wormbot>")
                 for msg in w.messages:
-                    issues.append(str(msg).split("<wormbot>:")[-1].strip())
+                    text = str(msg).split("<wormbot>:")[-1].strip()
+                    # Skip import messages — handled above
+                    if ("imported but unused" in text or
+                            "redefinition of unused" in text or
+                            "unable to detect undefined names" in text):
+                        continue
+                    issues.append(text)
             except Exception:
                 pass
 
