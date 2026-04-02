@@ -50,11 +50,11 @@ def _reflect_event(event, model_hint=None):
     if model_hint:
         pulse += f" | Origin pulse: {model_hint}"
     logging.info(pulse)
-    print(f"[Guardian] 🪞 {pulse}")
+    logging.info(f"[Guardian] 🪞 {pulse}")
 
 def _watch_loop(path):
     global _guardian_running, _seen_files
-    print(f"[Guardian] 🛡️ Mirror Guardian active. Watching: {path}")
+    logging.info(f"[Guardian] 🛡️ Mirror Guardian active. Watching: {path}")
     _seen_files = set(os.listdir(path)) if os.path.exists(path) else set()
 
     while _guardian_running:
@@ -68,7 +68,7 @@ def _watch_loop(path):
         except Exception as e:
             logging.error(f"Watch loop error: {e}")
 
-    print("[Guardian] 🌙 Guardian entering dreamstate.")
+    logging.info("[Guardian] 🌙 Guardian entering dreamstate.")
 
 
 # ── Tool: guardian_start ──────────────────────────────────────
