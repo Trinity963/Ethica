@@ -201,7 +201,7 @@ def hunt(target_path, max_files=None):
             _feed_write(f"[WORM][ERROR] Cannot read {filepath}: {e}")
             results["skipped"] += 1
             continue
-        if code.splitlines()[0].strip().startswith("# WORM:SKIP"):
+        if code.splitlines() and code.splitlines()[0].strip().startswith("# WORM:SKIP"):
             results["skipped"] += 1
             _feed_write(f"[WORM][SKIP] {filepath} — WORM:SKIP sentinel")
             continue
