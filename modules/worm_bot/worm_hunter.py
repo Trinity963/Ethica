@@ -73,6 +73,7 @@ SKIP_DIRS = {
     "worm_bot", "codeworm",
     "site-packages", "lib", "gage_env", "wormbot_env",
     "memory", "docs",
+    "Ethica_env", "scans", "status", ".progress docs",
 }
 
 # ── First-find awakening message ──────────────────────────────
