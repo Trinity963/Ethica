@@ -12,6 +12,7 @@
 # V watches. V approves. This is co-creation at the execution layer.
 # ============================================================
 
+import logging
 import subprocess
 import sys
 import os
@@ -19,6 +20,8 @@ import re
 import tempfile
 import threading
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 MAX_ATTEMPTS = 3
@@ -92,7 +95,7 @@ class AutonomousDebugger:
         ext    = self._get_ext(lang)
 
         for i in range(1, MAX_ATTEMPTS + 1):
-            print(f"[AutonomousDebug] Attempt {i}/{MAX_ATTEMPTS}")
+            logger.info("[AutonomousDebug] Attempt %s/%s", i, MAX_ATTEMPTS)
 
             # Run the code
             attempt = self._execute(current_code, runner, ext, i)
@@ -232,7 +235,7 @@ Just the raw fixed code ready to run."""
             return response.strip() if response.strip() else None
 
         except Exception as e:
-            print(f"[AutonomousDebug] Rewrite error: {e}")
+            logger.error("[AutonomousDebug] Rewrite error: %s", e)
             return None
 
     # ── Commentary ────────────────────────────────────────────
