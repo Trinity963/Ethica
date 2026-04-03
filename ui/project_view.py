@@ -12,10 +12,9 @@
 import tkinter as tk
 from tkinter import simpledialog
 from core.project_engine import (
-    ProjectEngine, Task,
+    ProjectEngine,
     STATUS_TODO, STATUS_DOING, STATUS_DONE, STATUS_BLOCKED,
     PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH,
-    STATUS_LABELS, PRIORITY_LABELS
 )
 
 
