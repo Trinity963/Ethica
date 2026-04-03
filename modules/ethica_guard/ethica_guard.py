@@ -66,6 +66,7 @@ UI_FILES = [
     "sidebar.py",
     "sketch_view.py",
     "theme.py",
+    "tool_lister.py",
     "ui__init__.py",
 ]
 
