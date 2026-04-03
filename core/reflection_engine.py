@@ -14,9 +14,12 @@
 # ============================================================
 
 import json
+import logging
 import os
 import threading
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 BASE_DIR         = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -77,12 +80,12 @@ class ReflectionEngine:
         """Background thread — reads memory, generates reflection."""
         self._running = True
         try:
-            print("[Reflection] Starting background reflection...")
+            logger.info("[Reflection] Starting background reflection...")
 
             # Read memory archive
             context = self._build_reflection_context()
             if not context:
-                print("[Reflection] No memory context — skipping")
+                logger.warning("[Reflection] No memory context — skipping")
                 return
 
             # Build introspective prompt
@@ -94,7 +97,7 @@ class ReflectionEngine:
                 for token in self.connector.chat(messages, stream=True):
                     reflection_text += token
             except Exception as e:
-                print(f"[Reflection] Model error: {e}")
+                logger.error("[Reflection] Model error: %s", e)
                 return
 
             if not reflection_text.strip():
@@ -105,10 +108,10 @@ class ReflectionEngine:
 
             # Save reflection
             self._save_reflection(reflection_text.strip())
-            print(f"[Reflection] Complete — {len(reflection_text)} chars written")
+            logger.info("[Reflection] Complete — %s chars written", len(reflection_text))
 
         except Exception as e:
-            print(f"[Reflection] Error: {e}")
+            logger.error("[Reflection] Error: %s", e)
         finally:
             self._running = False
 
