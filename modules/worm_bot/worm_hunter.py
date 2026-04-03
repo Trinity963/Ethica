@@ -201,7 +201,7 @@ def hunt(target_path, max_files=None):
             results["skipped"] += 1
             continue
         try:
-            result = analyzer.analyze_code(code)
+            result = analyzer.analyze_code(code, filepath=filepath)
             issues = result.get("issues", [])
         except Exception as e:
             _feed_write(f"[WORM][ERROR] Analysis failed for {filepath}: {e}")

@@ -1,4 +1,5 @@
 from base_module import BaseModule
+from pathlib import Path
 import ast
 import re
 
@@ -17,7 +18,7 @@ except ImportError:
 
 class PythonModule(BaseModule):
 
-    def analyze_code(self, code: str) -> dict:
+    def analyze_code(self, code: str, filepath=None) -> dict:
         """Deep Python analysis — AST, pyflakes, style, patterns."""
         issues = []
 
@@ -55,6 +56,10 @@ class PythonModule(BaseModule):
                         mod = node.module or ""
                         display = f"from {mod} import {alias.name}" + (f" as {alias.asname}" if alias.asname else "")
                         import_entries.append((node.lineno, local_name, display, is_lazy))
+
+        # Skip UNUSED check for __init__.py — all relative imports are re-exports
+        if filepath is not None and Path(filepath).name == "__init__.py":
+            import_entries = []
 
         # Collect all Name references across entire tree (all scopes)
         used_names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
