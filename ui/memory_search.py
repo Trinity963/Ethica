@@ -251,7 +251,7 @@ class MemorySearchWindow:
                 return _open
 
             self._listbox.tag_configure(tag_name,
-                foreground=c.get("accent_bright", "#c792ea") if hasattr(self, '_cached_c') else "#c792ea",
+                foreground=c.get("accent_bright", "#c792ea"),
                 underline=True)
             self._listbox.tag_bind(tag_name, "<Button-1>", _make_opener(_path))
             self._listbox.tag_bind(tag_name, "<Enter>",
