@@ -13,6 +13,8 @@ from core.tool_registry import ToolRegistry
 from core.module_registry import ModuleRegistry
 
 
+logger = logging.getLogger(__name__)
+
 # ── Dashboard context loader ─────────────────────────────────
 import json as _json
 from pathlib import Path as _Path
@@ -1016,10 +1018,10 @@ class ChatEngine:
         # Catches tool results that arrive as markdown fenced code blocks
         fence_pattern = r'```(\w+)?\n([\s\S]+?)```'
         fence_matches = re.findall(fence_pattern, response, re.DOTALL)
-        print(f"[FENCE_CHECK] matches={len(fence_matches)}, canvas={self._canvas is not None}, tool_result={tool_result}")
+        logger.debug("[FENCE_CHECK] matches=%s, canvas=%s, tool_result=%s", len(fence_matches), self._canvas is not None, tool_result)
 
         if fence_matches and self._canvas:
-            print(f"[FENCE_INTERCEPT] {len(fence_matches)} fence(s) found, pushing to canvas")
+            logger.debug("[FENCE_INTERCEPT] %s fence(s) found, pushing to canvas", len(fence_matches))
             for lang, code in fence_matches:
                 lang = lang.strip() if lang else None
                 tab = "Gage" if "gage" in response.lower()[:50] else "WormBot"
