@@ -1,3 +1,4 @@
+# WORM:SKIP
 # ── REMOVE TOOL — appended to module_forge.py ────────────────
 
 _remove_win = None
