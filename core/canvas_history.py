@@ -14,9 +14,12 @@
 #   Every version is sacred.
 # ============================================================
 
+import logging
 import json
 import os
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 # ── History File ──────────────────────────────────────────────
@@ -195,7 +198,7 @@ class CanvasHistory:
             with open(CANVAS_HISTORY_FILE, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            print(f"[CanvasHistory] Save failed: {e}")
+            logger.error("[CanvasHistory] Save failed: %s", e)
 
     def _load(self):
         if not os.path.exists(CANVAS_HISTORY_FILE):
@@ -208,5 +211,5 @@ class CanvasHistory:
                 for tab, snaps in data.items()
             }
         except Exception as e:
-            print(f"[CanvasHistory] Load failed: {e}")
+            logger.error("[CanvasHistory] Load failed: %s", e)
             self._store = {}
