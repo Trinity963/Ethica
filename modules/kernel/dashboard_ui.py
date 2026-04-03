@@ -6,7 +6,7 @@ Victory — The Architect ⟁Σ∿∞
 
 from pathlib import Path
 import tkinter as tk
-from tkinter import ttk, font
+from tkinter import ttk
 from datetime import datetime
 import json
 import logging
