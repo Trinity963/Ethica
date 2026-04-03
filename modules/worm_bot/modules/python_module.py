@@ -61,6 +61,10 @@ class PythonModule(BaseModule):
         if filepath is not None and Path(filepath).name == "__init__.py":
             import_entries = []
 
+        # Skip UNUSED check for test_*.py — pytest/unittest.mock imports are always valid
+        if filepath is not None and Path(filepath).name.startswith("test_"):
+            import_entries = []
+
         # Collect all Name references across entire tree (all scopes)
         used_names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
         # Also catch attribute access roots: import X; X.something
