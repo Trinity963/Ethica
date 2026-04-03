@@ -89,9 +89,11 @@ class PythonModule(BaseModule):
             except Exception:
                 pass
 
-        # 3. Duplicate imports
+        # 3. Duplicate imports — module-level only (indented = lazy load, skip)
         seen_imports = []
         for line in code.splitlines():
+            if line[0:1] in (' ', '	'):
+                continue
             s = line.strip()
             if s.startswith("import ") or s.startswith("from "):
                 if s in seen_imports:
