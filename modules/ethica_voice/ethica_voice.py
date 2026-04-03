@@ -17,11 +17,14 @@
 #   voice_status  — show current voice config
 # ============================================================
 
+import logging
 import json
 import subprocess
 import threading
 from datetime import datetime
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR    = Path(__file__).parent.parent.parent
 MEMORY_DIR  = BASE_DIR / "memory"
@@ -304,7 +307,7 @@ def voice_record(input_str):
             _write(profile_file, profile)
 
         except Exception as e:
-            print(f"[VoiceRecord] Error: {e}")
+            logger.error("[VoiceRecord] Error: %s", e)
 
     thread = threading.Thread(target=_record, daemon=True)
     thread.start()
