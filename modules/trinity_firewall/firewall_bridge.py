@@ -88,8 +88,7 @@ def firewall_start(input_str):
             global _firewall_running
             _firewall_running = True
             try:
-                import json as _json
-                _json.dump({"state": "ACTIVE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+                json.dump({"state": "ACTIVE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
             except Exception:
                 pass
             try:
@@ -98,8 +97,7 @@ def firewall_start(input_str):
                 pass
             _firewall_running = False
             try:
-                import json as _json
-                _json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+                json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
             except Exception:
                 pass
 
