@@ -13,6 +13,7 @@
 import os
 import sys
 import subprocess
+import logging
 import threading
 from pathlib import Path
 
@@ -159,7 +160,7 @@ def gage_chat(input_str):
 
 def gage_read_code(input_str):
     filepath = os.path.expanduser(input_str.strip())
-    print(f"[GAGE_READ] received: {repr(filepath)}, exists: {os.path.exists(filepath)}")
+    logging.info(f"[GAGE_READ] received: {repr(filepath)}, exists: {os.path.exists(filepath)}")
     if not filepath or not os.path.exists(filepath):
         return f"Gage — file not found: {filepath}"
 
