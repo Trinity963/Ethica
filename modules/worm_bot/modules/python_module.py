@@ -67,8 +67,13 @@ class PythonModule(BaseModule):
         used_names |= {n.value.id for n in ast.walk(tree)
                        if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)}
 
+        source_lines = code.splitlines()
         for lineno, local_name, display, is_lazy in import_entries:
             if local_name not in used_names:
+                # honour inline suppression markers
+                src = source_lines[lineno - 1] if lineno <= len(source_lines) else ""
+                if "# reserved" in src or "# noqa" in src:
+                    continue
                 if is_lazy:
                     issues.append(f"Line {lineno}: LAZY_LOAD not used in outer scope — {display}")
                 else:
