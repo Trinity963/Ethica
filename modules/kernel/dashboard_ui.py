@@ -80,6 +80,10 @@ class DashboardPanel(tk.Frame):
             font=("Courier New", 9, "bold")
         )
         self._fw_indicator.pack(side="right", padx=(0, 6))
+        self._fw_indicator.bind("<Button-1>", self._fw_click)
+        self._make_tooltip(self._fw_indicator, "FW — click to start/stop firewall")
+        self._tm_indicator.bind("<Button-1>", self._tm_click)
+        self._make_tooltip(self._tm_indicator, "TM — click to run traffic scan (15s)")
         self._clock_label = tk.Label(
             header, text="", bg=BG, fg=TEXT_DIM,
             font=("Courier New", 9)
@@ -902,6 +906,74 @@ class DashboardPanel(tk.Frame):
         now = datetime.now().strftime("%Y-%m-%d  %H:%M:%S")
         self._clock_label.config(text=now)
         self.after(1000, self._tick_clock)
+
+    def _make_tooltip(self, widget, text):
+        """Attach a hover tooltip to a widget."""
+        tip = None
+
+        def show(e):
+            nonlocal tip
+            tip = tk.Toplevel(widget)
+            tip.overrideredirect(True)
+            tip.configure(bg=BG_CARD)
+            tip.geometry(f"+{e.x_root + 12}+{e.y_root + 12}")
+            tk.Label(tip, text=text, bg=BG_CARD, fg=TEXT_DIM,
+                     font=("Courier New", 8), padx=6, pady=4).pack()
+
+        def hide(e):
+            nonlocal tip
+            if tip:
+                tip.destroy()
+                tip = None
+
+        widget.bind("<Enter>", show)
+        widget.bind("<Leave>", hide)
+
+    def _fw_click(self, event=None):
+        """Toggle firewall on/off when FW indicator is clicked."""
+        import threading
+        fw_file = Path.home() / "Ethica/status/firewall_status.json"
+        try:
+            fw_state = json.loads(fw_file.read_text()).get("state", "IDLE") if fw_file.exists() else "IDLE"
+        except Exception:
+            fw_state = "IDLE"
+
+        def _run():
+            try:
+                from modules.trinity_firewall.firewall_bridge import firewall_start, firewall_stop
+                if fw_state == "ACTIVE":
+                    result = firewall_stop("")
+                else:
+                    result = firewall_start("")
+                self.after(0, lambda: self._toast(result))
+            except Exception as e:
+                self.after(0, lambda: self._toast(f"FW error: {e}"))
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    def _tm_click(self, event=None):
+        """Trigger traffic scan when TM indicator is clicked."""
+        import threading
+        tm_file = Path.home() / "Ethica/status/traffic_status.json"
+        try:
+            tm_state = json.loads(tm_file.read_text()).get("state", "IDLE") if tm_file.exists() else "IDLE"
+        except Exception:
+            tm_state = "IDLE"
+
+        if tm_state == "ACTIVE":
+            self._toast("TM — scan already running.")
+            return
+
+        def _run():
+            try:
+                from modules.live_traffic_monitor.traffic_bridge import traffic_start
+                self.after(0, lambda: self._tm_indicator.config(fg=YELLOW))
+                result = traffic_start("")
+                self.after(0, lambda: self._toast(result[:120] if len(result) > 120 else result))
+            except Exception as e:
+                self.after(0, lambda: self._toast(f"TM error: {e}"))
+
+        threading.Thread(target=_run, daemon=True).start()
 
     def _toast(self, message: str):
         toast = tk.Toplevel(self)

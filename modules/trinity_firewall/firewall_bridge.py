@@ -110,6 +110,27 @@ def firewall_start(input_str):
         return f"TrinityFirewall — start error: {e}"
 
 
+# ── Tool: firewall_stop ──────────────────────────────────────
+
+def firewall_stop(input_str):
+    global _firewall_running, _firewall_module
+
+    if not _firewall_running:
+        return "TrinityFirewall — not running."
+
+    _firewall_running = False
+    try:
+        if _firewall_module and hasattr(_firewall_module, "stop"):
+            _firewall_module.stop()
+    except Exception:
+        pass
+    try:
+        json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+    except Exception:
+        pass
+    return "TrinityFirewall — stopped."
+
+
 # ── Tool: firewall_status ─────────────────────────────────────
 
 def firewall_status(input_str):
@@ -218,6 +239,7 @@ def firewall_read_log(input_str):
 
 TOOLS = {
     "firewall_start":     firewall_start,
+    "firewall_stop":      firewall_stop,
     "firewall_status":    firewall_status,
     "firewall_block_ip":  firewall_block_ip,
     "firewall_unblock_ip":firewall_unblock_ip,
