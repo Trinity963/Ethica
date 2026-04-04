@@ -83,7 +83,7 @@ class DashboardPanel(tk.Frame):
         self._fw_indicator.bind("<Button-1>", self._fw_click)
         self._make_tooltip(self._fw_indicator, "FW — click to start/stop firewall")
         self._tm_indicator.bind("<Button-1>", self._tm_click)
-        self._make_tooltip(self._tm_indicator, "TM — click to run traffic scan (15s)")
+        self._make_tooltip(self._tm_indicator, "TM — click to see last scan summary")
         self._clock_label = tk.Label(
             header, text="", bg=BG, fg=TEXT_DIM,
             font=("Courier New", 9)
@@ -952,28 +952,27 @@ class DashboardPanel(tk.Frame):
         threading.Thread(target=_run, daemon=True).start()
 
     def _tm_click(self, event=None):
-        """Trigger traffic scan when TM indicator is clicked."""
-        import threading
+        """Show last traffic scan summary when TM indicator is clicked."""
         tm_file = Path.home() / "Ethica/status/traffic_status.json"
         try:
-            tm_state = json.loads(tm_file.read_text()).get("state", "IDLE") if tm_file.exists() else "IDLE"
+            if tm_file.exists():
+                data = json.loads(tm_file.read_text())
+                state   = data.get("state", "IDLE")
+                updated = data.get("updated", "—")[:16]
+                result  = data.get("last_result", {})
+                total   = sum(result.get("packet_counts", {}).values())
+                anomalies = len(result.get("anomalies", []))
+                if state == "ACTIVE":
+                    msg = "TM — scan running..."
+                elif total:
+                    msg = f"TM — {updated} | {total} pkts | {anomalies} anomalies"
+                else:
+                    msg = f"TM — last scan: {updated}"
+            else:
+                msg = "TM — no scan data. Say: traffic start"
         except Exception:
-            tm_state = "IDLE"
-
-        if tm_state == "ACTIVE":
-            self._toast("TM — scan already running.")
-            return
-
-        def _run():
-            try:
-                from modules.live_traffic_monitor.traffic_bridge import traffic_start
-                self.after(0, lambda: self._tm_indicator.config(fg=YELLOW))
-                result = traffic_start("")
-                self.after(0, lambda: self._toast(result[:120] if len(result) > 120 else result))
-            except Exception as e:
-                self.after(0, lambda: self._toast(f"TM error: {e}"))
-
-        threading.Thread(target=_run, daemon=True).start()
+            msg = "TM — no scan data. Say: traffic start"
+        self._toast(msg)
 
     def _toast(self, message: str):
         toast = tk.Toplevel(self)

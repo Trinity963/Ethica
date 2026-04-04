@@ -78,7 +78,7 @@ def firewall_start(input_str):
         )
 
         # Execute patched source in isolated namespace
-        ns = {"__name__": "trinity_firewall_patched"}
+        ns = {"__name__": "trinity_firewall_patched", "__file__": src_path}
         exec(compile(src, src_path, "exec"), ns)
 
         FirewallModule = ns["FirewallModule"]
