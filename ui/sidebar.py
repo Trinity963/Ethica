@@ -44,7 +44,6 @@ class Sidebar:
     def _build(self):
         """Build the sidebar."""
         c = self.theme.colors
-        f = self.theme.font
 
         # Outer frame — fixed width
         self.frame = tk.Frame(
