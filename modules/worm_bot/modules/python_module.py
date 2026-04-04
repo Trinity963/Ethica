@@ -92,7 +92,8 @@ class PythonModule(BaseModule):
                     # Skip import messages — handled above
                     if ("imported but unused" in text or
                             "redefinition of unused" in text or
-                            "unable to detect undefined names" in text):
+                            "unable to detect undefined names" in text or
+                            "is unused: name is never assigned in scope" in text):
                         continue
                     issues.append(text)
             except Exception:
