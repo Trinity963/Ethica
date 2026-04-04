@@ -81,7 +81,7 @@ class DashboardPanel(tk.Frame):
         )
         self._fw_indicator.pack(side="right", padx=(0, 6))
         self._fw_indicator.bind("<Button-1>", self._fw_click)
-        self._make_tooltip(self._fw_indicator, "FW — click to start/stop firewall")
+        self._make_tooltip(self._fw_indicator, "FW — click to start / stop firewall")
         self._tm_indicator.bind("<Button-1>", self._tm_click)
         self._make_tooltip(self._tm_indicator, "TM — click to see last scan summary")
         self._clock_label = tk.Label(
@@ -938,10 +938,12 @@ class DashboardPanel(tk.Frame):
         except Exception:
             fw_state = "IDLE"
 
+        pid_file = Path.home() / "Ethica/status/firewall_pid.json"
+
         def _run():
             try:
                 from modules.trinity_firewall.firewall_bridge import firewall_start, firewall_stop
-                if fw_state == "ACTIVE":
+                if fw_state == "ACTIVE" or pid_file.exists():
                     result = firewall_stop("")
                 else:
                     result = firewall_start("")

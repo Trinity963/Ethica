@@ -79,3 +79,4 @@ modules/worm_bot/wormbot_env/
 memory/canvas_state.json
 memory/river_state.json
 assets/*.zip
+Ethica_env/bin/python3.11_local

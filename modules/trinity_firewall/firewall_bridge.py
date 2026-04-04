@@ -13,6 +13,7 @@ import os
 import sys
 import json
 import threading
+import subprocess
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_DIR = os.path.join(MODULE_DIR, "configs")
@@ -101,6 +102,26 @@ def firewall_start(input_str):
             except Exception:
                 pass
 
+        LOCAL_PYTHON = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "..", "..", "Ethica_env", "bin", "python3.11_local")
+        LOCAL_PYTHON = os.path.normpath(LOCAL_PYTHON)
+        WORKER = os.path.join(MODULE_DIR, "_firewall_worker.py")
+
+        if os.path.exists(LOCAL_PYTHON):
+            # Privileged path — subprocess with CAP_NET_RAW binary
+            def _run():
+                global _firewall_running
+                _firewall_running = True
+                try:
+                    subprocess.run([LOCAL_PYTHON, WORKER], timeout=3600, stdout=subprocess.DEVNULL)
+                except Exception:
+                    pass
+                _firewall_running = False
+                try:
+                    json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+                except Exception:
+                    pass
+        
         _firewall_thread = threading.Thread(target=_run, daemon=True)
         _firewall_thread.start()
 
@@ -113,22 +134,27 @@ def firewall_start(input_str):
 # ── Tool: firewall_stop ──────────────────────────────────────
 
 def firewall_stop(input_str):
-    global _firewall_running, _firewall_module
-
-    if not _firewall_running:
-        return "TrinityFirewall — not running."
-
-    _firewall_running = False
+    PID_FILE = os.path.expanduser("~/Ethica/status/firewall_pid.json")
     try:
-        if _firewall_module and hasattr(_firewall_module, "stop"):
-            _firewall_module.stop()
-    except Exception:
-        pass
-    try:
-        json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
-    except Exception:
-        pass
-    return "TrinityFirewall — stopped."
+        if not os.path.exists(PID_FILE):
+            return "TrinityFirewall — not running."
+        pid = json.load(open(PID_FILE)).get("pid")
+        if not pid:
+            return "TrinityFirewall — not running."
+        os.kill(pid, 15)  # SIGTERM
+        try:
+            json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+        except Exception:
+            pass
+        try:
+            os.remove(PID_FILE)
+        except Exception:
+            pass
+        return "TrinityFirewall — stopped."
+    except ProcessLookupError:
+        return "TrinityFirewall — process already gone."
+    except Exception as e:
+        return f"TrinityFirewall — stop error: {e}"
 
 
 # ── Tool: firewall_status ─────────────────────────────────────
