@@ -365,7 +365,7 @@ class ChatEngine:
                         final = self._handle_canvas_push(result, tool_result=True)
                         on_response(final)
                     else:
-                        on_response(f"WormBot not available.")
+                        on_response("WormBot not available.")
                 except Exception as e:
                     on_response(f"Scan error: {e}")
                 finally:
@@ -801,12 +801,11 @@ class ChatEngine:
 
             # Fire response callback on main thread
             on_response(full_response)
-            success = True
 
         except ConnectionError as e:
             on_error(f"Connection lost: {str(e)}")
-        except TimeoutError as e:
-            on_error(f"Ethica is thinking... response took too long. Try again.")
+        except TimeoutError:
+            on_error("Ethica is thinking... response took too long. Try again.")
         except Exception as e:
             err = str(e)
             # Catch requests timeout which comes as Exception not TimeoutError
