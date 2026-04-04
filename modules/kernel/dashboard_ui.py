@@ -642,6 +642,18 @@ class DashboardPanel(tk.Frame):
         self._anom_log.pack(fill="both", expand=True)
         self._anom_log_entries = []
         self._anom_log.tag_configure("filelink", foreground="#f7c97e", underline=True)
+        # Pre-populate seen entries from existing log files to avoid duplicate writes
+        try:
+            log_dir = Path.home() / "Ethica/logs/anomaly"
+            for log_file in sorted(log_dir.glob("anomaly_*.log")):
+                for line in log_file.read_text().splitlines():
+                    if line.strip():
+                        # Extract timestamp from "[timestamp] ..." format
+                        ts = line[1:line.index("]")] if "]" in line else ""
+                        if ts and ts not in self._anom_log_entries:
+                            self._anom_log_entries.append(ts)
+        except Exception:
+            pass
 
     def _refresh_anomaly(self):
         """Poll anomaly_status.json and update both cards."""
@@ -691,7 +703,6 @@ class DashboardPanel(tk.Frame):
                 def _make_opener(p):
                     def _open(e):
                         try:
-                            self.app.canvas.open()
                             self.app.canvas.open_file(str(p))
                         except Exception:
                             pass
