@@ -632,7 +632,7 @@ class DashboardPanel(tk.Frame):
         self._anom_status_path = STATUS
 
     def _build_anomaly_log(self, parent):
-        """Anomaly Log card — scrolling event list."""
+        """Anomaly Log card — scrolling event list with clickable log links."""
         self._anom_log = tk.Text(
             parent, bg=BG_CARD, fg=TEXT_DIM,
             font=("Courier New", 8), relief="flat",
@@ -641,6 +641,7 @@ class DashboardPanel(tk.Frame):
         )
         self._anom_log.pack(fill="both", expand=True)
         self._anom_log_entries = []
+        self._anom_log.tag_configure("filelink", foreground="#f7c97e", underline=True)
 
     def _refresh_anomaly(self):
         """Poll anomaly_status.json and update both cards."""
@@ -667,11 +668,38 @@ class DashboardPanel(tk.Frame):
             # Append to log if new scan
             if last != "—" and last not in self._anom_log_entries:
                 self._anom_log_entries.append(last)
-                entry = f"[{last}] {acount}/{total} anomalies\n"
+                # Write entry to daily anomaly log file
+                log_dir  = Path.home() / "Ethica/logs/anomaly"
+                log_dir.mkdir(parents=True, exist_ok=True)
+                date_str = str(last)[:10].replace("-", "")
+                log_path = log_dir / f"anomaly_{date_str}.log"
+                try:
+                    with open(log_path, "a") as lf:
+                        lf.write(f"[{last}] {acount}/{total} anomalies\n")
+                except Exception:
+                    pass
+                # Insert clickable amber link
+                tag_name = f"anom_{date_str}"
+                prefix   = f"[{last}] {acount}/{total} anomalies — "
                 self._anom_log.config(state="normal")
-                self._anom_log.insert("end", entry)
+                self._anom_log.insert("end", prefix)
+                self._anom_log.insert("end", str(log_path), (tag_name,))
+                self._anom_log.insert("end", "\n")
                 self._anom_log.see("end")
                 self._anom_log.config(state="disabled")
+                # Bind click to open log in canvas
+                def _make_opener(p):
+                    def _open(e):
+                        try:
+                            self.app.canvas.open()
+                            self.app.canvas.open_file(str(p))
+                        except Exception:
+                            pass
+                    return _open
+                self._anom_log.tag_configure(tag_name, foreground="#f7c97e", underline=True)
+                self._anom_log.tag_bind(tag_name, "<Button-1>", _make_opener(log_path))
+                self._anom_log.tag_bind(tag_name, "<Enter>", lambda e: self._anom_log.config(cursor="hand2"))
+                self._anom_log.tag_bind(tag_name, "<Leave>", lambda e: self._anom_log.config(cursor="arrow"))
         except Exception:
             pass
 
