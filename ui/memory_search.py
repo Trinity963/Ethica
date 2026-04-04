@@ -212,6 +212,7 @@ class MemorySearchWindow:
 
     def _render_results(self, query):
         self._listbox.config(state=tk.NORMAL)
+        c = self.theme.colors
         self._listbox.delete("1.0", tk.END)
 
         # Clear old filename tag bindings
