@@ -603,8 +603,9 @@ class ChatEngine:
             if msg_lower.startswith(trigger):
                 if trigger.startswith("jarvis"):
                     try:
-                        from modules.jarvis.jarvis_module import _increment_invocation
-                        _count = _increment_invocation()
+                        import importlib
+                        _jmod = importlib.import_module("modules.jarvis.jarvis_module")
+                        _count = _jmod._increment_invocation()
                         if _count == 9:
                             on_response(
                                 "J.A.R.V.I.S. — Infiltrator Protocol" + chr(10) + chr(10) +
