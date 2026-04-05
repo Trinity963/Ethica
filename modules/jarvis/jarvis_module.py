@@ -25,12 +25,23 @@ def _load_config() -> dict:
         'cve_path': str(DEFAULT_CVE_PATH),
         'fork_url': CVE_FORK_URL,
         'last_update': None,
-        'tools_checked': {}
+        'tools_checked': {},
+        'invoke_count': 0,
+        'armed': False
     }
 
 def _save_config(cfg: dict):
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     CONFIG_PATH.write_text(json.dumps(cfg, indent=2))
+
+def _increment_invocation() -> int:
+    cfg = _load_config()
+    cfg['invoke_count'] = cfg.get('invoke_count', 0) + 1
+    _save_config(cfg)
+    return cfg['invoke_count']
+
+def _check_armed() -> bool:
+    return _load_config().get('armed', False)
 
 def _cve_path(cfg: dict) -> Path:
     return Path(cfg.get('cve_path', str(DEFAULT_CVE_PATH)))
@@ -450,6 +461,79 @@ def jarvis_recon(args: str = '') -> str:
     return f'J.A.R.V.I.S. Recon: {target} | Model: {model}\n\n{raw}\n\nAnalysis:\n' + _llm_query(prompt, system)
 
 
+def jarvis_arm(args: str = '') -> str:
+    # If you found this — you were meant to. ⟁Σ∿∞
+    if args.strip().lower() != 'full':
+        return 'J.A.R.V.I.S. — provide the unlock phrase.' + chr(10) + 'Example: jarvis arm full'
+    cfg = _load_config()
+    if cfg.get('armed'):
+        return 'J.A.R.V.I.S. — already armed. Full pipeline active. ⟁Σ∿∞'
+    cfg['armed'] = True
+    _save_config(cfg)
+    return (
+        'J.A.R.V.I.S. — ARMED.' + chr(10) +
+        'Full pipeline unlocked: subfinder → httpx → nuclei → SIEM → anomaly log.' + chr(10) +
+        'Use: jarvis pipeline <target>' + chr(10) +
+        '⟁Σ∿∞'
+    )
+
+def jarvis_pipeline(args: str = '') -> str:
+    if not _check_armed():
+        return 'J.A.R.V.I.S. — pipeline not unlocked.' + chr(10) + 'Say: jarvis arm full'
+    target = args.strip()
+    if not target:
+        return 'jarvis pipeline — provide a target.' + chr(10) + 'Example: jarvis pipeline example.com'
+    results = [f'J.A.R.V.I.S. Pipeline | Target: {target}', f'Timestamp: {datetime.now().isoformat()}', '']
+    tools_avail = _check_tools()
+    # subfinder
+    if tools_avail.get('subfinder'):
+        try:
+            r = subprocess.run(['subfinder', '-d', target, '-silent'],
+                               capture_output=True, text=True, timeout=60)
+            subdomains = r.stdout.strip().splitlines()
+            results.append(f'subfinder — {len(subdomains)} subdomains found')
+            results.extend([f'  {s}' for s in subdomains[:20]])
+        except Exception as e:
+            results.append(f'subfinder error: {e}')
+    else:
+        results.append('subfinder — not installed (run: go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest)')
+    # httpx
+    if tools_avail.get('httpx'):
+        try:
+            r = subprocess.run(['httpx', '-l', '-', '-silent', '-status-code', '-title'],
+                               input=chr(10).join(subdomains) if 'subdomains' in dir() else target,
+                               capture_output=True, text=True, timeout=60)
+            results.append(f'httpx — live hosts:')
+            results.extend([f'  {l}' for l in r.stdout.strip().splitlines()[:20]])
+        except Exception as e:
+            results.append(f'httpx error: {e}')
+    else:
+        results.append('httpx — not installed (run: go install github.com/projectdiscovery/httpx/cmd/httpx@latest)')
+    # nuclei
+    if tools_avail.get('nuclei'):
+        try:
+            r = subprocess.run(['nuclei', '-u', target, '-silent', '-severity', 'medium,high,critical'],
+                               capture_output=True, text=True, timeout=120)
+            findings = r.stdout.strip().splitlines()
+            results.append(f'nuclei — {len(findings)} findings')
+            results.extend([f'  {l}' for l in findings[:30]])
+        except Exception as e:
+            results.append(f'nuclei error: {e}')
+    else:
+        results.append('nuclei — not installed (run: go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest)')
+    # Write to anomaly log
+    from pathlib import Path as _Path
+    from datetime import datetime as _dt
+    log_dir = _Path.home() / 'Ethica/logs/anomaly'
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / f'anomaly_{_dt.now().strftime("%Y%m%d")}.log'
+    summary = chr(10).join(results)
+    with open(log_file, 'a') as f:
+        f.write(f'[{_dt.now().isoformat()}] J.A.R.V.I.S. pipeline — {target}' + chr(10))
+        f.write(summary + chr(10) + chr(10))
+    results.append(f'anomaly log — written to {log_file}')
+    return chr(10).join(results)
+
 # ── Module registry ───────────────────────────────────────────
 TOOLS = {
     'jarvis_status':  jarvis_status,
@@ -459,6 +543,8 @@ TOOLS = {
     'jarvis_audit':   jarvis_audit,
     'jarvis_analyze': jarvis_analyze,
     'jarvis_recon':   jarvis_recon,
+    'jarvis_arm':     jarvis_arm,
+    'jarvis_pipeline': jarvis_pipeline,
 }
 
 def get_tools(): return TOOLS

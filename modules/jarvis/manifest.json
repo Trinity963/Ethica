@@ -21,7 +21,7 @@
     {
       "name": "jarvis_setup",
       "trigger": "jarvis setup",
-      "description": "First-time init \u2014 clone CVE repo, write config"
+      "description": "First-time init — clone CVE repo, write config"
     },
     {
       "name": "jarvis_update",
@@ -41,14 +41,14 @@
     {
       "name": "jarvis_analyze",
       "trigger": "jarvis analyze",
-      "description": "LLM-powered CVE and vulnerability analysis \u2014 attack vectors, exploitability, bug bounty relevance"
+      "description": "LLM-powered CVE and vulnerability analysis — attack vectors, exploitability, bug bounty relevance"
     },
     {
       "name": "jarvis_recon",
       "trigger": "jarvis recon",
-      "description": "Passive recon on a target \u2014 headers, tech fingerprint, port scan \u2014 fed to LLM for attack surface analysis"
+      "description": "Passive recon on a target — headers, tech fingerprint, port scan — fed to LLM for attack surface analysis"
     }
   ],
-  "author": "Victory \u2014 The Architect",
-  "glyph": "\u27c1\u03a3\u223f\u221e"
+  "author": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞"
 }

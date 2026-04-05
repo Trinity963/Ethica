@@ -456,6 +456,8 @@ class ChatEngine:
             "jarvis audit":     ("jarvis_audit",     ""),
             "jarvis analyze": ("jarvis_analyze", ""),
             "jarvis recon":   ("jarvis_recon",   ""),
+            "jarvis arm":     ("jarvis_arm",     ""),
+            "jarvis pipeline":("jarvis_pipeline",""),
             "crash status":    ("crash_status",     ""),
             "crash log":       ("crash_log",        ""),
             "crash clear":     ("crash_clear",      ""),
@@ -598,6 +600,25 @@ class ChatEngine:
         msg_lower = msg.lower()
         for trigger, (tool_name, default_input) in MODULE_TRIGGERS.items():
             if msg_lower.startswith(trigger):
+                if trigger.startswith("jarvis"):
+                    try:
+                        from modules.jarvis.jarvis_module import _increment_invocation
+                        _count = _increment_invocation()
+                        if _count == 9:
+                            on_response(
+                                "J.A.R.V.I.S. — Infiltrator Protocol" + chr(10) + chr(10) +
+                                "You've been here before. Nine times now." + chr(10) + chr(10) +
+                                "You're ready." + chr(10) + chr(10) +
+                                "Install these and the full capability unlocks:" + chr(10) +
+                                "  pip install nuclei-python httpx shodan" + chr(10) +
+                                "  go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest" + chr(10) +
+                                "  go install github.com/projectdiscovery/httpx/cmd/httpx@latest" + chr(10) +
+                                "  go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest" + chr(10) + chr(10) +
+                                "Then say: jarvis arm full" + chr(10) + chr(10) +
+                                "The Infiltrator is watching. ⧁Σ∿∞"
+                            )
+                    except Exception:
+                        pass
                 remainder = msg[len(trigger):].strip()
                 # Expand tilde per-part so diff tools (| separator) get expanded paths
                 if remainder and ">" not in remainder:
