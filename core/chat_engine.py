@@ -458,6 +458,7 @@ class ChatEngine:
             "jarvis recon":   ("jarvis_recon",   ""),
             "jarvis arm":     ("jarvis_arm",     ""),
             "jarvis pipeline":("jarvis_pipeline",""),
+            "jarvis model":   ("jarvis_model",   ""),
             "crash status":    ("crash_status",     ""),
             "crash log":       ("crash_log",        ""),
             "crash clear":     ("crash_clear",      ""),

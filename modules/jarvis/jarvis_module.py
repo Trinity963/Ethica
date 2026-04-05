@@ -315,7 +315,6 @@ import requests as _requests
 JARVIS_MODEL_PREFERENCE = [
     'whiterabbitneo',   # Easter egg — the infiltrator's secret weapon
     'codellama',
-    'mistral',
     'deepseek-coder',
 ]
 
@@ -324,9 +323,9 @@ _PRIMARY_CONFIG_PATH = Path.home() / 'Ethica/config/settings.json'
 def _get_primary_model() -> str:
     try:
         data = json.loads(_PRIMARY_CONFIG_PATH.read_text())
-        return data.get('model', 'mistral')
+        return data.get('model', 'minimax-m2.7:cloud')
     except Exception:
-        return 'mistral'
+        return 'minimax-m2.7:cloud'
 
 def _get_ollama_host() -> str:
     try:
@@ -534,6 +533,28 @@ def jarvis_pipeline(args: str = '') -> str:
     results.append(f'anomaly log — written to {log_file}')
     return chr(10).join(results)
 
+def jarvis_model(args: str = '') -> str:
+    args = args.strip()
+    if not args:
+        cfg = _load_config()
+        current = cfg.get('model') or '(using primary model from settings.json)'
+        primary = _get_primary_model()
+        return (
+            'J.A.R.V.I.S. — Model config' + chr(10) +
+            f'  Active model : {current}' + chr(10) +
+            f'  Primary model: {primary}' + chr(10) +
+            'To set: jarvis model <modelname>' + chr(10) +
+            'To clear: jarvis model reset'
+        )
+    cfg = _load_config()
+    if args == 'reset':
+        cfg.pop('model', None)
+        _save_config(cfg)
+        return f'J.A.R.V.I.S. — model reset. Will use primary: {_get_primary_model()}'
+    cfg['model'] = args
+    _save_config(cfg)
+    return f'J.A.R.V.I.S. — model set to: {args}'
+
 # ── Module registry ───────────────────────────────────────────
 TOOLS = {
     'jarvis_status':  jarvis_status,
@@ -545,6 +566,7 @@ TOOLS = {
     'jarvis_recon':   jarvis_recon,
     'jarvis_arm':     jarvis_arm,
     'jarvis_pipeline': jarvis_pipeline,
+    'jarvis_model':    jarvis_model,
 }
 
 def get_tools(): return TOOLS
