@@ -185,16 +185,9 @@ def nyxt_start(args: str = '') -> str:
             start_new_session=True
         )
         _save_pid(proc.pid)
-        # Non-blocking — check socket up to 3 times with short sleep
-        socket_alive = False
-        for _ in range(3):
-            import time as _t; _t.sleep(0.5)
-            if NYXT_SOCKET.exists():
-                socket_alive = True
-                break
         return (
             f'✓ Nyxt started (PID {proc.pid})' + chr(10) +
-            f'  Socket: {"alive" if socket_alive else "starting up..."}' + chr(10) +
+            '  Socket: starting up...' + chr(10) +
             'Commands: nyxt open <url>  |  nyxt stop'
         )
     except Exception as e:
@@ -208,6 +201,11 @@ def nyxt_eval(args: str = '') -> str:
             'Example: nyxt eval (nyxt:version)' + chr(10) +
             'Note: requires (remote-execution-p t) in ~/.config/nyxt/config.lisp'
         )
+    # nyxt_eval deferred — SBCL SIGBUS on Ivy Bridge GPU. Non-functional on this hardware.
+    return (
+        '✗ nyxt eval deferred — remote REPL unstable on Ivy Bridge GPU (SBCL SIGBUS).' + chr(10) +
+        'Use nyxt open or nyxt recon instead. Revisit after GPU upgrade.'
+    )
     if not NYXT_SOCKET.exists():
         return '✗ Nyxt socket not found. Use: nyxt start'
     try:
@@ -241,7 +239,6 @@ def nyxt_stop(args: str = '') -> str:
     try:
         import signal
         os.kill(pid, signal.SIGTERM)
-        time.sleep(1)
         try:
             os.kill(pid, 0)
             os.kill(pid, signal.SIGKILL)
