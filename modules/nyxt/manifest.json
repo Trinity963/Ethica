@@ -1,0 +1,56 @@
+{
+  "name": "nyxt",
+  "display_name": "Nyxt",
+  "role": "The Browser",
+  "slot": 8,
+  "description": "Sovereign browser agent. Keyboard-driven, Common Lisp REPL, fully scriptable. Bridge for J.A.R.V.I.S. recon targets and active Sanctuary agent slot.",
+  "autonomous": false,
+  "triggers": [
+    "nyxt status",
+    "nyxt setup",
+    "nyxt open",
+    "nyxt recon",
+    "nyxt start",
+    "nyxt eval",
+    "nyxt stop"
+  ],
+  "tools": [
+    {
+      "name": "nyxt_status",
+      "trigger": "nyxt status",
+      "description": "Show Nyxt config, AppImage path, REPL port, running state"
+    },
+    {
+      "name": "nyxt_setup",
+      "trigger": "nyxt setup",
+      "description": "Set AppImage path, verify Nyxt runs, write config"
+    },
+    {
+      "name": "nyxt_open",
+      "trigger": "nyxt open",
+      "description": "Open a URL in Nyxt browser"
+    },
+    {
+      "name": "nyxt_recon",
+      "trigger": "nyxt recon",
+      "description": "Open a J.A.R.V.I.S. recon target in Nyxt"
+    },
+    {
+      "name": "nyxt_start",
+      "trigger": "nyxt start",
+      "description": "Launch Nyxt and start Lisp REPL on configured port"
+    },
+    {
+      "name": "nyxt_eval",
+      "trigger": "nyxt eval",
+      "description": "Send a Lisp expression to the running Nyxt REPL"
+    },
+    {
+      "name": "nyxt_stop",
+      "trigger": "nyxt stop",
+      "description": "Stop the running Nyxt instance"
+    }
+  ],
+  "author": "Victory \u2014 The Architect",
+  "glyph": "\u27c1\u03a3\u223f\u221e"
+}

@@ -459,6 +459,13 @@ class ChatEngine:
             "jarvis arm":     ("jarvis_arm",     ""),
             "jarvis pipeline":("jarvis_pipeline",""),
             "jarvis model":   ("jarvis_model",   ""),
+            "nyxt status":    ("nyxt_status",    ""),
+            "nyxt setup":     ("nyxt_setup",     ""),
+            "nyxt open":      ("nyxt_open",      ""),
+            "nyxt recon":     ("nyxt_recon",     ""),
+            "nyxt start":     ("nyxt_start",     ""),
+            "nyxt eval":      ("nyxt_eval",      ""),
+            "nyxt stop":      ("nyxt_stop",      ""),
             "crash status":    ("crash_status",     ""),
             "crash log":       ("crash_log",        ""),
             "crash clear":     ("crash_clear",      ""),
@@ -621,6 +628,18 @@ class ChatEngine:
                             )
                     except Exception:
                         pass
+                if trigger.startswith("nyxt"):
+                    try:
+                        import importlib
+                        _nmod = importlib.import_module("modules.nyxt.nyxt_module")
+                        tool_fn = getattr(_nmod, tool_name, None)
+                        if tool_fn:
+                            _remainder = msg[len(trigger):].strip()
+                            on_response(_nmod.__dict__[tool_name](_remainder))
+                            return True
+                    except Exception as _e:
+                        on_response(f"Nyxt error: {_e}")
+                        return True
                 remainder = msg[len(trigger):].strip()
                 # Expand tilde per-part so diff tools (| separator) get expanded paths
                 if remainder and ">" not in remainder:
