@@ -630,19 +630,21 @@ class ChatEngine:
                     except Exception:
                         pass
                 if trigger.startswith("nyxt"):
-                    import threading
                     try:
                         import importlib
                         _nmod = importlib.import_module("modules.nyxt.nyxt_module")
                         tool_fn = getattr(_nmod, tool_name, None)
                         if tool_fn:
                             _remainder = msg[len(trigger):].strip()
-                            def _nyxt_run(_fn=tool_fn, _arg=_remainder):
-                                on_response(_fn(_arg))
-                            threading.Thread(target=_nyxt_run, daemon=True).start()
+                            result = tool_fn(_remainder)
+                            on_response(result)
+                            if on_done:
+                                on_done()
                             return True
                     except Exception as _e:
                         on_response(f"Nyxt error: {_e}")
+                        if on_done:
+                            on_done()
                         return True
                 remainder = msg[len(trigger):].strip()
                 # Expand tilde per-part so diff tools (| separator) get expanded paths

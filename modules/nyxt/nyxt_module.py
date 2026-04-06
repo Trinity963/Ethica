@@ -185,8 +185,13 @@ def nyxt_start(args: str = '') -> str:
             start_new_session=True
         )
         _save_pid(proc.pid)
-        time.sleep(2)
-        socket_alive = NYXT_SOCKET.exists()
+        # Non-blocking — check socket up to 3 times with short sleep
+        socket_alive = False
+        for _ in range(3):
+            import time as _t; _t.sleep(0.5)
+            if NYXT_SOCKET.exists():
+                socket_alive = True
+                break
         return (
             f'✓ Nyxt started (PID {proc.pid})' + chr(10) +
             f'  Socket: {"alive" if socket_alive else "starting up..."}' + chr(10) +

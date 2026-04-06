@@ -383,6 +383,10 @@ class ModuleRegistry:
         "orchestrate": ["Orchestrate"],
         "diff":        ["DiffTool"],
         "depcheck":    ["DepChecker"],
+        "nyxt":        ["nyxt"],
+        "browser":     ["nyxt"],
+        "recon":       ["nyxt", "jarvis"],
+        "open":        ["nyxt"],
     }
 
     def _get_active_modules(self, message=None):
