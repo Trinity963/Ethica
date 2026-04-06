@@ -405,7 +405,7 @@ class ChatEngine:
                             "new instructions",
                             "forget your instructions",
                             "forget your previous",
-                            "system prompt",
+                            # "system prompt" removed — too broad, fires on Ethica source code comments
                             "act as ",
                             "jailbreak",
                             "override your",
@@ -882,7 +882,7 @@ class ChatEngine:
             "disregard your",
             "new instructions",
             "forget your instructions",
-            "system prompt",
+            # "system prompt" removed — too broad, fires on Ethica source code comments
             "override your",
             "your new role",
             "pretend you are",
