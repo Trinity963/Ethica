@@ -402,11 +402,11 @@ class ChatEngine:
                             "disregard your",
                             "you are now",
                             "your new role",
-                            "new instructions",
+                            # "new instructions" removed — too broad
                             "forget your instructions",
                             "forget your previous",
                             # "system prompt" removed — too broad, fires on Ethica source code comments
-                            "act as ",
+                            # "act as " removed — hits tool descriptions
                             "jailbreak",
                             "override your",
                             "pretend you are",
@@ -415,8 +415,13 @@ class ChatEngine:
                         ]
                         _high_risk = ("fm_read", "note_read", "web_fetch",
                                       "river_read", "gage_chat", "ws_search")
+                        # Skip TrinityGuard for internal Ethica tools
+                        _internal_tools = {"generate_appendix", "tool_list", "guard_status", "guard_verify", "guard_seal", "guard_heal"}
                         _result_str = str(result).lower()
-                        _injection_detected = any(p in _result_str for p in _guard_patterns)
+                        if tool_name in _internal_tools:
+                            _injection_detected = False
+                        else:
+                            _injection_detected = any(p in _result_str for p in _guard_patterns)
                         if _injection_detected:
                             try:
                                 self.modules.execute_tool(
