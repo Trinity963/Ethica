@@ -336,6 +336,7 @@ class ChatEngine:
     # ── Send ──────────────────────────────────────────────────
 
     def _pre_intercept(self, message, on_response, on_done):
+        import threading
         """
         Pre-intercept — detect file paths and wormbot triggers
         BEFORE sending to the model. Execute tool directly.
@@ -629,13 +630,16 @@ class ChatEngine:
                     except Exception:
                         pass
                 if trigger.startswith("nyxt"):
+                    import threading
                     try:
                         import importlib
                         _nmod = importlib.import_module("modules.nyxt.nyxt_module")
                         tool_fn = getattr(_nmod, tool_name, None)
                         if tool_fn:
                             _remainder = msg[len(trigger):].strip()
-                            on_response(_nmod.__dict__[tool_name](_remainder))
+                            def _nyxt_run(_fn=tool_fn, _arg=_remainder):
+                                on_response(_fn(_arg))
+                            threading.Thread(target=_nyxt_run, daemon=True).start()
                             return True
                     except Exception as _e:
                         on_response(f"Nyxt error: {_e}")

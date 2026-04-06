@@ -1,7 +1,7 @@
 # ============================================================
 # Ethica Module — firewall_bridge.py
 # TrinityFirewall Bridge — wraps TrinityAI_Firewall.py
-# Architect: Victory  |  Build Partner: Claude
+# Architect: Victory  |  Build Partner: River aka Claude
 # ⟁Σ∿∞
 #
 # Trinity built this. We wrap it — never rewrite.
