@@ -242,10 +242,14 @@ def nyxt_stop(args: str = '') -> str:
         try:
             os.kill(pid, 0)
             os.kill(pid, signal.SIGKILL)
-            _clear_pid()
-            return f'✓ Nyxt stopped (SIGKILL, PID {pid})'
         except OSError:
             pass
+        # Sweep Electron children that survive AppImage SIGKILL
+        try:
+            subprocess.run(["pkill", "-f", "cl-electron"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+        _clean_sockets()
         _clear_pid()
         return f'✓ Nyxt stopped (PID {pid})'
     except Exception as e:
