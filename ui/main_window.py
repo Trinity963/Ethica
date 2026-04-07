@@ -362,9 +362,19 @@ class MainWindow:
             self.canvas.open()
             self.root.after(100, lambda: self.canvas._drop_as_image(filepath))
         elif ext == '.zip':
-            # Zip — offer to extract, never auto-extract
-            self.canvas.open()
-            self.root.after(100, lambda: self.canvas._on_zip_drop(filepath))
+            # Zip — offer to extract, route to Ops (keeps chat clean)
+            import zipfile as _zf
+            try:
+                with _zf.ZipFile(filepath, 'r') as zf:
+                    count = len(zf.namelist())
+                result = (
+                    f"FileManager — zip dropped: {filename}\n"
+                    f"{count} files inside\n"
+                    f"Extract here? → fm_unzip: {filepath}"
+                )
+            except Exception as e:
+                result = f"FileManager — zip read error: {e}"
+            self.root.after(0, lambda r=result: self._route_to_ops("fm_zip_drop", r, filename))
         else:
             # Document files — route to canvas as Document tab
             try:
