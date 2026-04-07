@@ -285,7 +285,11 @@ class CanvasWindow:
 
         IMAGE_EXTS = {'.png', '.jpg', '.jpeg'}
 
-        if ext in IMAGE_EXTS:
+        if ext == '.zip':
+            # Zip — offer to extract, never auto-extract
+            self._on_zip_drop(filepath)
+            return
+        elif ext in IMAGE_EXTS:
             # Image — render in canvas image tab
             self._drop_as_image(filepath)
         elif ext in DEBUG_MAP:
@@ -465,6 +469,28 @@ class CanvasWindow:
             self.parent.after(200, lambda n=notification: self.notify_fn(n))
         _notify_canvas_drop(filename, filepath=filepath)
         self.parent.after(100, self._write_canvas_context)
+
+    def _on_zip_drop(self, filepath):
+        """Offer to extract a dropped .zip — never auto-extract."""
+        import zipfile as _zf
+        filename = os.path.basename(filepath)
+        dest = os.path.dirname(filepath)
+        try:
+            with _zf.ZipFile(filepath, 'r') as zf:
+                count = len(zf.namelist())
+        except Exception as e:
+            notification = f'[CanvasDrop] zip read error: {e}'
+            if self.notify_fn:
+                self.parent.after(200, lambda n=notification: self.notify_fn(n))
+            return
+
+        notification = (
+            f'V dropped "{filename}" ({count} files) into the canvas.\n'
+            f'Extract here? → fm_unzip: {filepath}'
+        )
+        if self.notify_fn:
+            self.parent.after(200, lambda n=notification: self.notify_fn(n))
+        _notify_canvas_drop(filename, filepath=filepath)
 
     def _build_toolbar(self):
         """Top toolbar — window title, mode selector, actions."""

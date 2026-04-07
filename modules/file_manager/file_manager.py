@@ -126,13 +126,73 @@ def fm_delete(input_str):
     except Exception as e:
         return f"FileManager — delete error: {e}"
 
+# ── Tool: fm_zip ─────────────────────────────────────────────────
+def fm_zip(input_str):
+    """Compress a file or folder into a .zip alongside the source."""
+    import zipfile as _zf
+    path = _expand(input_str)
+    if not path.exists():
+        return f"FileManager — path not found: {path}"
+    out = path.parent / (path.name + ".zip")
+    try:
+        if path.is_dir():
+            with _zf.ZipFile(out, 'w', _zf.ZIP_DEFLATED) as zf:
+                for f in path.rglob('*'):
+                    zf.write(f, f.relative_to(path.parent))
+        else:
+            with _zf.ZipFile(out, 'w', _zf.ZIP_DEFLATED) as zf:
+                zf.write(path, path.name)
+        return f"FileManager — zipped\n{path}\n→ {out}"
+    except Exception as e:
+        return f"FileManager — zip error: {e}"
+
+# ── Tool: fm_unzip ────────────────────────────────────────────
+def fm_unzip(input_str):
+    """Extract a .zip archive into its containing directory."""
+    import zipfile as _zf
+    path = _expand(input_str)
+    if not path.exists():
+        return f"FileManager — file not found: {path}"
+    if path.suffix.lower() != '.zip':
+        return f"FileManager — not a zip file: {path}"
+    dest = path.parent
+    try:
+        with _zf.ZipFile(path, 'r') as zf:
+            zf.extractall(dest)
+        return f"FileManager — extracted\n{path}\n→ {dest}"
+    except Exception as e:
+        return f"FileManager — unzip error: {e}"
+
+# ── Tool: fm_zip_status ───────────────────────────────────────
+def fm_zip_status(input_str):
+    """List contents of a .zip without extracting."""
+    import zipfile as _zf
+    path = _expand(input_str)
+    if not path.exists():
+        return f"FileManager — file not found: {path}"
+    if path.suffix.lower() != '.zip':
+        return f"FileManager — not a zip file: {path}"
+    try:
+        with _zf.ZipFile(path, 'r') as zf:
+            infos = zf.infolist()
+        lines = [f"FileManager — {path.name} ({len(infos)} entries)"]
+        for info in infos:
+            kb = info.file_size / 1024
+            lines.append(f"  {info.filename}  ({kb:.1f} KB)")
+        return "\n".join(lines)
+    except Exception as e:
+        return f"FileManager — zip status error: {e}"
+
 # ── Module registry interface ──────────────────────────────────
 TOOLS = {
-    "fm_list":   fm_list,
-    "fm_tree":   fm_tree,
-    "fm_read":   fm_read,
-    "fm_copy":   fm_copy,
-    "fm_delete": fm_delete,
+    "fm_list":       fm_list,
+    "fm_tree":       fm_tree,
+    "fm_read":       fm_read,
+    "fm_copy":       fm_copy,
+    "fm_delete":     fm_delete,
+    "fm_zip":        fm_zip,
+    "fm_unzip":      fm_unzip,
+    "fm_zip_status": fm_zip_status,
 }
 def get_tools(): return TOOLS
 def execute(tool_name, input_str):

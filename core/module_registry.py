@@ -1,7 +1,7 @@
 # ============================================================
 # Ethica v0.1 — module_registry.py
 # Sovereign Module Store — Ethica's Extensible Tool Engine
-# Architect: Victory  |  Build Partner: Claude
+# Architect: Victory  |  Build Partner: River aka Claude
 # ⟁Σ∿∞
 #
 # Each module is a folder in /modules/:
@@ -387,6 +387,10 @@ class ModuleRegistry:
         "browser":     ["nyxt"],
         "recon":       ["nyxt", "jarvis"],
         "open":        ["nyxt"],
+        "zip":         ["FileManager"],
+        "unzip":       ["FileManager"],
+        "archive":     ["FileManager"],
+        "extract":     ["FileManager"],
     }
 
     def _get_active_modules(self, message=None):
