@@ -361,6 +361,10 @@ class MainWindow:
             # Image — render in canvas Document tab
             self.canvas.open()
             self.root.after(100, lambda: self.canvas._drop_as_image(filepath))
+        elif ext == '.zip':
+            # Zip — offer to extract, never auto-extract
+            self.canvas.open()
+            self.root.after(100, lambda: self.canvas._on_zip_drop(filepath))
         else:
             # Document files — route to canvas as Document tab
             try:
