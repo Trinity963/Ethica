@@ -114,6 +114,12 @@ class CanvasHistory:
         if snaps and snaps[0].content == content:
             return None
 
+        # Size guard — reject binary or oversized content (512KB max)
+        if not isinstance(content, str) or len(content.encode("utf-8", errors="ignore")) > 524288:
+            logger.warning("[CanvasHistory] Snapshot rejected — content too large or not text (%s bytes)",
+                           len(content) if isinstance(content, str) else "non-str")
+            return None
+
         snap = CanvasSnapshot(
             tab_name=tab_name,
             content=content,
@@ -202,6 +208,11 @@ class CanvasHistory:
 
     def _load(self):
         if not os.path.exists(CANVAS_HISTORY_FILE):
+            return
+        size = os.path.getsize(CANVAS_HISTORY_FILE)
+        if size > 10 * 1024 * 1024:
+            logger.warning("[CanvasHistory] History file exceeds 10MB (%s bytes) — wiping.", size)
+            os.remove(CANVAS_HISTORY_FILE)
             return
         try:
             with open(CANVAS_HISTORY_FILE, "r", encoding="utf-8") as f:
