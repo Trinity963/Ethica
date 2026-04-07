@@ -131,12 +131,12 @@ def gage_chat(input_str):
 
     _gage_status("ACTIVE", message[:60], "gage_chat", 10)
 
-    # Use Ethica's llama_connector if available
+    # Use Ollama — same as Trinity/River/J.A.R.V.I.S.
     try:
         sys.path.insert(0, str(MODULE_DIR.parent.parent))
-        from core.llama_connector import LlamaConnector
+        from core.ollama_connector import OllamaConnector
 
-        connector = LlamaConnector()
+        connector = OllamaConnector(model="minimax-m2.7:cloud")
 
         messages = [
             {"role": "system", "content": GAGE_SYSTEM},
@@ -189,8 +189,8 @@ def gage_read_code(input_str):
             )}
         ]
         sys.path.insert(0, str(MODULE_DIR.parent.parent))
-        from core.llama_connector import LlamaConnector
-        connector = LlamaConnector()
+        from core.ollama_connector import OllamaConnector
+        connector = OllamaConnector(model="minimax-m2.7:cloud")
         response = connector.chat(messages, stream=False)
         clean = re.sub(r'<think>[\s\S]*?</think>', '', response, flags=re.IGNORECASE).strip()
         return f"Gage — Code Review: {filepath}\n\n{clean}\n\n[DEBUG:Gage:{ext}:\n{code}]"
