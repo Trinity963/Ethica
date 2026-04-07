@@ -2,7 +2,7 @@
   "name": "Gage",
   "version": "1.0",
   "entry": "gage_bridge.py",
-  "description": "Gage AI — advanced agent with humor, confidence, and tactical mindset. Launch full Streamlit UI or chat with Gage directly inside Ethica. Code review, coding assistant, agent persona.",
+  "description": "Gage AI \u2014 advanced agent with humor, confidence, and tactical mindset. Launch full Streamlit UI or chat with Gage directly inside Ethica. Code review, coding assistant, agent persona.",
   "author": "Victory",
   "autonomous": false,
   "autonomous_triggers": [
@@ -15,7 +15,7 @@
   "tools": [
     {
       "name": "gage_launch",
-      "description": "Launch Gage AI full Streamlit app in browser — voice, 3D avatar, TTS",
+      "description": "Launch Gage AI full Streamlit app in browser \u2014 voice, 3D avatar, TTS",
       "syntax": "[TOOL:gage_launch: start]",
       "autonomous": false,
       "example": "[TOOL:gage_launch: start]"
@@ -29,28 +29,21 @@
     },
     {
       "name": "gage_read_code",
-      "description": "Have Gage review a code file — tactical mindset, direct feedback",
+      "description": "Have Gage review a code file \u2014 tactical mindset, direct feedback",
       "syntax": "[TOOL:gage_read_code: /path/to/file.py]",
       "autonomous": false,
       "example": "[TOOL:gage_read_code: /home/trinity/Ethica/core/chat_engine.py]"
     },
     {
       "name": "gage_status",
-      "description": "Gage status — running, launch history",
+      "description": "Gage status \u2014 running, launch history",
       "syntax": "[TOOL:gage_status: check]",
       "autonomous": true,
       "example": "[TOOL:gage_status: check]"
     },
     {
       "name": "gage_vision",
-      "description": "Describe an image using BLIP vision model — Gage sees what you see",
-      "syntax": "[TOOL:gage_vision: /path/to/image.jpg]",
-      "autonomous": false,
-      "example": "[TOOL:gage_vision: /home/trinity/Pictures/screenshot.png]"
-    },
-    {
-      "name": "gage_vision",
-      "description": "Describe an image using BLIP vision model — Gage sees what you see",
+      "description": "Describe an image using BLIP vision model \u2014 Gage sees what you see",
       "syntax": "[TOOL:gage_vision: /path/to/image.jpg]",
       "autonomous": false,
       "example": "[TOOL:gage_vision: /home/trinity/Pictures/screenshot.png]"

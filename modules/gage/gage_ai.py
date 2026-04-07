@@ -26,8 +26,8 @@ engine.setProperty("voice", "english+f3")  # Change voice tone
 # Initialize Pygame for Lip Syncing
 pygame.init()
 screen = pygame.display.set_mode((500, 500))
-face_closed = pygame.image.load("gage_closed.png")  # Neutral face
-face_open = pygame.image.load("gage_open.png")  # Talking face
+face_closed = pygame.image.load("/home/trinity/Ethica/assets/gage_closed.png")  # Neutral face — add to assets/
+face_open   = pygame.image.load("/home/trinity/Ethica/assets/gage_open.png")    # Talking face — add to assets/
 
 # Load 3D Avatar Model (VR Ready)
 gage_model = trimesh.load("Gage.glb")
