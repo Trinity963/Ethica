@@ -899,6 +899,25 @@ class MainWindow:
             self.engine.memory.close_session()
         except Exception:
             pass
+        try:
+            # Nyxt shutdown — kill process tree on Ethica close
+            import subprocess, signal, os
+            from pathlib import Path
+            pid_file = Path.home() / 'Ethica/config/nyxt.pid'
+            if pid_file.exists():
+                try:
+                    pid = int(pid_file.read_text().strip())
+                    os.kill(pid, signal.SIGTERM)
+                except Exception:
+                    pass
+                try:
+                    pid_file.unlink()
+                except Exception:
+                    pass
+            subprocess.run(['pkill', '-f', 'mount_Nyxt'], capture_output=True)
+            subprocess.run(['pkill', '-f', 'cl-electron'], capture_output=True)
+        except Exception:
+            pass
         self.root.destroy()
 
     def _refresh_theme(self):
