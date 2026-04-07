@@ -805,20 +805,16 @@ class ChatEngine:
                     messages[0]["content"] = full_system
 
             if stream:
-                # Collect tokens silently — tool intercept runs before display
+                # Collect full response silently — tool intercept decides display
+                # Streaming tokens mid-collection causes tool/chat bleed — resolved post-collection
                 full_response = ""
                 in_think_block = False
                 for token in self.ollama.chat(messages, stream=True):
                     full_response += token
-                    # Track think block state
                     if "<think>" in full_response:
                         in_think_block = True
                     if "</think>" in full_response:
                         in_think_block = False
-                    # Only stream tokens outside think blocks and tool syntax
-                    if hasattr(self, '_on_token') and self._on_token:
-                        if not in_think_block and "[TOOL:" not in full_response:
-                            self._on_token(token)
             else:
                 full_response = self.ollama.chat(messages, stream=False)
 
@@ -836,6 +832,12 @@ class ChatEngine:
             full_response = self._handle_tool_calls(
                 full_response, messages, on_response
             )
+
+            # Post-resolution streaming — emit tokens only for non-tool responses
+            # Tool responses already routed to Ops — chat stays clean
+            if full_response and hasattr(self, '_on_token') and self._on_token:
+                for word in full_response.split(" "):
+                    self._on_token(word + " ")
 
             # Check if Ethica wants to push to canvas
             cleaned_response = self._handle_canvas_push(full_response)
