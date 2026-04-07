@@ -22,7 +22,8 @@ SUPPORTED_EXTENSIONS = {
     ".py", ".js", ".jsx", ".ts", ".tsx",
     ".css", ".html", ".htm", ".rs",
     ".json", ".md", ".txt", ".yaml", ".yml", ".pdf",
-    ".png", ".jpg", ".jpeg"
+    ".png", ".jpg", ".jpeg",
+    ".zip"
 }
 
 
