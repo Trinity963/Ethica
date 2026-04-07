@@ -6,9 +6,10 @@ import pickle
 import numpy as np
 
 ASSETS_DIR = os.path.expanduser("~/Ethica/assets/AnomalyDetection")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.expanduser("~/Ethica/status/anomaly_model.pkl")
 
-sys.path.insert(0, ASSETS_DIR)
+sys.path.insert(0, MODULE_DIR)
 
 # Suppress print statements from anomaly_detector.py during import
 import builtins
