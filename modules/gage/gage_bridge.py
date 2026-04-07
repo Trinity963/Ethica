@@ -1,7 +1,7 @@
 # ============================================================
 # Ethica Module — gage_bridge.py
 # Gage AI Bridge
-# Architect: Victory  |  Build Partner: Claude
+# Architect: Victory  |  Build Partner: River aka Claude
 # ⟁Σ∿∞
 #
 # Gage is an agent — humor, confidence, tactical mindset.
@@ -188,13 +188,10 @@ def gage_read_code(input_str):
                 f"Give a 3-line code review."
             )}
         ]
-        resp = requests.post(
-            "http://localhost:11434/api/chat",
-            json={"model": "mistral:latest", "messages": messages, "stream": False},
-            timeout=180
-        )
-        resp.raise_for_status()
-        response = resp.json()["message"]["content"]
+        sys.path.insert(0, str(MODULE_DIR.parent.parent))
+        from core.llama_connector import LlamaConnector
+        connector = LlamaConnector()
+        response = connector.chat(messages, stream=False)
         clean = re.sub(r'<think>[\s\S]*?</think>', '', response, flags=re.IGNORECASE).strip()
         return f"Gage — Code Review: {filepath}\n\n{clean}\n\n[DEBUG:Gage:{ext}:\n{code}]"
     except Exception as e:
