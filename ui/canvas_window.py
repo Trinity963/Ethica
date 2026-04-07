@@ -255,6 +255,10 @@ class CanvasWindow:
         ext = os.path.splitext(filepath)[1].lower()
         filename = os.path.basename(filepath)
 
+        if ext == '.zip':
+            self._on_zip_drop(filepath)
+            return
+
         try:
             with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
                 content = f.read()
@@ -285,11 +289,7 @@ class CanvasWindow:
 
         IMAGE_EXTS = {'.png', '.jpg', '.jpeg'}
 
-        if ext == '.zip':
-            # Zip — offer to extract, never auto-extract
-            self._on_zip_drop(filepath)
-            return
-        elif ext in IMAGE_EXTS:
+        if ext in IMAGE_EXTS:
             # Image — render in canvas image tab
             self._drop_as_image(filepath)
         elif ext in DEBUG_MAP:
