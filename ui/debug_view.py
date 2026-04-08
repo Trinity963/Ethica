@@ -275,6 +275,11 @@ class DebugView:
             padx=4
         )
         self._line_numbers.pack(side=tk.LEFT, fill=tk.Y)
+        self._line_numbers.tag_config(
+            "line_highlight",
+            background="#3a3a5a",
+            foreground="#ffffff"
+        )
 
         editor_scroll = tk.Scrollbar(editor_frame, orient=tk.VERTICAL)
         editor_scroll.pack(side=tk.RIGHT, fill=tk.Y)
@@ -305,6 +310,7 @@ class DebugView:
         # Bind events
         self._editor.bind("<KeyRelease>", self._update_line_numbers)
         self._editor.bind("<MouseWheel>", self._on_mousewheel)
+        self._editor.bind("<ButtonPress-1>", self._on_line_click)
 
         # Insert placeholder
         lang_def = LANGUAGES[self._lang]
@@ -846,6 +852,24 @@ class DebugView:
         if self.on_change:
             self.on_change()
     # ── Helpers ───────────────────────────────────────────────
+
+    def _on_line_click(self, event=None):
+        """Highlight the clicked line number in the gutter."""
+        try:
+            if not self._line_numbers.winfo_exists():
+                return
+            index = self._editor.index(tk.CURRENT)
+            line_num = int(index.split(".")[0])
+            self._line_numbers.config(state=tk.NORMAL)
+            self._line_numbers.tag_remove("line_highlight", "1.0", tk.END)
+            self._line_numbers.tag_add(
+                "line_highlight",
+                f"{line_num}.0",
+                f"{line_num}.end"
+            )
+            self._line_numbers.config(state=tk.DISABLED)
+        except Exception:
+            pass
 
     def _update_line_numbers(self, event=None):
         """Sync line numbers with editor content."""

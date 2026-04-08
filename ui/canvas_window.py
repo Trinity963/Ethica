@@ -717,6 +717,11 @@ class CanvasWindow:
             pady=10
         )
         self._line_numbers.pack(fill=tk.BOTH, expand=True)
+        self._line_numbers.tag_config(
+            "line_highlight",
+            background="#3a3a5a",
+            foreground="#ffffff"
+        )
 
         # Scrollbar
         scrollbar = tk.Scrollbar(self._editor_frame)
@@ -777,6 +782,7 @@ class CanvasWindow:
         # Bind events
         self._editor.bind("<KeyRelease>", self._on_editor_change)
         self._editor.bind("<ButtonRelease>", self._on_editor_change)
+        self._editor.bind("<ButtonPress-1>", self._on_editor_line_click)
 
     def _open_hyperlink(self, event):
         """Open clicked URL in system browser."""
@@ -1622,6 +1628,24 @@ class CanvasWindow:
         self._update_status()
 
     # ── Line Numbers ──────────────────────────────────────────
+
+    def _on_editor_line_click(self, event=None):
+        """Highlight the clicked line number in the gutter."""
+        try:
+            if not self._line_numbers.winfo_exists():
+                return
+            index = self._editor.index(tk.CURRENT)
+            line_num = int(index.split(".")[0])
+            self._line_numbers.config(state=tk.NORMAL)
+            self._line_numbers.tag_remove("line_highlight", "1.0", tk.END)
+            self._line_numbers.tag_add(
+                "line_highlight",
+                f"{line_num}.0",
+                f"{line_num}.end"
+            )
+            self._line_numbers.config(state=tk.DISABLED)
+        except Exception:
+            pass
 
     def _update_line_numbers(self):
         """Sync line number display with editor content."""
