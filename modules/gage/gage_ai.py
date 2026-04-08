@@ -4,10 +4,11 @@ import streamlit as st
 import whisper
 import speech_recognition as sr
 import pyttsx3
-import pygame
+# import pygame  # reserved for standalone lip sync process
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import trimesh
+import pathlib
 
 # Load Whisper model for real-time speech recognition
 model_whisper = whisper.load_model("base")
@@ -23,14 +24,16 @@ engine = pyttsx3.init()
 engine.setProperty("rate", 150)  # Adjust speed
 engine.setProperty("voice", "english+f3")  # Change voice tone
 
-# Initialize Pygame for Lip Syncing
-pygame.init()
-screen = pygame.display.set_mode((500, 500))
-face_closed = pygame.image.load("/home/trinity/Ethica/assets/gage_closed.png")  # Neutral face — add to assets/
-face_open   = pygame.image.load("/home/trinity/Ethica/assets/gage_open.png")    # Talking face — add to assets/
+# Initialize Pygame for Lip Syncing (only if display available)
+# Pygame lip sync disabled in Streamlit context — reserved for standalone pygame process
+_pygame_ok = False
+screen = None
+face_closed = None
+face_open   = None
 
 # Load 3D Avatar Model (VR Ready)
-gage_model = trimesh.load("Gage.glb")
+GAGE_GLB = pathlib.Path("/home/trinity/Ethica/assets/Gage.glb")
+gage_model = trimesh.load(str(GAGE_GLB)) if GAGE_GLB.exists() else None
 
 # Initialize Chat History
 if "messages" not in st.session_state:
@@ -71,7 +74,7 @@ def recognize_speech():
             return ""
 
 # Get User Input (Text or Voice)
-user_input = st.text_input("Type your message or use voice:")
+user_input = st.chat_input("Type your message or use voice:")
 if st.button("🎤 Speak"):
     user_input = recognize_speech()
 
@@ -79,28 +82,42 @@ if user_input:
     # Add User Input to Chat History
     st.session_state["messages"].append({"role": "user", "content": user_input})
 
-    # Generate AI Response
+    # Generate AI Response via Ollama
     system_prompt = "You are Gage, an advanced AI with humor, confidence, and a tactical mindset. Respond accordingly."
-    prompt = f"{system_prompt}\nUser: {user_input}\nGage:"
-    inputs = tokenizer(prompt, return_tensors="pt", padding=True)
-    inputs["attention_mask"] = inputs["input_ids"].ne(tokenizer.pad_token_id)
-
-    output = model.generate(**inputs, max_length=150, pad_token_id=tokenizer.pad_token_id)
-    response = tokenizer.decode(output[0], skip_special_tokens=True)
+    try:
+        import requests as _requests
+        resp = _requests.post("http://localhost:11434/api/chat", json={
+            "model": "minimax-m2.7:cloud",
+            "stream": False,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": user_input}
+            ]
+        }, timeout=60)
+        response = resp.json().get("message", {}).get("content", "").strip()
+        if not response:
+            response = "Gage is thinking... (empty response from Ollama)"
+    except Exception as e:
+        response = f"Gage error: {e}"
 
     # Add AI Response to Chat History
     st.session_state["messages"].append({"role": "assistant", "content": response})
 
     # Speak AI Response
-    engine.say(response)
-    engine.runAndWait()
+    # Speak response in background thread so UI renders immediately
+    import threading as _threading
+    def _speak():
+        engine.say(response)
+        engine.runAndWait()
+    _threading.Thread(target=_speak, daemon=True).start()
 
-    # Lip Sync Animation
-    for _ in range(5):
-        screen.fill((0, 0, 0))
-        screen.blit(face_open if time.time() % 1 < 0.5 else face_closed, (100, 100))
-        pygame.display.flip()
-        time.sleep(0.1)
+    # Lip Sync Animation (only if pygame display available)
+    if _pygame_ok and screen:
+        for _ in range(5):
+            screen.fill((0, 0, 0))
+            screen.blit(face_open if time.time() % 1 < 0.5 else face_closed, (100, 100))
+            pygame.display.flip()
+            time.sleep(0.1)
 
     # Refresh Chat Display
     st.rerun()
