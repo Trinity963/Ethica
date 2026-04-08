@@ -42,6 +42,13 @@
       "example": "[TOOL:gage_status: check]"
     },
     {
+      "name": "gage_stop",
+      "description": "Stop Gage Streamlit server \u2014 kills full process group",
+      "syntax": "[TOOL:gage_stop: stop]",
+      "autonomous": true,
+      "example": "[TOOL:gage_stop: stop]"
+    },
+    {
       "name": "gage_vision",
       "description": "Describe an image using BLIP vision model \u2014 Gage sees what you see",
       "syntax": "[TOOL:gage_vision: /path/to/image.jpg]",

@@ -97,7 +97,8 @@ def gage_launch(input_str):
         _launch_proc = subprocess.Popen(
             [str(GAGE_ENV_PYTHON), "-m", "streamlit", "run", str(GAGE_APP)],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
         )
         _launch_count += 1
 
@@ -215,6 +216,21 @@ def gage_status(input_str):
 
 
 
+# ── Tool: gage_stop ──────────────────────────────────────────
+def gage_stop(input_str):
+    """Kill the Streamlit process group cleanly."""
+    global _launch_proc
+    if not _launch_proc or _launch_proc.poll() is not None:
+        return "Gage — not running."
+    try:
+        import signal
+        os.killpg(_launch_proc.pid, signal.SIGTERM)
+        _launch_proc = None
+        return "Gage — stopped cleanly."
+    except Exception as e:
+        return f"Gage — stop error: {e}"
+
+
 # ── Tool: gage_vision ─────────────────────────────────────────
 def gage_vision(input_str):
     """Describe an image using BLIP vision model via gage_env."""
@@ -267,6 +283,7 @@ TOOLS = {
     "gage_chat":      gage_chat,
     "gage_read_code": gage_read_code,
     "gage_status":    gage_status,
+    "gage_stop":      gage_stop,
     "gage_vision":    gage_vision,
 }
 
