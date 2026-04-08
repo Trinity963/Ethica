@@ -165,7 +165,7 @@ class ReflectionEngine:
         lights_up = context.get("what_lights_up", {})
         thinks = context.get("how_they_think", {})
         values = context.get("values", {})
-        depth = context.get("depth_profile", {})
+        depth = context.get("depth_profile", {})  # noqa — reserved for reflection prompt
         milestones = context.get("recent_milestones", [])
         last_reflection = context.get("last_reflection", "")
 

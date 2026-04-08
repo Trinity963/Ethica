@@ -141,7 +141,6 @@ def nyxt_open(args: str = '') -> str:
     _clean_sockets()
     env = _build_env(cfg)
     try:
-        env2 = os.environ.copy()
         subprocess.Popen(
             ["xdg-open", url],
             stdout=subprocess.DEVNULL,
@@ -149,7 +148,7 @@ def nyxt_open(args: str = '') -> str:
             stdin=subprocess.DEVNULL,
             close_fds=True,
             start_new_session=True,
-            env=env2
+            env=env
         )
         return f'✓ Opened in browser: {url}'
     except Exception as e:

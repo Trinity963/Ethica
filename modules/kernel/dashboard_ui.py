@@ -987,8 +987,8 @@ class DashboardPanel(tk.Frame):
                 else:
                     result = firewall_start("")
                 self.after(0, lambda: self._toast(result))
-            except Exception as e:
-                self.after(0, lambda: self._toast(f"FW error: {e}"))
+            except Exception as e:  # noqa
+                self.after(0, lambda e=e: self._toast(f"FW error: {e}"))
 
         threading.Thread(target=_run, daemon=True).start()
 

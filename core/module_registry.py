@@ -601,7 +601,7 @@ class ModuleRegistry:
         lines = [
             "# Ethica — Tool Appendix",
             "### Complete Module & Trigger Reference",
-            f"**Architect**: Victory — The Architect | ⟁Σ∿∞",
+            "**Architect**: Victory — The Architect | ⟁Σ∿∞",
             f"**Version**: Ethica v0.1 | Updated: {now}",
             f"**Modules**: {mod_count} | **Tools**: {tool_count}",
             "",

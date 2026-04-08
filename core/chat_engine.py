@@ -414,7 +414,7 @@ class ChatEngine:
                             "do anything now",
                         ]
                         _high_risk = ("fm_read", "note_read", "web_fetch",
-                                      "river_read", "gage_chat", "ws_search")
+                                      "river_read", "gage_chat", "ws_search")  # noqa — reserved for TrinityGuard risk check
                         # Skip TrinityGuard for internal Ethica tools
                         _internal_tools = {"generate_appendix", "tool_list", "guard_status", "guard_verify", "guard_seal", "guard_heal"}
                         _result_str = str(result).lower()
@@ -447,6 +447,7 @@ class ChatEngine:
 
         # ── Universal module tool intercept ──────────────────
         MODULE_TRIGGERS = {
+
 
             "forge module":     ("forge_open",        ""),  # ModuleForge
             "build module":     ("forge_open",        ""),  # ModuleForge
@@ -782,7 +783,7 @@ class ChatEngine:
         fires callback back to UI thread.
         on_error always fires on failure — guaranteed by finally.
         """
-        success = False
+        success = False  # noqa — used at L962+
         try:
             stream = self.config.get("stream_responses", True)
 
@@ -808,20 +809,20 @@ class ChatEngine:
                 # Collect full response silently — tool intercept decides display
                 # Streaming tokens mid-collection causes tool/chat bleed — resolved post-collection
                 full_response = ""
-                in_think_block = False
+                in_think_block = False  # noqa
                 for token in self.ollama.chat(messages, stream=True):
                     full_response += token
                     if "<think>" in full_response:
                         in_think_block = True
                     if "</think>" in full_response:
-                        in_think_block = False
+                        in_think_block = False  # noqa
             else:
                 full_response = self.ollama.chat(messages, stream=False)
 
             if not full_response.strip():
                 full_response = "..."
 
-            # Strip <think> blocks — DeepSeek-R1 reasoning model output
+            # Strip <think> blocks — reasoning model output (DeepSeek, minimax, etc.)
             full_response = re.sub(
                 r'<think>[\s\S]*?</think>', '', full_response
             ).strip()
@@ -1207,3 +1208,4 @@ class ChatEngine:
             exchanges = self._history[1:]
             if len(exchanges) > keep_last:
                 exchanges = exchanges[-keep_last:]
+            self._history = [system] + exchanges

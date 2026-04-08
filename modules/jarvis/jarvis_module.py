@@ -509,7 +509,7 @@ def jarvis_pipeline(args: str = '') -> str:
             r = subprocess.run(['httpx', '-l', '-', '-silent', '-status-code', '-title'],
                                input=chr(10).join(subdomains) if 'subdomains' in dir() else target,
                                capture_output=True, text=True, timeout=60)
-            results.append(f'httpx — live hosts:')
+            results.append('httpx — live hosts:')
             results.extend([f'  {l}' for l in r.stdout.strip().splitlines()[:20]])
         except Exception as e:
             results.append(f'httpx error: {e}')

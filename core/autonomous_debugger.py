@@ -198,7 +198,7 @@ class AutonomousDebugger:
 
         prompt = f"""Fix this code. It failed{line_ref} with this error:
 
-{error.strip()}
+{summary.strip()}
 
 Original code:
 ```
@@ -244,7 +244,7 @@ Just the raw fixed code ready to run."""
         """Brief Ethica commentary on a single attempt."""
         if attempt.success:
             if attempt_num == 1:
-                return f"Ran clean first try. Done."
+                return "Ran clean first try. Done."
             else:
                 return f"Fixed it on attempt {attempt_num}. Clean."
 

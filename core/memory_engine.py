@@ -250,7 +250,7 @@ class MemoryEngine:
         Extracts themes, patterns, emotional tone.
         Updates user profile and insights silently.
         """
-        user_msg = exchange["user"].lower()
+        user_msg = exchange["user"].lower()  # noqa — reserved for keyword analysis
 
         # ── Full semantic analysis via InsightExtractor ─────────
         with self._lock:

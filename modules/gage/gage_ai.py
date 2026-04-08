@@ -116,7 +116,7 @@ if user_input:
         for _ in range(5):
             screen.fill((0, 0, 0))
             screen.blit(face_open if time.time() % 1 < 0.5 else face_closed, (100, 100))
-            pygame.display.flip()
+            screen.flip()  # noqa — guarded by _pygame_ok
             time.sleep(0.1)
 
     # Refresh Chat Display

@@ -474,7 +474,7 @@ class CanvasWindow:
         """Offer to extract a dropped .zip — never auto-extract."""
         import zipfile as _zf
         filename = os.path.basename(filepath)
-        dest = os.path.dirname(filepath)
+        dest = os.path.dirname(filepath)  # noqa — reserved for extraction
         try:
             with _zf.ZipFile(filepath, 'r') as zf:
                 count = len(zf.namelist())
