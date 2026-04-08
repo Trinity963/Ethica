@@ -208,6 +208,14 @@ def hunt(target_path, max_files=None):
         try:
             result = analyzer.analyze_code(code, filepath=filepath)
             issues = result.get("issues", [])
+            # Filter out issues on lines marked with # noqa
+            code_lines = code.splitlines()
+            def _noqa(issue):
+                ln = issue.get("line")
+                if ln and 0 < ln <= len(code_lines):
+                    return "# noqa" in code_lines[ln - 1]
+                return False
+            issues = [i for i in issues if not _noqa(i)]
         except Exception as e:
             _feed_write(f"[WORM][ERROR] Analysis failed for {filepath}: {e}")
             results["skipped"] += 1
