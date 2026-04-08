@@ -208,7 +208,8 @@ def guard_seal(input_text: str) -> str:
     ROOT_FILES = ["main.py", "requirements.txt", "setup.sh", "setup.bat"]
     EXCLUDE_DIRS = [
         "__pycache__", ".git", "Ethica_env", "gage_env", "wormbot_env",
-        "River", ".River", "snapshots", "crashes", "scans", "docs/.WIP"
+        "River", ".River", "snapshots", "crashes", "scans", "docs/.WIP",
+        ".venv", "TrinityDatasetPlugin", "memory"
     ]
     import os as _os
     from pathlib import Path as _Path
