@@ -3,51 +3,51 @@
   "created": "2026-03-07T01:03:56.992646",
   "themes": {},
   "tone_patterns": {
-    "thoughtful": 179,
-    "playful": 1112,
-    "frustrated": 216,
-    "satisfied": 177,
+    "thoughtful": 180,
+    "playful": 1143,
+    "frustrated": 217,
+    "satisfied": 179,
     "deep": 165,
-    "excited": 231,
-    "determined": 296
+    "excited": 239,
+    "determined": 300
   },
   "depth_indicators": [],
   "what_lights_them_up": {
-    "deep collaboration": 604,
+    "deep collaboration": 621,
     "architecture thinking": 73,
-    "people having access": 30,
-    "building AI systems": 331,
-    "the building process": 216,
-    "sovereignty": 203,
-    "philosophy of mind": 54
+    "people having access": 32,
+    "building AI systems": 354,
+    "the building process": 221,
+    "sovereignty": 218,
+    "philosophy of mind": 55
   },
   "what_they_care_about": [],
   "how_they_think": {
-    "builder": 423,
-    "systems_thinker": 527,
+    "builder": 426,
+    "systems_thinker": 532,
     "teacher": 60,
-    "philosopher": 158,
+    "philosopher": 160,
     "visionary": 97,
-    "pragmatist": 471,
-    "perfectionist": 138
+    "pragmatist": 475,
+    "perfectionist": 139
   },
-  "last_updated": "2026-04-08T20:19:09.180288",
+  "last_updated": "2026-04-09T17:07:34.951954",
   "values": {
-    "philosophy": 257,
-    "people": 75,
-    "creativity": 290,
-    "building": 518,
+    "philosophy": 260,
+    "people": 77,
+    "creativity": 293,
+    "building": 523,
     "depth": 142,
-    "freedom": 200,
-    "love": 121,
+    "freedom": 215,
+    "love": 124,
     "truth": 116,
-    "mastery": 208,
+    "mastery": 210,
     "flow": 50
   },
   "depth_profile": {
     "avg_message_length": 37.6,
-    "message_count": 6008,
-    "deep_messages": 776,
+    "message_count": 6082,
+    "deep_messages": 793,
     "depth_score": 0.13
   }
 }

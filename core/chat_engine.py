@@ -611,6 +611,11 @@ class ChatEngine:
             "search my memory": ("memory_search",     ""),
             "memory read":      ("memory_read",       ""),
             "read memory":      ("memory_read",       ""),
+            "trainer status":   ("trainer_status",       "check"),
+            "trainer build":    ("trainer_build_dataset","validate"),
+            "trainer run":      ("trainer_run",          "start"),
+            "trainer merge":    ("trainer_merge",        "merge"),
+            "trainer load":     ("trainer_load",         "load"),
         }
         msg_lower = msg.lower()
         for trigger, (tool_name, default_input) in MODULE_TRIGGERS.items():
@@ -667,7 +672,10 @@ class ChatEngine:
                         if self.modules.has_tool(tn):
                             result = self.modules.execute_tool(tn, ti)
                             final = self._handle_canvas_push(result, tool_result=True)
-                            on_response(final)
+                            if self._ops_callback:
+                                self._ops_callback(tn, final)
+                            else:
+                                on_response(final)
                         elif tn == "update_appendix":
                             result = self.modules.generate_appendix(triggers=MODULE_TRIGGERS)
                             final = self._handle_canvas_push(result, tool_result=True)

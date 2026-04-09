@@ -86,6 +86,7 @@ MODULE_DIRS = [
     "memory_search",
     "crash_reporter",
     "nyxt",
+    "ethica_trainer",
 ]
 
 

@@ -2,6 +2,11 @@
   "keep_last": 5,
   "sessions": [
     {
+      "session": "071",
+      "date": "2026-04-08",
+      "summary": "XTTS v2 voice system built and tested \u2014 Trinity spoke through Ethica. Dormant until RTX 5090 (72% RAM on CPU). pyttsx3 restored. start_ethica.sh committed. .progress docs/ untracked from git. 3 commits. Master at 28c6350. Vault 165 files."
+    },
+    {
       "session": "069",
       "date": "2026-04-07",
       "summary": "Stability pass. canvas_history healed (496MB wipe + guards). Gage on OllamaConnector. Tool/chat bleed fixed. KEYWORD_GROUPS casing corrected. anomaly_worker sys.path fixed. Surgical method in Claude memory. 7 commits. Master at 9e3a5d8. Vault 165 files clean."
@@ -20,11 +25,6 @@
       "session": "067",
       "date": "2026-04-06",
       "summary": "Nyxt freeze fixed (missing on_done). TrinityGuard hardened (overbroad patterns removed, internal tool exemption). nyxt_start/stop sleeps removed. nyxt_eval deferred Ivy Bridge. cl-electron swept on stop. jarvis_recon wired to nyxt_open. Keyword router wired. 6 commits. Master at 3181871. 2 modified post-seal."
-    },
-    {
-      "session": "065",
-      "date": "2026-04-05",
-      "summary": "dep_checker sweep (auto_fixer.py 4 prints, checker.py 2 prints converted to logging). DLP dual-output confirmed. J.A.R.V.I.S. Easter egg (9-invocation modal confirmed working), arm unlock, pipeline (subfinder\u2192httpx\u2192nuclei\u2192anomaly log), jarvis model command, model hardcode fixed. REQUIREMENTS.md created. 4 commits. master at 4be05f5."
     }
   ]
 }

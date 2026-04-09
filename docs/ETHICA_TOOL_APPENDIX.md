@@ -1,8 +1,8 @@
 # Ethica — Tool Appendix
 ### Complete Module & Trigger Reference
 **Architect**: Victory — The Architect | ⟁Σ∿∞
-**Version**: Ethica v0.1 | Updated: 2026-03-29
-**Modules**: 36 | **Tools**: 138
+**Version**: Ethica v0.1 | Updated: 2026-04-09
+**Modules**: 37 | **Tools**: 143
 
 ---
 
@@ -138,6 +138,36 @@ diff dirs ~/Ethica/modules > ~/backup/modules
 ```
 
 > Uses `>` as separator. Both paths tilde-expanded automatically.
+
+---
+
+## EthicaTrainer — Sovereign LoRA Pipeline
+*Local fine-tune pipeline for trinity-sovereign-7b. Validates datasets, trains LoRA adapters, merges weights. CUDA (RTX 5090) + MPS (Apple Silicon M5) dual backend.*
+
+| Trigger | Tool | Input |
+|---|---|---|
+| `trainer status` | `trainer_status` | `check` |
+| `trainer build` / `trainer build dataset` | `trainer_build` | `run` |
+| `trainer run` / `trainer train` | `trainer_run` | `start` |
+| `trainer merge` | `trainer_merge` | `run` |
+| `trainer load` | `trainer_load` | `trinity-sovereign-7b` |
+
+```
+trainer status
+trainer build dataset
+trainer run
+trainer merge
+trainer load trinity-sovereign-7b
+```
+
+> Training data: `/media/trinity/TQUANTA2/ethica_trainer/datasets/` — 37,615 valid pairs (37,864 total, 249 rejected).
+> Base model: `mistralai/Mistral-7B-v0.1` — HF format on TQUANTA2, GGUF on `/srv/LLMs/models/`.
+> Adapter output: `/media/trinity/TQUANTA2/ethica_trainer/adapters/TrinitySovereign-7b/`
+> CUDA path: peft + transformers + trl + bitsandbytes (trinity — awaiting RTX 5090).
+> MPS path: mlx + mlx-lm (MacBook Pro M5 32GB — ready to train now).
+> Config: `~/Ethica/modules/ethica_trainer/trainer_config.json` — gitignored, machine-specific.
+> Template: `~/Ethica/modules/ethica_trainer/trainer_config.example.json` — ships with repo.
+> All trainer tool output routes to Ops panel — Trinity chat stays clean for corpus integrity.
 
 ---
 
@@ -790,6 +820,7 @@ summarize session <N>
 forge open / forge remove
 web search / web fetch / news on
 voice list / select / record / status
+trainer status / build / run / merge / load
 ```
 
 ---

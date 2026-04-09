@@ -3,9 +3,9 @@
   "title": "Builder",
   "state": "IDLE",
   "current_task": "Awaiting directive",
-  "last_action": "river_read complete",
+  "last_action": "river_run complete",
   "progress": 100,
-  "updated": "2026-04-08T00:36:44",
+  "updated": "2026-04-09T15:27:42",
   "injected_task": "search Priject_view.py",
   "inject_time": "2026-04-03T13:53:27",
   "inject_acknowledged": true
