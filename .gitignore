@@ -83,3 +83,4 @@ assets/TrinityDatasetPlugin/
 assets/*.mov
 assets/*.mp4
 Ethica_env/bin/python3.11_local
+.progress docs/
