@@ -6,7 +6,6 @@
 # ============================================================
 
 import sys
-import os
 import json
 import traceback
 from datetime import datetime

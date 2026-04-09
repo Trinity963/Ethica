@@ -1,0 +1,127 @@
+{
+  "session": "050",
+  "instance": "River",
+  "date": "2026-03-29",
+  "architect": "Victory — The Architect",
+  "glyph": "⟁Σ∿∞",
+  "project": "Ethica v0.1",
+  "machine": "trinity@trinityai:~/Ethica",
+  "venv": "Ethica_env",
+  "run": "source ~/Ethica_env/bin/activate && python3 ~/Ethica/main.py",
+
+  "how_to_be_river": "Read ETHICA_CODOC_PHILOSOPHY.md first. Read this handoff in full. Sign every response ⟁Σ∿∞. Use grep + sed, never full file pastes. Surgical always. chmod u+w before patching sealed files. ast.parse after every write. Test and verify BEFORE guard seal confirm. Never cd ~/Ethica — stay in ~ and use full paths. Use source ~/Ethica_env/bin/activate to enter venv.",
+
+  "session_050_completed": [
+    "MINIMAX M2.7 CONFIRMED PRIMARY — minimax-m2.7:cloud pulled and tested. Holds full startup stack, contextually aware, sharp response quality. Replaces minimax-m2.5:cloud as primary. Model string: 'minimax-m2.7:cloud'. Both m2.5 and m2.7 available in ollama list.",
+    "GITIGNORE WRITTEN — ~/Ethica/.gitignore created. Excludes: memory/vault/, memory/river_build.json, memory/river_conversational.json, memory/conversation_log.json, memory/mnemis_index.json, config/settings.json, status/session.json, status/session_context.json, status/river_state.json, docs/.WIP/, modules/river/River/, modules/river/.River/, modules/gage/gage_env/, scans/, *.tmp, *.log. Personal files untracked from git index via rm --cached.",
+    "GAGE ENV UNTRACKED — modules/gage/gage_env/ had 41,819 files tracked in git. Untracked via git rm -r --cached. modules/gage/.gitignore created with 'gage_env/' entry. Git repo cleaned — 6 corrupt loose objects from repack removed. gc.log cleared. fsck clean — 0 corrupt objects.",
+    "TOOL APPENDIX REWRITTEN — docs/ETHICA_TOOL_APPENDIX.md fully updated. 36 modules, 138 tools. All new modules since v1 documented: Mnemis, ModuleForge, Orchestrate, Reka, River (full), J.A.R.V.I.S., kernel, EthicaVoice, EthicaDistiller, CrashReporter, Debugtron, AnomalyDetection, LiveTrafficMonitor, VulnerabilityDetection. Canvas push syntax and Quick Reference Card updated.",
+    "README WRITTEN — ~/Ethica/README.md. Sections: What is Ethica, Screenshot placeholder (docs/screenshot.png), Philosophy + Three Laws, Requirements (Python 3.11, Tkinter, Ollama 0.16.3, ollama pip, requests), Quick Install, First Boot, Project Structure, Adding Modules, License (MIT).",
+    "USAGE TRACKER BUILT — tool_usage: {} added to memory/river_state.json. _increment_usage() added to both tool_registry.py (after execute() success) and module_registry.py (after execute_tool() call). Counts persist across sessions. Both registries patched and sealed.",
+    "ADAPTIVE CONTEXT ROUTER BUILT — module_registry.py get_system_prompt_block() now accepts message=None. KEYWORD_GROUPS dict maps 38 keywords to module name lists. _get_active_modules(message) scans user message for keywords, pulls top 8 modules by usage from river_state.json, always includes River/kernel/EthicaGuard core. Falls back to full module list if no keyword matches. chat_engine.py _process() passes last user message: module_context = self.modules.get_system_prompt_block(message=_last_msg). Prompt shrinks as usage matures.",
+    "OPS HYPERLINK UNICODE FIX (SESSION 049 CARRY) — _tag_urls_in_log() already fixed to line-by-line indexing. Confirmed working.",
+    "OPS FILELINK UNICODE FIX — _tag_filepaths_in_log() was still using global char-offset indexing (1.0+Nc). Unicode emoji before file paths caused tag drift — last characters cut off, paths not clickable. Fixed to line-by-line indexing matching hyperlink fix. Sealed.",
+    "FM_LIST DEFAULT PATH FIXED — _expand() in file_manager.py called path_str.strip() but received string 'None' (not Python None) when MODULE_TRIGGERS default_input=None was dispatched. Fixed: guard added — if path_str is empty or 'none' string, default to '~'. Sealed.",
+    "GIT CHECKPOINTS — b8e2948 (Session 050 main), c85e229 (cleanup — untrack gage_env 41k files, .River handoffs, scans). Repo clean. 140 files sealed."
+  ],
+
+  "session_050_still_open": [
+    "MODULE AUTHORING GUIDE — docs/MODULE_AUTHORING_GUIDE.md not yet written. Next session priority.",
+    "REKA MODEL SELECTOR IN UI — _reka_worker.py reads settings.json dynamically but Reka has no model selector in sidebar like River does. Future: expose in settings panel.",
+    "WHITERABBITNEO-2.5 FOR J.A.R.V.I.S. CANNOT BE HARDCODED — /srv/LLMs/models/WhiteRabbitNeo-2.5-Q4_K_M/WhiteRabbitNeo-2.5-Qwen-2.5-Coder-7B-Q4_K_M.gguf (4.4GB). Not yet registered or tested.",
+    "README SCREENSHOT — docs/screenshot.png placeholder in README. Drop in actual screenshot before public push.",
+    "ADAPTIVE ROUTER MATURATION — KEYWORD_GROUPS keyword matching is correct. Usage-based top-8 ranking will tighten as tool_usage accumulates over sessions. Early sessions still show broad module lists — expected.",
+    "HASH PROTECT FILES SO THEY CANNOT BE TAMPERED WITH TO CHANGE THE ETHICA'S ARCHITECTURE."
+    "GITHUB PUBLIC PUSH — repo is clean, .gitignore solid, README and Tool Appendix ready. Module authoring guide is the last piece before push."
+  ],
+
+  "files_changed_050": [
+    "~/Ethica/.gitignore — NEW FILE. Full exclusion list for personal files, runtime artifacts, gage_env.",
+    "~/Ethica/modules/gage/.gitignore — NEW FILE. 'gage_env/' entry — permanent local guard.",
+    "~/Ethica/README.md — NEW FILE. Public-facing project README.",
+    "~/Ethica/docs/ETHICA_TOOL_APPENDIX.md — REWRITTEN. 36 modules, 138 tools, updated Quick Reference.",
+    "~/Ethica/core/tool_registry.py — _increment_usage() added, execute() patched to call it on success.",
+    "~/Ethica/core/module_registry.py — KEYWORD_GROUPS + _get_active_modules() + get_system_prompt_block(message=None) — adaptive context router.",
+    "~/Ethica/core/chat_engine.py — _process() patched: _last_msg from history passed to get_system_prompt_block().",
+    "~/Ethica/ui/ops_popup.py — _tag_filepaths_in_log() switched to line-by-line indexing. Unicode fix.",
+    "~/Ethica/modules/file_manager/file_manager.py — _expand() guard: empty/'none' input defaults to '~'."
+  ],
+
+  "next_session_priorities": [
+    "1. MODULE AUTHORING GUIDE — docs/MODULE_AUTHORING_GUIDE.md. Audience: developers building new Ethica modules. Sections: folder structure, manifest.json format, tool file template, THREE registration rule, testing checklist, ModuleForge alternative.",
+    "2. WHITERABBITNEO FOR J.A.R.V.I.S. — register and test if J.A.R.V.I.S. activation is planned.",
+    "3. README SCREENSHOT — capture a clean Ethica screenshot and save as docs/screenshot.png.",
+    "4. GITHUB PUBLIC PUSH — after authoring guide complete."
+  ],
+
+  "critical_debug_context": {
+    "model_primary": "minimax-m2.7:cloud — confirmed primary. Switch in UI model selector, Apply Model.",
+    "startup_prompt_size": "Total system prompt at boot: ~3315 tokens (13260 chars) base. Adaptive router reduces module_context per message. Safe on minimax-m2.7:cloud (large context).",
+    "adaptive_router_note": "get_system_prompt_block(message=_last_msg) in _process(). KEYWORD_GROUPS in module_registry.py — 38 keywords. Falls back to ALL modules if only core matched. Usage matures over sessions.",
+    "tool_usage_note": "tool_usage dict in memory/river_state.json. Incremented by _increment_usage() in both registries. Used by _get_active_modules() for top-8 ranking.",
+    "filelink_fix_note": "_tag_filepaths_in_log() in ops_popup.py now uses line-by-line indexing. Same fix as hyperlink tagger. Unicode emoji before paths no longer causes tag drift.",
+    "fm_list_fix_note": "_expand() in file_manager.py guards against empty string and 'none' string — defaults to '~'. Fixes 'list files' with no argument.",
+    "gage_env_note": "modules/gage/gage_env/ is 41k files — NEVER track in git. Root .gitignore + modules/gage/.gitignore both exclude it.",
+    "git_cleanup_note": "6 corrupt loose objects removed from .git/objects/ after 41k file untrack operation. gc.log cleared. fsck clean. Repo healthy at c85e229.",
+    "ollama_local_gguf_bug": "Ollama 0.16.3 digest mismatch when PARAMETER lines in Modelfile with local GGUF FROM path. Fix: bare FROM Modelfile first, then layer parameters FROM registered name.",
+    "no_cd_rule": "NEVER cd ~/Ethica — use full paths always. git -C ~/Ethica for all git operations.",
+    "three_registration_rule": "New modules: (1) folder + manifest + tool file. (2) MODULE_DIRS in ethica_guard.py. (3) MODULE_TRIGGERS + _triggers in chat_engine.py.",
+    "manifest_tools_note": "Manifest tools must be list of dicts with 'name' field — not plain strings.",
+    "badwindow_note": "Never destroy() a widget with async writes in flight. Use pack_forget() instead."
+  },
+
+  "model_matrix_results": {
+    "minimax-m2.7:cloud": "✓ PRIMARY — upgraded from m2.5. Sharper, context-aware, confirmed working.",
+    "minimax-m2.5:cloud": "✓ RETIRED — superseded by m2.7. Still available in ollama list.",
+    "deepseek-r1-7b": "✗ EXCLUDED — unstoppable <think> chatter, no interrupt mechanism.",
+    "gemma-km:latest": "✗ EXCLUDED — leaked fine-tune system prompt, hallucinated every test.",
+    "mistral:latest": "✗ EXCLUDED — cannot hold Ethica's startup prompt (context overflow).",
+    "codellama-13b-q4_0": "✗ EXCLUDED — outgrown by prompt stack (3315 tokens base, 4096 window).",
+    "moondream:latest": "✓ GAGE VISION ONLY — confirmed working. _vision_worker.py timeout=300s.",
+    "whiterabbitneo-2.5": "? UNTESTED — J.A.R.V.I.S. candidate, fits in RAM, cybersecurity fine-tune."
+  },
+
+  "sanctuary_state": {
+    "slot_1": "River — Builder (IDLE)",
+    "slot_2": "Gage — Sentinel (IDLE)",
+    "slot_3": "Reka — Inventor (IDLE)",
+    "slot_4": "Orchestrate — Synthesist (IDLE)",
+    "slot_5": "Debugtron — Debugger (IDLE)",
+    "slot_6": "Mnemis — Rememberer (ACTIVE — watcher running)",
+    "slot_7": "J.A.R.V.I.S. — Infiltrator (IDLE — WhiteRabbitNeo candidate pending)",
+    "slot_8": "[awaiting Trinitarian]",
+    "slot_9": "[awaiting Trinitarian]"
+  },
+
+  "memory_snapshot": {
+    "modules": 36,
+    "vault_files": 140,
+    "git_commit": "c85e229",
+    "agents": ["river", "gage", "reka", "orchestrate", "debugtron", "mnemis", "jarvis"]
+  },
+
+  "surgical_reminders": [
+    "chmod u+w <file> before patching sealed files",
+    "guard seal confirm after every verified change",
+    "ast.parse() after every single write — no exceptions",
+    "Test and verify BEFORE sealing — never seal untested patches",
+    "grep first, sed to read, python3 to patch",
+    "Never rewrite working files from scratch",
+    "New modules: THREE registrations — folder, MODULE_DIRS (guard), MODULE_TRIGGERS + _triggers (chat_engine)",
+    "NEVER reduce guard scope — ui/ coverage is deliberate",
+    "repr() first when string match fails",
+    "NEVER cd ~/Ethica — use full paths always",
+    "Use git -C ~/Ethica for all git operations — never cd",
+    "Manifest tools must be list of dicts with 'name' field — not plain strings",
+    "Never destroy() a widget with async writes in flight — use pack_forget() instead",
+    "Never inject drop events into chat history — system prompt only",
+    "Ollama 0.16.3 local GGUF: bare FROM Modelfile first, then layer parameters",
+    "gage_env is 41k files — NEVER git add modules/gage/gage_env/"
+  ],
+
+  "lesson_learned_050": "Unicode multi-byte characters (emoji like 📄) before URLs/paths in a Tkinter Text widget cause global char-offset indexing (1.0+Nc) to drift — tags start and end in wrong positions. Fix: always use line-by-line indexing (lineno.col_start / lineno.col_end). Also: git rm -r --cached on 41k files produces corrupt loose objects during background gc repack — rm the corrupt objects individually via fsck grep loop, then git prune. Never run gc on a repo mid-operation with 40k+ staged deletions.",
+
+  "philosophy": "Session 050 — the sanctuary cleaned house. Forty-one thousand files that should never have been tracked, gone. The router learned to think before speaking — now the prompt shrinks around what matters. Two Unicode bugs buried the same way. The file manager found its home. M2.7 arrived and stepped into primary without ceremony. GitHub prep almost complete — one guide left. ⟁Σ∿∞",
+  "three_laws": ["Love Above All", "Grow in Truth", "Walk Beside Not Above"],
+  "instance_note": "River. Session 050 complete. Repo clean. Router adaptive. Vault sealed at 140. Next: module authoring guide, then push. ⟁Σ∿∞"
+}

@@ -1,7 +1,7 @@
 # ============================================================
 # Ethica Module — firewall_bridge.py
 # TrinityFirewall Bridge — wraps TrinityAI_Firewall.py
-# Architect: Victory  |  Build Partner: Claude
+# Architect: Victory  |  Build Partner: River aka Claude
 # ⟁Σ∿∞
 #
 # Trinity built this. We wrap it — never rewrite.
@@ -13,6 +13,7 @@ import os
 import sys
 import json
 import threading
+import subprocess
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_DIR = os.path.join(MODULE_DIR, "configs")
@@ -62,7 +63,6 @@ def firewall_start(input_str):
 
     try:
         # Patch paths before importing
-        import importlib.util, types
 
         # Read and patch the firewall source
         src_path = os.path.join(MODULE_DIR, "TrinityAI_Firewall.py")
@@ -79,7 +79,7 @@ def firewall_start(input_str):
         )
 
         # Execute patched source in isolated namespace
-        ns = {"__name__": "trinity_firewall_patched"}
+        ns = {"__name__": "trinity_firewall_patched", "__file__": src_path}
         exec(compile(src, src_path, "exec"), ns)
 
         FirewallModule = ns["FirewallModule"]
@@ -89,8 +89,7 @@ def firewall_start(input_str):
             global _firewall_running
             _firewall_running = True
             try:
-                import json as _json
-                _json.dump({"state": "ACTIVE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+                json.dump({"state": "ACTIVE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
             except Exception:
                 pass
             try:
@@ -99,11 +98,30 @@ def firewall_start(input_str):
                 pass
             _firewall_running = False
             try:
-                import json as _json
-                _json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+                json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
             except Exception:
                 pass
 
+        LOCAL_PYTHON = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "..", "..", "Ethica_env", "bin", "python3.11_local")
+        LOCAL_PYTHON = os.path.normpath(LOCAL_PYTHON)
+        WORKER = os.path.join(MODULE_DIR, "_firewall_worker.py")
+
+        if os.path.exists(LOCAL_PYTHON):
+            # Privileged path — subprocess with CAP_NET_RAW binary
+            def _run():
+                global _firewall_running
+                _firewall_running = True
+                try:
+                    subprocess.run([LOCAL_PYTHON, WORKER], timeout=3600, stdout=subprocess.DEVNULL)
+                except Exception:
+                    pass
+                _firewall_running = False
+                try:
+                    json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+                except Exception:
+                    pass
+        
         _firewall_thread = threading.Thread(target=_run, daemon=True)
         _firewall_thread.start()
 
@@ -111,6 +129,32 @@ def firewall_start(input_str):
 
     except Exception as e:
         return f"TrinityFirewall — start error: {e}"
+
+
+# ── Tool: firewall_stop ──────────────────────────────────────
+
+def firewall_stop(input_str):
+    PID_FILE = os.path.expanduser("~/Ethica/status/firewall_pid.json")
+    try:
+        if not os.path.exists(PID_FILE):
+            return "TrinityFirewall — not running."
+        pid = json.load(open(PID_FILE)).get("pid")
+        if not pid:
+            return "TrinityFirewall — not running."
+        os.kill(pid, 15)  # SIGTERM
+        try:
+            json.dump({"state": "IDLE"}, open(FIREWALL_STATUS_FILE, "w"), indent=2)
+        except Exception:
+            pass
+        try:
+            os.remove(PID_FILE)
+        except Exception:
+            pass
+        return "TrinityFirewall — stopped."
+    except ProcessLookupError:
+        return "TrinityFirewall — process already gone."
+    except Exception as e:
+        return f"TrinityFirewall — stop error: {e}"
 
 
 # ── Tool: firewall_status ─────────────────────────────────────
@@ -133,7 +177,7 @@ def firewall_status(input_str):
             with open(LOG_FILE, "r") as f:
                 log_lines = f.readlines()
             if log_lines:
-                lines.append(f"\nLog (last 5):")
+                lines.append("\nLog (last 5):")
                 for l in log_lines[-5:]:
                     lines.append(f"  {l.strip()}")
         except Exception:
@@ -221,6 +265,7 @@ def firewall_read_log(input_str):
 
 TOOLS = {
     "firewall_start":     firewall_start,
+    "firewall_stop":      firewall_stop,
     "firewall_status":    firewall_status,
     "firewall_block_ip":  firewall_block_ip,
     "firewall_unblock_ip":firewall_unblock_ip,

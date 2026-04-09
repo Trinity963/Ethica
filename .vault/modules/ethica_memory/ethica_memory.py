@@ -13,8 +13,6 @@
 # ============================================================
 
 import json
-import os
-import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -133,7 +131,7 @@ def memory_status(input_str):
             ts = m.get("timestamp", "")[:10]
             lines.append(f"    · [{ts}] {m.get('milestone', '')}")
     if growth:
-        lines.append(f"  Recent growth notes:")
+        lines.append("  Recent growth notes:")
         for g in growth[-3:]:
             lines.append(f"    · {g.get('note', '')[:80]}")
 
@@ -189,7 +187,6 @@ def memory_edit(input_str):
 
     section = path_parts[0].lower()
     field   = path_parts[1].lower()
-    op      = path_parts[2].lower() if len(path_parts) > 2 else "set"
 
     # Route to correct file
     file_map = {
@@ -265,13 +262,11 @@ def memory_reflect(input_str):
         if ethica_root not in sys.path:
             sys.path.insert(0, ethica_root)
 
-        from core.reflection_engine import ReflectionEngine
 
         # We need a connector — check if one is accessible via chat_engine
         # If not available, build a minimal reflection from memory directly
         profile   = _read(PROFILE_FILE)
         insights  = _read(INSIGHTS_FILE)
-        evolution = _read(EVOLUTION_FILE)
 
         name      = profile.get("name", "V")
         convs     = profile.get("conversation_count", 0)
@@ -312,11 +307,11 @@ def memory_reflect(input_str):
         _write(REFLECT_FILE, reflect_data)
 
         return (
-            f"EthicaMemory — reflection written\n"
-            f"─" + "─"*40 + "\n"
+            "EthicaMemory — reflection written\n"
+            "─" + "─"*40 + "\n"
             f"{text}\n"
-            f"─" + "─"*40 + "\n"
-            f"Saved to memory/reflection_log.json"
+            "─" + "─"*40 + "\n"
+            "Saved to memory/reflection_log.json"
         )
 
     except Exception as e:

@@ -1,3 +1,4 @@
+import logging
 from sklearn.ensemble import IsolationForest
 import numpy as np
 
@@ -23,7 +24,7 @@ class AnomalyDetector:
         Args:
             training_data (np.ndarray): A 2D array of training samples.
         """
-        print("[AnomalyDetector] Training model...")
+        logging.info("[AnomalyDetector] Training model...")
         self.model.fit(training_data)
 
     def predict_anomalies(self, new_data):
@@ -36,7 +37,7 @@ class AnomalyDetector:
         Returns:
             np.ndarray: An array with values 1 (normal) and -1 (anomaly).
         """
-        print("[AnomalyDetector] Predicting anomalies...")
+        logging.info("[AnomalyDetector] Predicting anomalies...")
         return self.model.predict(new_data)
 
 # Example usage
@@ -47,4 +48,4 @@ if __name__ == "__main__":
 
     new_data = np.array([[100], [200], [300], [5000], [6000]])  # New traffic with outliers
     anomalies = detector.predict_anomalies(new_data)
-    print("Anomalies detected:", anomalies)
+    logging.info("Anomalies detected: %s", anomalies)

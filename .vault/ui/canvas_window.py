@@ -255,6 +255,10 @@ class CanvasWindow:
         ext = os.path.splitext(filepath)[1].lower()
         filename = os.path.basename(filepath)
 
+        if ext == '.zip':
+            self._on_zip_drop(filepath)
+            return
+
         try:
             with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
                 content = f.read()
@@ -465,6 +469,28 @@ class CanvasWindow:
             self.parent.after(200, lambda n=notification: self.notify_fn(n))
         _notify_canvas_drop(filename, filepath=filepath)
         self.parent.after(100, self._write_canvas_context)
+
+    def _on_zip_drop(self, filepath):
+        """Offer to extract a dropped .zip — never auto-extract."""
+        import zipfile as _zf
+        filename = os.path.basename(filepath)
+        dest = os.path.dirname(filepath)  # noqa — reserved for extraction
+        try:
+            with _zf.ZipFile(filepath, 'r') as zf:
+                count = len(zf.namelist())
+        except Exception as e:
+            notification = f'[CanvasDrop] zip read error: {e}'
+            if self.notify_fn:
+                self.parent.after(200, lambda n=notification: self.notify_fn(n))
+            return
+
+        notification = (
+            f'V dropped "{filename}" ({count} files) into the canvas.\n'
+            f'Extract here? → fm_unzip: {filepath}'
+        )
+        if self.notify_fn:
+            self.parent.after(200, lambda n=notification: self.notify_fn(n))
+        _notify_canvas_drop(filename, filepath=filepath)
 
     def _build_toolbar(self):
         """Top toolbar — window title, mode selector, actions."""
@@ -691,6 +717,11 @@ class CanvasWindow:
             pady=10
         )
         self._line_numbers.pack(fill=tk.BOTH, expand=True)
+        self._line_numbers.tag_config(
+            "line_highlight",
+            background="#3a3a5a",
+            foreground="#ffffff"
+        )
 
         # Scrollbar
         scrollbar = tk.Scrollbar(self._editor_frame)
@@ -751,6 +782,7 @@ class CanvasWindow:
         # Bind events
         self._editor.bind("<KeyRelease>", self._on_editor_change)
         self._editor.bind("<ButtonRelease>", self._on_editor_change)
+        self._editor.bind("<ButtonPress-1>", self._on_editor_line_click)
 
     def _open_hyperlink(self, event):
         """Open clicked URL in system browser."""
@@ -1596,6 +1628,24 @@ class CanvasWindow:
         self._update_status()
 
     # ── Line Numbers ──────────────────────────────────────────
+
+    def _on_editor_line_click(self, event=None):
+        """Highlight the clicked line number in the gutter."""
+        try:
+            if not self._line_numbers.winfo_exists():
+                return
+            index = self._editor.index(tk.CURRENT)
+            line_num = int(index.split(".")[0])
+            self._line_numbers.config(state=tk.NORMAL)
+            self._line_numbers.tag_remove("line_highlight", "1.0", tk.END)
+            self._line_numbers.tag_add(
+                "line_highlight",
+                f"{line_num}.0",
+                f"{line_num}.end"
+            )
+            self._line_numbers.config(state=tk.DISABLED)
+        except Exception:
+            pass
 
     def _update_line_numbers(self):
         """Sync line number display with editor content."""

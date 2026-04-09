@@ -5,7 +5,6 @@ Victory — The Architect ⟁Σ∿∞
 """
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -17,12 +16,13 @@ AGENTS = ["river", "gage", "reka", "orchestrate", "debugtron", "jarvis"]
 
 TOOLS = {
     "dashboard":      "open_dashboard",
+    "canvas":         "open_canvas",
     "inject_agent":   "inject_agent_tool",
     "stop_agent":     "stop_agent_tool",
     "clear_stop":     "clear_stop_tool",
 }
 
-TRIGGERS = ["dashboard", "open dashboard", "kernel", "ops panel"]
+TRIGGERS = ["dashboard", "open dashboard", "kernel", "ops panel", "canvas", "open canvas"]
 
 
 # ── Status IO ─────────────────────────────────────────────────────────────────
@@ -79,7 +79,6 @@ def inject_task(agent_name: str, task: str) -> str:
     if success:
         # Write inject log so Ethica's context feed picks it up
         try:
-            import json
             log_path = STATUS_DIR / "inject_log.json"
             log_path.write_text(json.dumps({
                 "agent": agent_name.capitalize(),
@@ -160,9 +159,25 @@ def dashboard(input_str: str = "") -> str:
     return "__OPEN_DASHBOARD__"
 
 
+def open_canvas(input_text: str = "", app=None) -> str:
+    """
+    Tool handler for 'canvas' trigger.
+    Returns sentinel string — main_window intercepts and opens Canvas window.
+    Can be called by V typing 'canvas' or by Ethica herself.
+    """
+    return "__OPEN_CANVAS__"
+
+
+def canvas(input_str: str = "") -> str:
+    """Registry-callable handler for canvas tool."""
+    return "__OPEN_CANVAS__"
+
+
 def handle_tool(tool_name: str, input_text: str = "", app=None) -> str:
     if tool_name == "dashboard":
         return open_dashboard(input_text, app=app)
+    if tool_name == "canvas":
+        return open_canvas(input_text, app=app)
     return f"✗ Unknown kernel tool: {tool_name}"
 
 

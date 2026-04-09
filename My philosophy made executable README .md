@@ -160,7 +160,7 @@ A clean verification means you have an unmodified Ethica. The architecture is in
 
 ## The Easter Egg
 
-There is one. The Worm will find it.
+There is one for now but more to come. The Worm will find it.
 
 ---
 

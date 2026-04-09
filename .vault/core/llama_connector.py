@@ -12,8 +12,11 @@
 # CodeLLaMA, Gemma — whatever lives on the drive.
 # ============================================================
 
+import logging
 import os
 import threading
+
+logger = logging.getLogger(__name__)
 
 
 # ── Known Models ──────────────────────────────────────────────
@@ -108,7 +111,7 @@ class LlamaConnector:
 
             try:
                 from llama_cpp import Llama
-                print(f"[LlamaConnector] Loading {self._model_name}...")
+                logger.info("[LlamaConnector] Loading %s...", self._model_name)
                 self._llm = Llama(
                     model_path=self._model_path,
                     n_ctx=CONTEXT_SIZE,
@@ -116,7 +119,7 @@ class LlamaConnector:
                     verbose=False,
                     n_threads=os.cpu_count(),
                 )
-                print(f"[LlamaConnector] {self._model_name} ready")
+                logger.info("[LlamaConnector] %s ready", self._model_name)
             except Exception as e:
                 raise RuntimeError(f"Failed to load model: {e}")
 

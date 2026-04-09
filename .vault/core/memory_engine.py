@@ -1,3 +1,4 @@
+import logging
 # ============================================================
 # Ethica v0.1 — memory_engine.py
 # Soul Archive — Ethica's Living Memory
@@ -145,6 +146,12 @@ class MemoryEngine:
         # Start a new session
         self._open_session()
 
+    def reload(self):
+        """Reload insights and user profile from disk — call after distillation updates files."""
+        with self._lock:
+            self._user_profile = self._load(USER_PROFILE, DEFAULT_USER_PROFILE)
+            self._insights = self._load(INSIGHTS, DEFAULT_INSIGHTS)
+
     # ── Session Management ────────────────────────────────────
 
     def _open_session(self):
@@ -243,7 +250,7 @@ class MemoryEngine:
         Extracts themes, patterns, emotional tone.
         Updates user profile and insights silently.
         """
-        user_msg = exchange["user"].lower()
+        user_msg = exchange["user"].lower()  # noqa — reserved for keyword analysis
 
         # ── Full semantic analysis via InsightExtractor ─────────
         with self._lock:
@@ -450,7 +457,7 @@ class MemoryEngine:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except IOError as e:
-            print(f"[Ethica Memory] Save failed for {path}: {e}")
+            logging.info(f"[Ethica Memory] Save failed for {path}: {e}")
 
     def _generate_session_id(self):
         """Generate a unique session ID."""

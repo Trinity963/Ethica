@@ -6,8 +6,6 @@
 # ============================================================
 
 from pathlib import Path
-import sys
-import os
 from datetime import datetime
 
 MODULE_DIR  = Path(__file__).parent

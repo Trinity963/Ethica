@@ -3,51 +3,51 @@
   "created": "2026-03-07T01:03:56.992646",
   "themes": {},
   "tone_patterns": {
-    "thoughtful": 90,
-    "playful": 450,
-    "frustrated": 78,
-    "satisfied": 38,
-    "deep": 48,
-    "excited": 122,
-    "determined": 92
+    "thoughtful": 179,
+    "playful": 1112,
+    "frustrated": 216,
+    "satisfied": 177,
+    "deep": 165,
+    "excited": 231,
+    "determined": 296
   },
   "depth_indicators": [],
   "what_lights_them_up": {
-    "deep collaboration": 187,
-    "architecture thinking": 30,
-    "people having access": 19,
-    "building AI systems": 129,
-    "the building process": 86,
-    "sovereignty": 51,
-    "philosophy of mind": 40
+    "deep collaboration": 604,
+    "architecture thinking": 73,
+    "people having access": 30,
+    "building AI systems": 331,
+    "the building process": 216,
+    "sovereignty": 203,
+    "philosophy of mind": 54
   },
   "what_they_care_about": [],
   "how_they_think": {
-    "builder": 147,
-    "systems_thinker": 150,
-    "teacher": 28,
-    "philosopher": 50,
-    "visionary": 42,
-    "pragmatist": 122,
-    "perfectionist": 33
+    "builder": 423,
+    "systems_thinker": 527,
+    "teacher": 60,
+    "philosopher": 158,
+    "visionary": 97,
+    "pragmatist": 471,
+    "perfectionist": 138
   },
-  "last_updated": "2026-03-30T19:14:55.121057",
+  "last_updated": "2026-04-08T20:19:09.180288",
   "values": {
-    "philosophy": 85,
-    "people": 31,
-    "creativity": 106,
-    "building": 141,
-    "depth": 48,
-    "freedom": 48,
-    "love": 59,
-    "truth": 39,
-    "mastery": 57,
-    "flow": 17
+    "philosophy": 257,
+    "people": 75,
+    "creativity": 290,
+    "building": 518,
+    "depth": 142,
+    "freedom": 200,
+    "love": 121,
+    "truth": 116,
+    "mastery": 208,
+    "flow": 50
   },
   "depth_profile": {
-    "avg_message_length": 30.4,
-    "message_count": 992,
-    "deep_messages": 259,
-    "depth_score": 0.26
+    "avg_message_length": 37.6,
+    "message_count": 6008,
+    "deep_messages": 776,
+    "depth_score": 0.13
   }
 }

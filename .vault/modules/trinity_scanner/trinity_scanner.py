@@ -77,7 +77,7 @@ def scanner_scan(input_str):
         total = len(file_data)
         errors = sum(1 for f in file_data if "error" in f)
         return (
-            f"TrinityScanner ✓\n"
+            "TrinityScanner ✓\n"
             f"Scanned: {path}\n"
             f"Files found: {total}\n"
             f"Errors: {errors}\n"
@@ -139,11 +139,11 @@ def scanner_last(input_str):
         sized.sort(key=lambda x: x["size_bytes"], reverse=True)
         top = sized[:10]
         lines = [
-            f"TrinityScanner — Last Report",
+            "TrinityScanner — Last Report",
             f"Scanned: {path}",
             f"Timestamp: {ts}",
             f"Total files: {total}",
-            f"\nTop 10 largest files:"
+            "\nTop 10 largest files:"
         ]
         for f in top:
             kb = f["size_bytes"] / 1024

@@ -1,7 +1,7 @@
 # ============================================================
 # Ethica v0.1 — module_registry.py
 # Sovereign Module Store — Ethica's Extensible Tool Engine
-# Architect: Victory  |  Build Partner: Claude
+# Architect: Victory  |  Build Partner: River aka Claude
 # ⟁Σ∿∞
 #
 # Each module is a folder in /modules/:
@@ -36,7 +36,7 @@
 import os
 import json
 import importlib.util
-import traceback
+import logging
 from datetime import datetime
 
 
@@ -114,7 +114,7 @@ class ModuleRegistry:
         self._load_errors = []
 
         if not os.path.exists(MODULES_DIR):
-            print("[ModuleRegistry] No modules/ directory found")
+            logging.warning("[ModuleRegistry] No modules/ directory found")
             return
 
         for entry in sorted(os.listdir(MODULES_DIR)):
@@ -131,7 +131,7 @@ class ModuleRegistry:
         self._loaded_at = datetime.now().isoformat()
         count = len(self._modules)
         tools = len(self._tool_index)
-        print(f"[ModuleRegistry] {count} module(s) loaded, {tools} tool(s) available")
+        logging.info(f"[ModuleRegistry] {count} module(s) loaded, {tools} tool(s) available")
 
     def _load_module(self, folder_name, module_dir, manifest_path):
         """Load a single module from its folder."""
@@ -194,11 +194,11 @@ class ModuleRegistry:
                 loaded_at   = datetime.now().isoformat()
             )
             self._modules[name.lower()] = module
-            print(f"[ModuleRegistry] ✓ {name} v{version} — {len(tools)} tool(s)")
+            logging.info(f"[ModuleRegistry] ✓ {name} v{version} — {len(tools)} tool(s)")
 
         except Exception as e:
             err = f"[ModuleRegistry] ✗ {folder_name}: {str(e)}"
-            print(err)
+            logging.error(err)
             self._load_errors.append(err)
 
     def _find_impl(self, module_dir, folder_name, entry=None):
@@ -241,7 +241,7 @@ class ModuleRegistry:
             spec.loader.exec_module(module)
             return module
         except Exception as e:
-            print(f"[ModuleRegistry] Failed to load {impl_file}: {e}")
+            logging.error(f"[ModuleRegistry] Failed to load {impl_file}: {e}")
             return None
 
     def wire_connector(self, connector):
@@ -366,7 +366,7 @@ class ModuleRegistry:
         "river":       ["River"],
         "gage":        ["Gage"],
         "reka":        ["Reka"],
-        "jarvis":      ["jarvis"],
+        "jarvis":      ["J.A.R.V.I.S."],
         "forge":       ["ModuleForge"],
         "distill":     ["EthicaDistiller"],
         "crash":       ["CrashReporter"],
@@ -383,6 +383,14 @@ class ModuleRegistry:
         "orchestrate": ["Orchestrate"],
         "diff":        ["DiffTool"],
         "depcheck":    ["DepChecker"],
+        "nyxt":        ["Nyxt"],
+        "browser":     ["Nyxt"],
+        "recon":       ["Nyxt", "J.A.R.V.I.S."],
+        "open":        ["Nyxt"],
+        "zip":         ["FileManager"],
+        "unzip":       ["FileManager"],
+        "archive":     ["FileManager"],
+        "extract":     ["FileManager"],
     }
 
     def _get_active_modules(self, message=None):
@@ -513,15 +521,15 @@ class ModuleRegistry:
             else:
                 for tool in mod.tools:
                     self._tool_index[tool.name] = tool
-            print(f"[ModuleRegistry] {'✓' if enabled else '✗'} {name} {'enabled' if enabled else 'disabled'}")
+            logging.info(f"[ModuleRegistry] {'✓' if enabled else '✗'} {name} {'enabled' if enabled else 'disabled'}")
 
     def reload(self):
         """Reload all modules from disk."""
-        print("[ModuleRegistry] Reloading all modules...")
+        logging.info("[ModuleRegistry] Reloading all modules...")
         self._modules.clear()
         self._tool_index.clear()
         self._load_all()
-        print(f"[ModuleRegistry] Reload complete — {len(self._modules)} module(s) loaded")
+        logging.info(f"[ModuleRegistry] Reload complete — {len(self._modules)} module(s) loaded")
 
     def list_tools(self):
         """Return all available tools across all modules."""
@@ -593,7 +601,7 @@ class ModuleRegistry:
         lines = [
             "# Ethica — Tool Appendix",
             "### Complete Module & Trigger Reference",
-            f"**Architect**: Victory — The Architect | ⟁Σ∿∞",
+            "**Architect**: Victory — The Architect | ⟁Σ∿∞",
             f"**Version**: Ethica v0.1 | Updated: {now}",
             f"**Modules**: {mod_count} | **Tools**: {tool_count}",
             "",

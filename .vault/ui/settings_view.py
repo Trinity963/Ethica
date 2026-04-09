@@ -8,7 +8,7 @@
 import os
 import json
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 from pathlib import Path
 
 CONFIG_PATH = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / "config" / "settings.json"

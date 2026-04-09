@@ -5,6 +5,7 @@
 # ⟁Σ∿∞
 # ============================================================
 
+import logging
 import tkinter as tk
 from tkinter import ttk
 from ui.memory_search import MemorySearchWindow
@@ -43,7 +44,6 @@ class Sidebar:
     def _build(self):
         """Build the sidebar."""
         c = self.theme.colors
-        f = self.theme.font
 
         # Outer frame — fixed width
         self.frame = tk.Frame(
@@ -168,7 +168,7 @@ class Sidebar:
         # Section labels via separators
         model_options = []
         if gguf_models:
-            model_options += [f"── Local ──"] + gguf_models
+            model_options += ["── Local ──"] + gguf_models
         model_options += ["── Ollama ──"] + ollama_models
 
         current_model = self.config.get("model", "mistral")
@@ -537,7 +537,7 @@ class Sidebar:
             model_options += ["── Local ──"] + gguf_models
         model_options += ["── Ollama ──"] + ollama_models
         dropdown["values"] = model_options
-        print(f"[Sidebar] Refreshed — {len(gguf_models)} local, {len(ollama_models)} ollama")
+        logging.info("[Sidebar] Refreshed — %s local, %s ollama", len(gguf_models), len(ollama_models))
 
     def _on_model_selected(self, event=None):
         """Fire model change callback."""

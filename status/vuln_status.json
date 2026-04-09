@@ -1,8 +1,8 @@
 {
   "module": "VulnerabilityDetection",
   "state": "IDLE",
-  "current_task": "Port scan complete",
-  "last_action": "vuln_scan",
+  "current_task": "Protocol check complete",
+  "last_action": "vuln_protocols",
   "last_result": [],
-  "updated": "2026-03-23T03:24:58.208146"
+  "updated": "2026-03-31T23:10:57.289496"
 }

@@ -83,16 +83,16 @@ _last_result = None
 _report_log  = []
 
 AUTO_FIX = {
-    "python":     True,
-    "javascript": True,
-    "js":         True,
-    "css":        True,
-    "html":       True,
+    "python":     False,
+    "javascript": False,
+    "js":         False,
+    "css":        False,
+    "html":       False,
     "rust":       False,
     "rs":         False,
-    "json":       True,
-    "markdown":   True,
-    "md":         True,
+    "json":       False,
+    "markdown":   False,
+    "md":         False,
 }
 
 EXT_MAP = {

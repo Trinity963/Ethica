@@ -47,6 +47,10 @@ def signature_verified():
 
 import subprocess
 import json
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
 
 class DependencyAutoFixer:
     """
@@ -62,25 +66,25 @@ class DependencyAutoFixer:
         """Fixes broken APT packages by reinstalling them from a trusted source"""
         for package in self.issues:
             if "apt" in package:
-                print(f"🔧 Fixing {package} via APT...")
+                logger.info(f"🔧 Fixing {package} via APT...")
                 subprocess.run(["sudo", "apt", "install", "--reinstall", "-y", package])
 
     def fix_pip_packages(self):
         """Fixes Python packages that are outdated or deprecated"""
         for package in self.issues:
             if "pip" in package:
-                print(f"🔧 Fixing {package} via PIP...")
+                logger.info(f"🔧 Fixing {package} via PIP...")
                 subprocess.run(["pip", "install", "--upgrade", "--force-reinstall", package.split(" - ")[0]])
 
     def execute_fixes(self):
         """Runs all necessary fixes"""
         if not self.issues:
-            print("✅ No issues detected. No fixes needed.")
+            logger.info("✅ No issues detected. No fixes needed.")
             return
 
         self.fix_apt_packages()
         self.fix_pip_packages()
-        print("✅ All fixes applied successfully.")
+        logger.info("✅ All fixes applied successfully.")
 
 if __name__ == "__main__":
     # Load issues from previous scan

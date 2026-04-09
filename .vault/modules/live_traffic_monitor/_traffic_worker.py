@@ -4,10 +4,9 @@ Called as subprocess. Writes results to stdout as JSON.
 """
 import sys
 import json
-import time
 import os
 
-sys.path.insert(0, os.path.expanduser("~/Ethica/assets/LiveTrafficMonitor"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from live_traffic_monitor import LiveTrafficMonitor
 

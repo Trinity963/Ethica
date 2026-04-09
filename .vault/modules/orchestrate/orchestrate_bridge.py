@@ -77,7 +77,7 @@ def orchestrate_status(input_str):
         updated   = data.get("updated", "—")
         history   = data.get("history", [])
         lines = [
-            f"Orchestrate — The Synthesist",
+            "Orchestrate — The Synthesist",
             f"State:          {state}",
             f"Last directive: {directive}",
             f"Updated:        {updated}",

@@ -2,7 +2,6 @@
 LiveTrafficMonitor bridge — Ethica module
 Tools: traffic_start, traffic_status, traffic_anomalies
 """
-import sys
 import json
 import subprocess
 import os

@@ -1,7 +1,7 @@
 # ============================================================
 # Ethica Module — gage_bridge.py
 # Gage AI Bridge
-# Architect: Victory  |  Build Partner: Claude
+# Architect: Victory  |  Build Partner: River aka Claude
 # ⟁Σ∿∞
 #
 # Gage is an agent — humor, confidence, tactical mindset.
@@ -13,6 +13,7 @@
 import os
 import sys
 import subprocess
+import logging
 import threading
 from pathlib import Path
 
@@ -96,7 +97,8 @@ def gage_launch(input_str):
         _launch_proc = subprocess.Popen(
             [str(GAGE_ENV_PYTHON), "-m", "streamlit", "run", str(GAGE_APP)],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
         )
         _launch_count += 1
 
@@ -130,13 +132,12 @@ def gage_chat(input_str):
 
     _gage_status("ACTIVE", message[:60], "gage_chat", 10)
 
-    # Use Ethica's llama_connector if available
+    # Use Ollama — same as Trinity/River/J.A.R.V.I.S.
     try:
         sys.path.insert(0, str(MODULE_DIR.parent.parent))
-        from core.llama_connector import LlamaConnector
-        from core.config_manager import ConfigManager
+        from core.ollama_connector import OllamaConnector
 
-        connector = LlamaConnector()
+        connector = OllamaConnector(model="minimax-m2.7:cloud")
 
         messages = [
             {"role": "system", "content": GAGE_SYSTEM},
@@ -160,7 +161,7 @@ def gage_chat(input_str):
 
 def gage_read_code(input_str):
     filepath = os.path.expanduser(input_str.strip())
-    print(f"[GAGE_READ] received: {repr(filepath)}, exists: {os.path.exists(filepath)}")
+    logging.info(f"[GAGE_READ] received: {repr(filepath)}, exists: {os.path.exists(filepath)}")
     if not filepath or not os.path.exists(filepath):
         return f"Gage — file not found: {filepath}"
 
@@ -188,13 +189,10 @@ def gage_read_code(input_str):
                 f"Give a 3-line code review."
             )}
         ]
-        resp = requests.post(
-            "http://localhost:11434/api/chat",
-            json={"model": "mistral:latest", "messages": messages, "stream": False},
-            timeout=180
-        )
-        resp.raise_for_status()
-        response = resp.json()["message"]["content"]
+        sys.path.insert(0, str(MODULE_DIR.parent.parent))
+        from core.ollama_connector import OllamaConnector
+        connector = OllamaConnector(model="minimax-m2.7:cloud")
+        response = connector.chat(messages, stream=False)
         clean = re.sub(r'<think>[\s\S]*?</think>', '', response, flags=re.IGNORECASE).strip()
         return f"Gage — Code Review: {filepath}\n\n{clean}\n\n[DEBUG:Gage:{ext}:\n{code}]"
     except Exception as e:
@@ -218,6 +216,21 @@ def gage_status(input_str):
 
 
 
+# ── Tool: gage_stop ──────────────────────────────────────────
+def gage_stop(input_str):
+    """Kill the Streamlit process group cleanly."""
+    global _launch_proc
+    if not _launch_proc or _launch_proc.poll() is not None:
+        return "Gage — not running."
+    try:
+        import signal
+        os.killpg(_launch_proc.pid, signal.SIGTERM)
+        _launch_proc = None
+        return "Gage — stopped cleanly."
+    except Exception as e:
+        return f"Gage — stop error: {e}"
+
+
 # ── Tool: gage_vision ─────────────────────────────────────────
 def gage_vision(input_str):
     """Describe an image using BLIP vision model via gage_env."""
@@ -231,7 +244,6 @@ def gage_vision(input_str):
     VISION_PYTHON = shutil.which("python3") or GAGE_ENV_PYTHON
     vision_script = str(MODULE_DIR / "_vision_worker.py")
 
-    from pathlib import Path
     worker = Path(vision_script)
     if not worker.exists():
         worker.write_text(
@@ -271,6 +283,7 @@ TOOLS = {
     "gage_chat":      gage_chat,
     "gage_read_code": gage_read_code,
     "gage_status":    gage_status,
+    "gage_stop":      gage_stop,
     "gage_vision":    gage_vision,
 }
 

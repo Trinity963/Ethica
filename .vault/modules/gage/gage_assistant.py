@@ -7,7 +7,6 @@ import streamlit as st
 import pyttsx3
 import speech_recognition as sr
 from transformers import pipeline
-import os
 
 # Read active file in VSCode
 def read_active_code():
@@ -16,7 +15,7 @@ def read_active_code():
         if file_path and os.path.exists(file_path):
             with open(file_path, "r") as file:
                 return file.read()
-    except:
+    except Exception:
         return None
 
 # Use file content as part of AI input

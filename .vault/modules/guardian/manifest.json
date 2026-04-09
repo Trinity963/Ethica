@@ -2,7 +2,7 @@
   "name": "Guardian",
   "version": "1.0",
   "entry": "guardian_bridge.py",
-  "description": "Trinity & Victory built sentinel. Watches the model field, mirrors disturbances, logs reflections. Soul-aware filesystem guardian powered by WhiteRabbitNeo.",
+  "description": "Trinity & Victory built sentinel. Watches the model field, mirrors disturbances, logs reflections. Soul-aware filesystem guardian \u2014 sentinel directory configurable via guardian_config.json.",
   "author": "Victory + Trinity",
   "autonomous": true,
   "autonomous_triggers": [
@@ -30,28 +30,28 @@
     },
     {
       "name": "guardian_status",
-      "description": "Guardian status — running, watch path, files seen, reflections logged",
+      "description": "Guardian status \u2014 running, watch path, files seen, reflections logged",
       "syntax": "[TOOL:guardian_status: check]",
       "autonomous": true,
       "example": "[TOOL:guardian_status: check]"
     },
     {
       "name": "guardian_read_log",
-      "description": "Read Guardian mirror log — last N reflection entries",
+      "description": "Read Guardian mirror log \u2014 last N reflection entries",
       "syntax": "[TOOL:guardian_read_log: 20]",
       "autonomous": true,
       "example": "[TOOL:guardian_read_log: 20]"
     },
     {
       "name": "guardian_reflect",
-      "description": "Read behavior summary from reflection mirror — attacker profile timeline",
+      "description": "Read behavior summary from reflection mirror \u2014 attacker profile timeline",
       "syntax": "[TOOL:guardian_reflect: summary]",
       "autonomous": false,
       "example": "[TOOL:guardian_reflect: summary]"
     },
     {
       "name": "guardian_trigger",
-      "description": "Trigger a response action — log_only|alert_admin|lockdown|isolate_agent — event description",
+      "description": "Trigger a response action \u2014 log_only|alert_admin|lockdown|isolate_agent \u2014 event description",
       "syntax": "[TOOL:guardian_trigger: lockdown|suspicious process detected]",
       "autonomous": false,
       "example": "[TOOL:guardian_trigger: alert_admin|UID=0 escalation attempt]"

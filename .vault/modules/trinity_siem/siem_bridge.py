@@ -7,9 +7,7 @@
 # ============================================================
 
 import os
-import sys
 import json
-import logging
 from datetime import datetime
 
 MODULE_DIR  = os.path.dirname(os.path.abspath(__file__))

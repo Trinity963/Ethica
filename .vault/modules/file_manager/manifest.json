@@ -2,7 +2,7 @@
   "name": "FileManager",
   "version": "1.0",
   "entry": "file_manager.py",
-  "description": "Sovereign file manager — list, read, copy, move, delete, tree view. Results in Ops.",
+  "description": "Sovereign file manager \u2014 list, read, copy, move, delete, tree, zip, unzip. Results in Ops.",
   "author": "Victory",
   "autonomous": false,
   "autonomous_triggers": [
@@ -12,7 +12,12 @@
     "read file",
     "copy file",
     "move file",
-    "delete file"
+    "delete file",
+    "zip file",
+    "unzip file",
+    "extract zip",
+    "archive folder",
+    "zip status"
   ],
   "tools": [
     {
@@ -49,6 +54,27 @@
       "syntax": "[TOOL:fm_delete: ~/path/file.txt]",
       "autonomous": false,
       "example": "[TOOL:fm_delete: ~/tmp/old.txt]"
+    },
+    {
+      "name": "fm_zip",
+      "description": "Compress a file or folder into a .zip alongside the source",
+      "syntax": "[TOOL:fm_zip: ~/path]",
+      "autonomous": false,
+      "example": "[TOOL:fm_zip: ~/Ethica/logs]"
+    },
+    {
+      "name": "fm_unzip",
+      "description": "Extract a .zip archive into its containing directory",
+      "syntax": "[TOOL:fm_unzip: ~/path/file.zip]",
+      "autonomous": false,
+      "example": "[TOOL:fm_unzip: ~/Downloads/archive.zip]"
+    },
+    {
+      "name": "fm_zip_status",
+      "description": "List contents of a .zip without extracting",
+      "syntax": "[TOOL:fm_zip_status: ~/path/file.zip]",
+      "autonomous": false,
+      "example": "[TOOL:fm_zip_status: ~/Downloads/archive.zip]"
     }
   ]
 }

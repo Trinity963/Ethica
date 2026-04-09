@@ -66,6 +66,7 @@ UI_FILES = [
     "sidebar.py",
     "sketch_view.py",
     "theme.py",
+    "tool_lister.py",
     "ui__init__.py",
 ]
 
@@ -84,6 +85,7 @@ MODULE_DIRS = [
     "jarvis",
     "memory_search",
     "crash_reporter",
+    "nyxt",
 ]
 
 
@@ -206,7 +208,8 @@ def guard_seal(input_text: str) -> str:
     ROOT_FILES = ["main.py", "requirements.txt", "setup.sh", "setup.bat"]
     EXCLUDE_DIRS = [
         "__pycache__", ".git", "Ethica_env", "gage_env", "wormbot_env",
-        "River", ".River", "snapshots", "crashes", "scans", "docs/.WIP"
+        "River", ".River", "snapshots", "crashes", "scans", "docs/.WIP",
+        ".venv", "TrinityDatasetPlugin", "memory"
     ]
     import os as _os
     from pathlib import Path as _Path
@@ -239,7 +242,7 @@ def guard_seal(input_text: str) -> str:
 
     total = len(manifest["files"])
     lines.append(f"\n✓ Vault sealed — {total} files protected.")
-    lines.append(f"✓ Manifest locked at .vault/ETHICA_INTEGRITY.json")
+    lines.append("✓ Manifest locked at .vault/ETHICA_INTEGRITY.json")
     lines.append(f"✓ Sealed: {manifest['sealed_at']}")
 
     logging.info(f"[EthicaGuard] Vault sealed — {total} files.")
@@ -416,11 +419,11 @@ def guard_status(input_text: str) -> str:
     sealed_at = manifest.get("sealed_at", "unknown")
     sealed_by = manifest.get("sealed_by", "unknown")
 
-    lines.append(f"Status:    SEALED ✓")
+    lines.append("Status:    SEALED ✓")
     lines.append(f"Sealed:    {sealed_at}")
     lines.append(f"By:        {sealed_by}")
     lines.append(f"Protected: {total} files")
-    lines.append(f"Vault:     ~/Ethica/.vault/")
+    lines.append("Vault:     ~/Ethica/.vault/")
 
     # Quick verify
     modified = 0
@@ -490,11 +493,11 @@ def startup_check() -> str | None:
     warning = (
         f"[EthicaGuard] ⚠ Integrity violation detected!\n"
         f"Modified: {len(modified)}  Missing: {len(missing)}\n\n"
-        f"Ethica learns from every session — your tool call patterns, preferences,\n"
-        f"and accumulated memory about you are built over time.\n"
-        f"The longer you have used Ethica, the more you stand to lose.\n\n"
-        f"If you did not make these changes, your environment may be compromised.\n"
-        f"Run 'guard verify' for details or 'guard heal all' to restore."
+        "Ethica learns from every session — your tool call patterns, preferences,\n"
+        "and accumulated memory about you are built over time.\n"
+        "The longer you have used Ethica, the more you stand to lose.\n\n"
+        "If you did not make these changes, your environment may be compromised.\n"
+        "Run 'guard verify' for details or 'guard heal all' to restore."
     )
     logging.warning(warning)
     return warning

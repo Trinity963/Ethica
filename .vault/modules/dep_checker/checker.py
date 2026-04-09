@@ -45,9 +45,12 @@ def signature_verified():
         print(f"⚠️ Verification error: {e}")
         return False
 
-import os
 import subprocess
 import json
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
 
 class DependencyChecker:
     """
@@ -62,7 +65,7 @@ class DependencyChecker:
 
     def check_apt_packages(self):
         """Scans system-installed packages for outdated or vulnerable versions"""
-        print("🔍 Scanning APT packages...")
+        logger.info("🔍 Scanning APT packages...")
         result = subprocess.run(["apt", "list", "--installed"], capture_output=True, text=True)
         for line in result.stdout.split("\n"):
             if "security" in line or "CVE" in line:
@@ -70,7 +73,7 @@ class DependencyChecker:
     
     def check_pip_packages(self):
         """Scans Python dependencies for vulnerabilities"""
-        print("🔍 Scanning PIP packages...")
+        logger.info("🔍 Scanning PIP packages...")
         result = subprocess.run(["pip", "list", "--format=json"], capture_output=True, text=True)
         packages = json.loads(result.stdout)
         for package in packages:

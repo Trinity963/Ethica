@@ -1,0 +1,12 @@
+{
+  "Trinity": {
+    "ref_dir": "reference_wavs/trinity",
+    "min_bytes": 200000,
+    "language": "en"
+  },
+  "Gage": {
+    "ref_dir": "reference_wavs/gage",
+    "min_bytes": 200000,
+    "language": "en"
+  }
+}

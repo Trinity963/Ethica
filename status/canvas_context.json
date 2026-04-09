@@ -1,10 +1,10 @@
 {
   "tab_count": 1,
-  "active_tab": "Page 2",
+  "active_tab": "Page 1",
   "tabs": [
     {
-      "name": "Page 2",
-      "mode": "document",
+      "name": "Page 1",
+      "mode": "debug",
       "active": true,
       "lines": 0,
       "preview": ""

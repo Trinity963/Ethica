@@ -6,13 +6,11 @@
 # ============================================================
 
 from pathlib import Path
-import os
 import difflib
-import sys
 MODULE_DIR  = Path(__file__).parent
 
 def _expand(path_str):
-    return Path(os.path.expanduser(path_str.strip()))
+    return Path(path_str.strip()).expanduser()
 
 def _parse_two_paths(input_str):
     """Parse 'path1 | path2' or 'path1 > path2' input."""

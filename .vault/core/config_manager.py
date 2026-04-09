@@ -5,8 +5,11 @@
 # ⟁Σ∿∞
 # ============================================================
 
+import logging
 import json
 import os
+
+logger = logging.getLogger(__name__)
 
 # ── Config lives inside the app directory — fully portable ────
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,7 +76,7 @@ class ConfigManager:
             with open(self._path, "w", encoding="utf-8") as f:
                 json.dump(self._config, f, indent=2)
         except IOError as e:
-            print(f"[Ethica] Config save failed: {e}")
+            logger.error("[Ethica] Config save failed: %s", e)
 
     def all(self):
         """Return full config dict."""

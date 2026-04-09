@@ -6,6 +6,8 @@
 # ⟁Σ∿∞
 # ============================================================
 
+import logging
+
 THEMES = {
 
     "purple": {
@@ -252,7 +254,7 @@ class ThemeEngine:
             try:
                 callback()
             except Exception as e:
-                print(f"[Ethica] Theme refresh error in {callback}: {e}")
+                logging.warning("[Ethica] Theme refresh error in %s: %s", callback, e)
 
     def available_themes(self):
         return [(k, v["name"], v["description"]) for k, v in THEMES.items()]

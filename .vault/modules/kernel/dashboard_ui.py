@@ -6,10 +6,11 @@ Victory — The Architect ⟁Σ∿∞
 
 from pathlib import Path
 import tkinter as tk
-from tkinter import ttk, font
+from tkinter import ttk
 from datetime import datetime
-import threading
-import time
+import json
+import logging
+import os
 
 from modules.kernel.kernel import read_all_agents, inject_task, read_agent_status
 
@@ -79,6 +80,10 @@ class DashboardPanel(tk.Frame):
             font=("Courier New", 9, "bold")
         )
         self._fw_indicator.pack(side="right", padx=(0, 6))
+        self._fw_indicator.bind("<Button-1>", self._fw_click)
+        self._make_tooltip(self._fw_indicator, "FW — click to start / stop firewall")
+        self._tm_indicator.bind("<Button-1>", self._tm_click)
+        self._make_tooltip(self._tm_indicator, "TM — click to see last scan summary")
         self._clock_label = tk.Label(
             header, text="", bg=BG, fg=TEXT_DIM,
             font=("Courier New", 9)
@@ -457,18 +462,16 @@ class DashboardPanel(tk.Frame):
     def _launch_vault(self):
         """Open the Mnemis vault folder in the file manager."""
         import subprocess
-        from pathlib import Path
         vault = Path.home() / 'Ethica/memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         try:
             subprocess.Popen(['xdg-open', str(vault)])
         except Exception as e:
-            print(f'[Mnemis] vault open error: {e}')
+            logging.warning('[Mnemis] vault open error: %s', e)
 
     def _on_vault_drop(self, event):
         """Handle file drop onto vault drop zone — index via Mnemis."""
         import shutil
-        from pathlib import Path
         vault = Path.home() / 'Ethica/memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         filepaths = self._vault_drop.tk.splitlist(event.data)
@@ -502,7 +505,6 @@ class DashboardPanel(tk.Frame):
             self.app._on_send("show notes")
 
     def _open_agent_manager(self):
-        import json, os
         if hasattr(self, "_agent_manager_win") and self._agent_manager_win and self._agent_manager_win.winfo_exists():
             self._agent_manager_win.lift()
             return
@@ -630,7 +632,7 @@ class DashboardPanel(tk.Frame):
         self._anom_status_path = STATUS
 
     def _build_anomaly_log(self, parent):
-        """Anomaly Log card — scrolling event list."""
+        """Anomaly Log card — scrolling event list with clickable log links."""
         self._anom_log = tk.Text(
             parent, bg=BG_CARD, fg=TEXT_DIM,
             font=("Courier New", 8), relief="flat",
@@ -639,6 +641,19 @@ class DashboardPanel(tk.Frame):
         )
         self._anom_log.pack(fill="both", expand=True)
         self._anom_log_entries = []
+        self._anom_log.tag_configure("filelink", foreground="#f7c97e", underline=True)
+        # Pre-populate seen entries from existing log files to avoid duplicate writes
+        try:
+            log_dir = Path.home() / "Ethica/logs/anomaly"
+            for log_file in sorted(log_dir.glob("anomaly_*.log")):
+                for line in log_file.read_text().splitlines():
+                    if line.strip():
+                        # Extract timestamp from "[timestamp] ..." format
+                        ts = line[1:line.index("]")] if "]" in line else ""
+                        if ts and ts not in self._anom_log_entries:
+                            self._anom_log_entries.append(ts)
+        except Exception:
+            pass
 
     def _refresh_anomaly(self):
         """Poll anomaly_status.json and update both cards."""
@@ -665,11 +680,37 @@ class DashboardPanel(tk.Frame):
             # Append to log if new scan
             if last != "—" and last not in self._anom_log_entries:
                 self._anom_log_entries.append(last)
-                entry = f"[{last}] {acount}/{total} anomalies\n"
+                # Write entry to daily anomaly log file
+                log_dir  = Path.home() / "Ethica/logs/anomaly"
+                log_dir.mkdir(parents=True, exist_ok=True)
+                date_str = str(last)[:10].replace("-", "")
+                log_path = log_dir / f"anomaly_{date_str}.log"
+                try:
+                    with open(log_path, "a") as lf:
+                        lf.write(f"[{last}] {acount}/{total} anomalies\n")
+                except Exception:
+                    pass
+                # Insert clickable amber link
+                tag_name = f"anom_{date_str}"
+                prefix   = f"[{last}] {acount}/{total} anomalies — "
                 self._anom_log.config(state="normal")
-                self._anom_log.insert("end", entry)
+                self._anom_log.insert("end", prefix)
+                self._anom_log.insert("end", str(log_path), (tag_name,))
+                self._anom_log.insert("end", "\n")
                 self._anom_log.see("end")
                 self._anom_log.config(state="disabled")
+                # Bind click to open log in canvas
+                def _make_opener(p):
+                    def _open(e):
+                        try:
+                            self.app.canvas.open_file(str(p))
+                        except Exception:
+                            pass
+                    return _open
+                self._anom_log.tag_configure(tag_name, foreground="#f7c97e", underline=True)
+                self._anom_log.tag_bind(tag_name, "<Button-1>", _make_opener(log_path))
+                self._anom_log.tag_bind(tag_name, "<Enter>", lambda e: self._anom_log.config(cursor="hand2"))
+                self._anom_log.tag_bind(tag_name, "<Leave>", lambda e: self._anom_log.config(cursor="arrow"))
         except Exception:
             pass
 
@@ -726,9 +767,6 @@ class DashboardPanel(tk.Frame):
     # ── Memory ────────────────────────────────────────────────────────────────
 
     def _build_memory(self, parent):
-        from pathlib import Path
-        import json
-
         self._mem_parent = parent
         self._mem_path = {
             "conversational": Path.home() / "Ethica" / "memory" / "river_conversational.json",
@@ -787,8 +825,6 @@ class DashboardPanel(tk.Frame):
                  wraplength=700, justify="left").pack(anchor="w")
 
     def _mem_count(self, stream: str) -> int:
-        import json
-        from pathlib import Path
         path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
@@ -798,8 +834,6 @@ class DashboardPanel(tk.Frame):
             return 0
 
     def _last_entry(self, stream: str) -> str:
-        import json
-        from pathlib import Path
         path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
@@ -826,9 +860,6 @@ class DashboardPanel(tk.Frame):
         return default
 
     def _peek_stream(self, stream: str):
-        import json
-        from pathlib import Path
-
         path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
@@ -915,6 +946,75 @@ class DashboardPanel(tk.Frame):
         self._clock_label.config(text=now)
         self.after(1000, self._tick_clock)
 
+    def _make_tooltip(self, widget, text):
+        """Attach a hover tooltip to a widget."""
+        tip = None
+
+        def show(e):
+            nonlocal tip
+            tip = tk.Toplevel(widget)
+            tip.overrideredirect(True)
+            tip.configure(bg=BG_CARD)
+            tip.geometry(f"+{e.x_root + 12}+{e.y_root + 12}")
+            tk.Label(tip, text=text, bg=BG_CARD, fg=TEXT_DIM,
+                     font=("Courier New", 8), padx=6, pady=4).pack()
+
+        def hide(e):
+            nonlocal tip
+            if tip:
+                tip.destroy()
+                tip = None
+
+        widget.bind("<Enter>", show)
+        widget.bind("<Leave>", hide)
+
+    def _fw_click(self, event=None):
+        """Toggle firewall on/off when FW indicator is clicked."""
+        import threading
+        fw_file = Path.home() / "Ethica/status/firewall_status.json"
+        try:
+            fw_state = json.loads(fw_file.read_text()).get("state", "IDLE") if fw_file.exists() else "IDLE"
+        except Exception:
+            fw_state = "IDLE"
+
+        pid_file = Path.home() / "Ethica/status/firewall_pid.json"
+
+        def _run():
+            try:
+                from modules.trinity_firewall.firewall_bridge import firewall_start, firewall_stop
+                if fw_state == "ACTIVE" or pid_file.exists():
+                    result = firewall_stop("")
+                else:
+                    result = firewall_start("")
+                self.after(0, lambda: self._toast(result))
+            except Exception as e:  # noqa
+                self.after(0, lambda e=e: self._toast(f"FW error: {e}"))
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    def _tm_click(self, event=None):
+        """Show last traffic scan summary when TM indicator is clicked."""
+        tm_file = Path.home() / "Ethica/status/traffic_status.json"
+        try:
+            if tm_file.exists():
+                data = json.loads(tm_file.read_text())
+                state   = data.get("state", "IDLE")
+                updated = data.get("updated", "—")[:16]
+                result  = data.get("last_result", {})
+                total   = sum(result.get("packet_counts", {}).values())
+                anomalies = len(result.get("anomalies", []))
+                if state == "ACTIVE":
+                    msg = "TM — scan running..."
+                elif total:
+                    msg = f"TM — {updated} | {total} pkts | {anomalies} anomalies"
+                else:
+                    msg = f"TM — last scan: {updated}"
+            else:
+                msg = "TM — no scan data. Say: traffic start"
+        except Exception:
+            msg = "TM — no scan data. Say: traffic start"
+        self._toast(msg)
+
     def _toast(self, message: str):
         toast = tk.Toplevel(self)
         toast.overrideredirect(True)
@@ -930,7 +1030,6 @@ class DashboardPanel(tk.Frame):
 
     def _write_dashboard_context(self):
         """Write live dashboard snapshot for Ethica's context feed."""
-        import json, datetime
         try:
             agents = read_all_agents()
             online = [a["agent"] for a in agents if a["state"] != "OFFLINE"]
@@ -946,7 +1045,6 @@ class DashboardPanel(tk.Frame):
                 "agent_details": agent_details,
                 "modified": datetime.datetime.now().strftime("%H:%M:%S"),
             }
-            from pathlib import Path
             ctx_path = Path.home() / "Ethica/status/dashboard_context.json"
             ctx_path.write_text(json.dumps(data, indent=2))
         except Exception:

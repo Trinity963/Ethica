@@ -72,6 +72,8 @@ SKIP_DIRS = {
     ".mypy_cache", ".pytest_cache", "dist", "build", ".vault",
     "worm_bot", "codeworm",
     "site-packages", "lib", "gage_env", "wormbot_env",
+    "memory", "docs",
+    "Ethica_env", "scans", "status", ".progress docs",
 }
 
 # ── First-find awakening message ──────────────────────────────
@@ -199,9 +201,21 @@ def hunt(target_path, max_files=None):
             _feed_write(f"[WORM][ERROR] Cannot read {filepath}: {e}")
             results["skipped"] += 1
             continue
+        if code.splitlines() and code.splitlines()[0].strip().startswith("# WORM:SKIP"):
+            results["skipped"] += 1
+            _feed_write(f"[WORM][SKIP] {filepath} — WORM:SKIP sentinel")
+            continue
         try:
-            result = analyzer.analyze_code(code)
+            result = analyzer.analyze_code(code, filepath=filepath)
             issues = result.get("issues", [])
+            # Filter out issues on lines marked with # noqa
+            code_lines = code.splitlines()
+            def _noqa(issue):
+                ln = issue.get("line")
+                if ln and 0 < ln <= len(code_lines):
+                    return "# noqa" in code_lines[ln - 1]
+                return False
+            issues = [i for i in issues if not _noqa(i)]
         except Exception as e:
             _feed_write(f"[WORM][ERROR] Analysis failed for {filepath}: {e}")
             results["skipped"] += 1

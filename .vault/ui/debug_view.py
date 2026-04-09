@@ -12,6 +12,8 @@
 # Persists code across sessions as JSON in CanvasTab.content
 # ============================================================
 
+import logging
+import re
 import tkinter as tk
 from tkinter import ttk
 import json
@@ -117,7 +119,6 @@ class DebugRun:
         """Extract the line number from traceback if available."""
         if not self.stderr:
             return None
-        import re
         matches = re.findall(r'line (\d+)', self.stderr)
         return int(matches[-1]) if matches else None
 
@@ -274,6 +275,11 @@ class DebugView:
             padx=4
         )
         self._line_numbers.pack(side=tk.LEFT, fill=tk.Y)
+        self._line_numbers.tag_config(
+            "line_highlight",
+            background="#3a3a5a",
+            foreground="#ffffff"
+        )
 
         editor_scroll = tk.Scrollbar(editor_frame, orient=tk.VERTICAL)
         editor_scroll.pack(side=tk.RIGHT, fill=tk.Y)
@@ -304,6 +310,7 @@ class DebugView:
         # Bind events
         self._editor.bind("<KeyRelease>", self._update_line_numbers)
         self._editor.bind("<MouseWheel>", self._on_mousewheel)
+        self._editor.bind("<ButtonPress-1>", self._on_line_click)
 
         # Insert placeholder
         lang_def = LANGUAGES[self._lang]
@@ -627,14 +634,13 @@ class DebugView:
 
             if comment.strip():
                 # Strip think blocks
-                import re
                 comment = re.sub(r'<think>[\s\S]*?</think>', '', comment).strip()
                 # Update UI on main thread
                 if self._frame and self._frame.winfo_exists():
                     self._frame.after(0, lambda c=comment: self._display_ethica_comment(c))
 
         except Exception as e:
-            print(f"[Debug] Ethica comment error: {e}")
+            logging.warning("[Debug] Ethica comment error: %s", e)
 
     def _display_ethica_comment(self, comment):
         """Add Ethica's comment to the output panel."""
@@ -724,7 +730,7 @@ class DebugView:
                     )
 
             # Ethica's commentary on this attempt
-            self._output.insert(tk.END, f"\n✦ Ethica  ", "ethica_label")
+            self._output.insert(tk.END, "\n✦ Ethica  ", "ethica_label")
             self._output.insert(tk.END, message + "\n", "ethica_comment")
 
             self._output.config(state=tk.DISABLED)
@@ -796,7 +802,7 @@ class DebugView:
             self._editor.insert("1.0", code)
             self._update_line_numbers()
         except Exception as e:
-            print(f"[DebugView] Load error: {e}")
+            logging.warning("[DebugView] Load error: %s", e)
 
     def dump(self):
         """Serialize to JSON for CanvasTab.content."""
@@ -846,6 +852,24 @@ class DebugView:
         if self.on_change:
             self.on_change()
     # ── Helpers ───────────────────────────────────────────────
+
+    def _on_line_click(self, event=None):
+        """Highlight the clicked line number in the gutter."""
+        try:
+            if not self._line_numbers.winfo_exists():
+                return
+            index = self._editor.index(tk.CURRENT)
+            line_num = int(index.split(".")[0])
+            self._line_numbers.config(state=tk.NORMAL)
+            self._line_numbers.tag_remove("line_highlight", "1.0", tk.END)
+            self._line_numbers.tag_add(
+                "line_highlight",
+                f"{line_num}.0",
+                f"{line_num}.end"
+            )
+            self._line_numbers.config(state=tk.DISABLED)
+        except Exception:
+            pass
 
     def _update_line_numbers(self, event=None):
         """Sync line numbers with editor content."""
