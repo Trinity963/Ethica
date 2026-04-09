@@ -1,0 +1,22 @@
+{
+  "trainer_root": "/path/to/your/training/partition",
+  "base_models_dir": "/path/to/your/training/partition/base_models",
+  "datasets_dir": "/path/to/your/training/partition/datasets",
+  "adapters_dir": "/path/to/your/training/partition/adapters",
+  "merged_models_dir": "/path/to/your/training/partition/merged_models",
+  "gguf_exports_dir": "/path/to/your/training/partition/gguf_exports",
+  "logs_dir": "/path/to/your/training/partition/logs",
+  "dataset_file": "combined_dataset.jsonl",
+  "base_model": "mistral-7b-v0.1",
+  "base_model_hf_id": "mistralai/Mistral-7B-v0.1",
+  "base_model_gguf": "/path/to/your/models/Mistral-7B-Q4_0/mistral-7b-v0.1.Q4_0.gguf",
+  "ollama_register_script": "/path/to/your/models/register_models.sh",
+  "lora_rank": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "epochs": 3,
+  "batch_size": 4,
+  "learning_rate": 0.0002,
+  "max_seq_length": 2048,
+  "output_model_name": "my-sovereign-7b"
+}

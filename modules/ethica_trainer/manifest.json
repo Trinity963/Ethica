@@ -1,0 +1,39 @@
+{
+  "name": "ethica_trainer",
+  "display_name": "Ethica Trainer",
+  "description": "Sovereign local LLM fine-tuner. Trains on Ethica session history using LoRA. Configure trainer_config.json before use.",
+  "version": "0.1",
+  "author": "Victory \u2014 The Architect \u27c1\u03a3\u223f\u221e",
+  "tools": [
+    {
+      "name": "trainer_status",
+      "description": "Show trainer config, dataset size, available base models, and last training run.",
+      "syntax": "[TOOL:trainer_status: check]",
+      "example": "trainer status"
+    },
+    {
+      "name": "trainer_build_dataset",
+      "description": "Format and validate the combined dataset for training. Shows entry count and sample pairs.",
+      "syntax": "[TOOL:trainer_build_dataset: validate]",
+      "example": "trainer build dataset"
+    },
+    {
+      "name": "trainer_run",
+      "description": "Launch LoRA fine-tune on the configured base model. Runs in background, logs to configured logs_dir.",
+      "syntax": "[TOOL:trainer_run: start]",
+      "example": "trainer run"
+    },
+    {
+      "name": "trainer_merge",
+      "description": "Merge trained LoRA adapter into base model and save final merged model.",
+      "syntax": "[TOOL:trainer_merge: merge]",
+      "example": "trainer merge"
+    },
+    {
+      "name": "trainer_load",
+      "description": "Convert merged model to GGUF and register with Ollama via register_models.sh pattern.",
+      "syntax": "[TOOL:trainer_load: load]",
+      "example": "trainer load"
+    }
+  ]
+}

@@ -84,3 +84,6 @@ assets/*.mov
 assets/*.mp4
 Ethica_env/bin/python3.11_local
 .progress docs/
+
+# ── Trainer config (machine-specific paths) ────────────────
+modules/ethica_trainer/trainer_config.json
