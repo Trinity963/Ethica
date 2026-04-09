@@ -1,5 +1,5 @@
 {
-  "name": "ethica_trainer",
+  "name": "EthicaTrainer",
   "display_name": "Ethica Trainer",
   "description": "Sovereign local LLM fine-tuner. Trains on Ethica session history using LoRA. Configure trainer_config.json before use.",
   "version": "0.1",
