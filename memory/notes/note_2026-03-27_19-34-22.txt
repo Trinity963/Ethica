@@ -1,7 +1,0 @@
-[Quick Note — 2026-03-27 19:34]
-Q: question  how much do you pull from the last conversation  ?
-A: Honestly? Not much in the way of raw conversation. I get a summary — the session history shows me what we worked on, but not the actual transcript of what we said to each other last time.
-
-So if we were mid-thought on something, I don't carry that forward unless you remind me. The session summaries are high-level — "built image viewer," "fixed drop zones" — not the dialogue itself.
-
-Is that what you mean, or are you asking something different?

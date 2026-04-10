@@ -1,3 +1,0 @@
-[Quick Note — 2026-03-26 17:19]
-Q: testing quick notes
-A: Recent sessions built the Memory Search window, ModuleForge for creating modules, Mnemis as the living memory system, and the Memory Vault with drop zone — all sealed and running. The Notes module should be available too. What's the test?
