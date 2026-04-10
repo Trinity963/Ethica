@@ -1,5 +1,5 @@
 {
-  "sealed_at": "2026-04-09T01:21:08.609728",
+  "sealed_at": "2026-04-09T21:19:30.529646",
   "sealed_by": "V \u2014 The Architect",
   "files": {
     "core/autonomous_debugger.py": "170cf2bae89be02deb71721f0cddc6fdd097b1166d89cfe215d044c5e607686d",
@@ -131,7 +131,10 @@
     "modules/crash_reporter/crash_reporter_tool.py": "3a222af30aa319f1e29bc6ae0fcc72303b11cd345cff4cce38dfaba33ce8a54f",
     "modules/nyxt/manifest.json": "56f16f3a3d588b405913b21ba1a05d79150bf46ff74cbe470d896866c3061152",
     "modules/nyxt/nyxt_module.py": "12531346fc8ed6e869fa150f8ad0549ce3e4a5d51a17317d5729870f5a056512",
+    "modules/ethica_trainer/lora_trainer.py": "2df7131a4e790d2dbf10a2d69fb810ad7a12fd978971da42c58c52ac811ca5fb",
     "modules/ethica_trainer/manifest.json": "8bf6ba1a066421b3249975e7113701bb62cbbbbfd98a760881c756e8bf7c1be4",
+    "modules/ethica_trainer/model_merger.py": "bd2bdd585d08f6cfe292e5c646141bc88c682a20b4b50fe901493fac0d395e0c",
+    "modules/ethica_trainer/dataset_builder.py": "ac54732dbe2f0a9cd460c7a7434b08bbb76ea02652269eca6e3743290a598a23",
     "modules/ethica_trainer/ethica_trainer.py": "36a122df039ed9d434781ae7080ea73080641fb8d8497e751f1a287c46491267",
     "ui/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "ui/canvas_window.py": "3b65804ba97726d3eac177d11b8d08272f6189e1181e18805c96f85c1934eb6c",
@@ -144,7 +147,7 @@
     "ui/module_store_view.py": "d86bdd34fac42da82b6516e1ac00c66e62447b9cc5543d4a46b1e882cb526924",
     "ui/ops_popup.py": "b602927918a2bc73038b8c76eb24a7904d95e4db00d13ecb5922e9dab40b413c",
     "ui/project_view.py": "1d791da69b94b0ef31ae69f0941b053009020ab92e121276e63248a92d89993d",
-    "ui/scroll_drop.py": "61bd854fe55bc56d16eede850987b2c145ec04c063b10f33c0c0926955b8d9ee",
+    "ui/scroll_drop.py": "2b285c776da1ce5ca2c63ca6650f35baf09e954c727c421f74d7f4c3ccc429f7",
     "ui/settings_view.py": "f70095f2ec7595b1435ffc4094298ca0d7308f8a0ec82a758a0fb4a78f399ada",
     "ui/sidebar.py": "7e55fadca40377862a0768c180a3b3395ab9cc1834a5ae7e158f1e7ea6725464",
     "ui/sketch_view.py": "d1a3a6ebe7f167f45fee98fcec64af794c1a1015cc87e897afc327e2d0682b15",
@@ -168,6 +171,6 @@
     "docs/conversation.png": "b2e21d825e75b5500008cff013f7ee1b76844c1b8b7a90630191bf4d2360dc6c",
     "docs/screenshot.png": "d9481ea8eda1650e93aec19f595eb490b5829d230f0a00f09e0dbb91cf9ac5a1",
     "docs/modules.png": "6fa68eded9c60503d7fbbf8a578c37180284bb6e858544e561d1c689280b4c1e",
-    "docs/ETHICA_TOOL_APPENDIX.md": "f6f2c0f77efd7ec2c6b8abd3a4481af5a22adb58439940c92ad9f7f923e96417"
+    "docs/ETHICA_TOOL_APPENDIX.md": "af13a8f63e1063c06d7653094dcb44d5837c08793429669b253c9230e8fb2eb0"
   }
 }
