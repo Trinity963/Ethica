@@ -33,7 +33,7 @@ def _train_cuda(cfg: dict) -> dict:
     from datasets import load_dataset
 
     tquanta2    = cfg["trainer_root"]
-    base_id     = cfg["base_model_hf_id"]
+    base_id     = os.path.join(cfg["base_models_dir"], cfg["base_model"])
     train_path  = os.path.join(tquanta2, "datasets", "train.jsonl")
     eval_path   = os.path.join(tquanta2, "datasets", "eval.jsonl")
     adapter_out = os.path.join(tquanta2, "adapters", cfg["output_model_name"])
