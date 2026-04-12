@@ -1,19 +1,111 @@
-# Ethica v0.1 — Core Dependencies
-# Option A — loose versioning for maximum portability
-# Platform: Linux / macOS / Windows
-# Python: 3.x
+# Ethica v0.1 — Core Dependencies (portable)
+# Platform: Linux / macOS / Windows  |  Python: 3.10+
+# Install: pip install -r requirements.txt
+#
+# Notes:
+#   tkinter: ships with Python — no pip install needed
+#     Linux:  sudo apt install python3-tk
+#     macOS:  included with python.org installer
+#   torch:  install separately for your platform
+#     CUDA:  pip install torch --index-url https://download.pytorch.org/whl/cu124
+#     macOS: pip install torch
+#     CPU:   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   llama-cpp-python: may need special install on some platforms
+#     see: https://github.com/abetlen/llama-cpp-python
 
-# Ollama official Python client
 ollama
-
-# HTTP requests for Ollama API fallback
 requests
+psutil
+watchdog
+GitPython
+gitdb
+smmap
 
-# Theme and UI color utilities
-# tkinter ships with Python — no pip install needed
-# but confirm system package: sudo apt install python3-tk (Debian/Ubuntu)
+pillow
+pypdf
+pdf2image
+tkinterdnd2
 
-# JSON handling — built into Python stdlib, no install needed
+transformers
+sentence-transformers
+tiktoken
+huggingface_hub
+safetensors
+tokenizers
+accelerate
 
-# Packaging and distribution
+ddgs
+beautifulsoup4
+bs4
+lxml
+httpx
+httpcore
+
+scapy
+cryptography
+pycryptodome
+pyotp
+
+numpy
+pandas
+scipy
+scikit-learn
+joblib
+threadpoolctl
+
+pyflakes
+pycodestyle
+autopep8
+
+pyttsx3
+SpeechRecognition
+pygame
+
+pyyaml
+rich
+tqdm
+python-dateutil
+pytz
+packaging
+pydantic
+anyio
+certifi
+charset-normalizer
+idna
+urllib3
+six
+regex
+toml
+arrow
+tenacity
+sympy
+mpmath
+networkx
+filelock
+fsspec
+Jinja2
+MarkupSafe
+click
+Flask
+Werkzeug
+itsdangerous
+blinker
+streamlit
+altair
+pandas
+pyarrow
+pydeck
+narwhals
+more-itertools
+jsonschema
+referencing
+rpds-py
+attrs
+pluggy
+pytest
+Pygments
+markdown-it-py
+mdurl
+diskcache
+protobuf
 pyinstaller
