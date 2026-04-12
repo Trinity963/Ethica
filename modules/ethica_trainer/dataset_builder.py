@@ -4,10 +4,21 @@ import random
 import uuid
 from pathlib import Path
 
-DATASET_PATH = "/media/trinity/TQUANTA2/ethica_trainer/datasets/combined_dataset.jsonl"
-TRAIN_PATH   = "/media/trinity/TQUANTA2/ethica_trainer/datasets/train.jsonl"
-EVAL_PATH     = "/media/trinity/TQUANTA2/ethica_trainer/datasets/eval.jsonl"
-REJECTED_PATH = "/media/trinity/TQUANTA2/ethica_trainer/datasets/rejected.jsonl"
+def _load_config() -> dict:
+    cfg_path = Path(__file__).parent / "trainer_config.json"
+    if not cfg_path.exists():
+        raise FileNotFoundError(f"trainer_config.json not found at {cfg_path}")
+    return json.loads(cfg_path.read_text(encoding="utf-8"))
+
+def _get_paths(cfg: dict) -> tuple[str, str, str, str]:
+    datasets_dir  = cfg["datasets_dir"]
+    dataset_file  = cfg.get("dataset_file", "combined_dataset.jsonl")
+    DATASET_PATH  = os.path.join(datasets_dir, dataset_file)
+    TRAIN_PATH    = os.path.join(datasets_dir, "train.jsonl")
+    EVAL_PATH     = os.path.join(datasets_dir, "eval.jsonl")
+    REJECTED_PATH = os.path.join(datasets_dir, "rejected.jsonl")
+    return DATASET_PATH, TRAIN_PATH, EVAL_PATH, REJECTED_PATH
+
 REQUIRED_KEYS = {"id", "system", "prompt", "completion"}
 EVAL_RATIO    = 0.05  # 95/5 split
 
@@ -50,13 +61,27 @@ def split(entries: list[dict], eval_ratio: float) -> tuple[list[dict], list[dict
     return data[eval_count:], data[:eval_count]
 
 
+def _format_text(entry: dict) -> str:
+    """Format entry as mlx_lm compatible text field."""
+    system = entry.get("system", "").strip()
+    prompt = entry.get("prompt", "").strip()
+    completion = entry.get("completion", "").strip()
+    if system:
+        return f"<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{prompt} [/INST] {completion} </s>"
+    return f"<s>[INST] {prompt} [/INST] {completion} </s>"
+
 def write_jsonl(path: str, entries: list[dict]) -> None:
     with open(path, "w", encoding="utf-8") as f:
         for entry in entries:
-            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            out = dict(entry)
+            out["text"] = _format_text(entry)
+            f.write(json.dumps(out, ensure_ascii=False) + "\n")
 
 
 def build() -> dict:
+    cfg = _load_config()
+    DATASET_PATH, TRAIN_PATH, EVAL_PATH, REJECTED_PATH = _get_paths(cfg)
+
     print(f"[dataset_builder] Loading: {DATASET_PATH}")
     entries, errors, rejected = validate_and_load(DATASET_PATH)
 
