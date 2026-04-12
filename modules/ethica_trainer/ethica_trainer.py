@@ -59,88 +59,98 @@ def trainer_status(input_text="", **kwargs):
     return "\n".join(lines)
 
 def trainer_build_dataset(input_text="", **kwargs):
-    cfg = _load_config()
-    dataset_path = Path(cfg.get("datasets_dir","")) / cfg.get("dataset_file","")
-    if not dataset_path.exists():
-        return f"EthicaTrainer — dataset not found at {dataset_path}"
-    entries = []
-    errors  = 0
-    with dataset_path.open(encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line: continue
-            try:
-                entries.append(json.loads(line))
-            except json.JSONDecodeError:
-                errors += 1
-    sample_first = entries[0]  if entries else {}
-    sample_last  = entries[-1] if entries else {}
-    lines = [
-        "EthicaTrainer — Dataset Validation",
-        f"  File        : {dataset_path.name}",
-        f"  Total pairs : {len(entries):,}",
-        f"  Parse errors: {errors}",
-        "",
-        "  First entry:",
-        f"    system    : {sample_first.get('system','')[:80]}",
-        f"    prompt    : {sample_first.get('prompt','')[:80]}",
-        f"    completion: {sample_first.get('completion','')[:80]}",
-        "",
-        "  Last entry:",
-        f"    prompt    : {sample_last.get('prompt','')[:80]}",
-        f"    completion: {sample_last.get('completion','')[:80]}",
-        "",
-        "  Dataset valid — ready for trainer_run when RTX 5090 installed." if errors == 0
-        else f"  WARNING — {errors} malformed lines. Repair before training.",
-    ]
-    return "\n".join(lines)
-
-def trainer_run(input_text="", **kwargs):
-    cfg = _load_config()
+    builder_script = Path(__file__).parent / "dataset_builder.py"
+    if not builder_script.exists():
+        return "EthicaTrainer — dataset_builder.py not found in ethica_trainer/."
     try:
-        import torch
-        if not torch.cuda.is_available():
-            return (
-                "EthicaTrainer — trainer_run blocked.\n"
-                "  CUDA not available — RTX 5090 required for training.\n"
-                "  Dataset is ready. Config is ready. Waiting on hardware.\n"
-                "  When GPU arrives: run trainer_run again."
-            )
-    except ImportError:
-        return "EthicaTrainer — torch not available in this environment."
-    base_model_dir = Path(cfg.get("base_models_dir","")) / cfg.get("base_model","")
-    if not base_model_dir.exists():
-        return (
-            f"EthicaTrainer — base model weights not found at {base_model_dir}\n"
-            f"  Download: huggingface-cli download {cfg.get('base_model_hf_id')} --local-dir {base_model_dir}"
-        )
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("dataset_builder", builder_script)
+        mod  = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        r = mod.build()
+        lines = [
+            "EthicaTrainer — Dataset Build Complete",
+            f"  Total   : {r.get('total', '?'):,}",
+            f"  Valid   : {r.get('valid', '?'):,}",
+            f"  Errors  : {r.get('errors', '?')}",
+            f"  Train   : {r.get('train', '?'):,}",
+            f"  Eval    : {r.get('eval', '?'):,}",
+            f"  Rejected: {r.get('rejected', '?')}",
+            f"  Train → : {r.get('train_path', '?')}",
+            f"  Eval  → : {r.get('eval_path', '?')}",
+        ]
+        return "\n".join(lines)
+    except Exception as e:
+        logger.error(f"EthicaTrainer: dataset_builder error: {e}")
+        return f"EthicaTrainer — dataset_builder failed: {e}"
+def trainer_run(input_text="", **kwargs):
     trainer_script = Path(__file__).parent / "lora_trainer.py"
     if not trainer_script.exists():
-        return "EthicaTrainer — lora_trainer.py not yet built. Session 073 target."
-    log_file = Path(cfg.get("logs_dir","")) / f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-    logger.info(f"EthicaTrainer: launching training run -> {log_file}")
-    subprocess.Popen(
-        ["python3", str(trainer_script), "--config", str(Path(__file__).parent / "trainer_config.json")],
-        stdout=open(log_file, "w"),
-        stderr=subprocess.STDOUT
-    )
-    return (
-        f"EthicaTrainer — Training launched.\n"
-        f"  Log: {log_file}\n"
-        f"  Monitor: tail -f {log_file}\n"
-        f"  Ethica stays live while training runs in background."
-    )
-
+        return "EthicaTrainer — lora_trainer.py not found in ethica_trainer/."
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("lora_trainer", trainer_script)
+        mod  = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        r = mod.train()
+        status  = r.get("status", "unknown")
+        backend = r.get("backend", "unknown")
+        if status == "no_gpu":
+            return (
+                "EthicaTrainer — trainer_run blocked.\n"
+                "  No GPU detected (CUDA or MPS).\n"
+                "  Dataset is ready. Config is ready.\n"
+                "  On trinity: waiting for RTX 5090.\n"
+                "  On MacBook M5: install mlx + mlx-lm then retry."
+            )
+        if status == "complete":
+            adapter = r.get("adapter", "?")
+            return (
+                f"EthicaTrainer — Training complete.\n"
+                f"  Backend : {backend}\n"
+                f"  Adapter : {adapter}\n"
+                f"  Next    : run trainer_merge to fuse adapter into base model."
+            )
+        if status == "failed":
+            rc = r.get("returncode", "?")
+            return f"EthicaTrainer — Training failed (backend: {backend}, returncode: {rc})."
+        return f"EthicaTrainer — trainer_run returned unexpected status: {status}"
+    except Exception as e:
+        logger.error(f"EthicaTrainer: lora_trainer error: {e}")
+        return f"EthicaTrainer — lora_trainer failed: {e}"
 def trainer_merge(input_text="", **kwargs):
-    cfg = _load_config()
-    adapters_dir = Path(cfg.get("adapters_dir",""))
-    if not adapters_dir.exists() or not any(adapters_dir.iterdir()):
-        return "EthicaTrainer — no trained adapter found. Run trainer_run first."
     merge_script = Path(__file__).parent / "model_merger.py"
     if not merge_script.exists():
-        return "EthicaTrainer — model_merger.py not yet built. Session 073 target."
-    return "EthicaTrainer — trainer_merge: ready. Run after training completes."
-
+        return "EthicaTrainer — model_merger.py not found in ethica_trainer/."
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("model_merger", merge_script)
+        mod  = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        r = mod.merge()
+        status  = r.get("status", "unknown")
+        backend = r.get("backend", "unknown")
+        if status == "no_gpu":
+            return (
+                "EthicaTrainer — trainer_merge blocked.\n"
+                "  No GPU detected (CUDA or MPS).\n"
+                "  Complete trainer_run on a GPU machine first."
+            )
+        if status == "complete":
+            merged = r.get("merged", "?")
+            return (
+                f"EthicaTrainer — Merge complete.\n"
+                f"  Backend : {backend}\n"
+                f"  Merged  : {merged}\n"
+                f"  Next    : build GGUF with gguf_exporter, then trainer_load."
+            )
+        if status in ("failed", "error"):
+            reason = r.get("reason", r.get("returncode", "?"))
+            return f"EthicaTrainer — Merge failed (backend: {backend}): {reason}"
+        return f"EthicaTrainer — trainer_merge returned unexpected status: {status}"
+    except Exception as e:
+        logger.error(f"EthicaTrainer: model_merger error: {e}")
+        return f"EthicaTrainer — model_merger failed: {e}"
 def trainer_load(input_text="", **kwargs):
     cfg = _load_config()
     gguf_dir   = Path(cfg.get("gguf_exports_dir",""))
