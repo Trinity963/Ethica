@@ -120,7 +120,7 @@ def _train_mps(cfg: dict) -> dict:
     train_path  = os.path.join(tquanta2, "datasets", "train.jsonl")
     eval_path   = os.path.join(tquanta2, "datasets", "eval.jsonl")
     adapter_out = os.path.join(tquanta2, "adapters", cfg["output_model_name"])
-    base_id     = cfg["base_model_hf_id"]
+    base_id     = os.path.join(cfg["base_models_dir"], cfg["base_model"])
 
     os.makedirs(adapter_out, exist_ok=True)
 
