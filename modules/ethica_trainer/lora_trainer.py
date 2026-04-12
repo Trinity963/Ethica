@@ -137,11 +137,13 @@ def _train_mps(cfg: dict) -> dict:
         "--adapter-path", adapter_out,
         "--num-layers",   str(cfg["lora_rank"]),
         "--iters",        "1000",
-        "--batch-size",   "4",
+        "--batch-size",   "1",
         "--learning-rate","2e-4",
         "--steps-per-eval","200",
-        "--val-batches",  "25",
+        "--val-batches",  "5",
         "--save-every",   "100",
+        "--max-seq-length","1024",
+        "--grad-checkpoint",
     ]
 
     print(f"[lora_trainer] Running: {' '.join(cmd)}")
