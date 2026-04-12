@@ -30,7 +30,7 @@ def _merge_cuda(cfg: dict) -> dict:
     from transformers import AutoTokenizer, AutoModelForCausalLM
     from peft import PeftModel
 
-    tquanta2     = cfg["tquanta2_root"]
+    tquanta2     = cfg["trainer_root"]
     base_dir     = os.path.join(tquanta2, "base_models", cfg["base_model"])
     adapter_dir  = os.path.join(tquanta2, "adapters",     cfg["output_model_name"])
     merged_dir   = os.path.join(tquanta2, "merged_models", cfg["output_model_name"])
@@ -77,7 +77,7 @@ def _merge_mps(cfg: dict) -> dict:
     """MPS path — mlx_lm.fuse merges adapter into base"""
     import subprocess
 
-    tquanta2     = cfg["tquanta2_root"]
+    tquanta2     = cfg["trainer_root"]
     base_id      = cfg["base_model_hf_id"]
     adapter_dir  = os.path.join(tquanta2, "adapters",      cfg["output_model_name"])
     merged_dir   = os.path.join(tquanta2, "merged_models",  cfg["output_model_name"])

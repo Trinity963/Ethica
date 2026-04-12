@@ -32,7 +32,7 @@ def _train_cuda(cfg: dict) -> dict:
     from trl import SFTTrainer, SFTConfig
     from datasets import load_dataset
 
-    tquanta2    = cfg["tquanta2_root"]
+    tquanta2    = cfg["trainer_root"]
     base_id     = cfg["base_model_hf_id"]
     train_path  = os.path.join(tquanta2, "datasets", "train.jsonl")
     eval_path   = os.path.join(tquanta2, "datasets", "eval.jsonl")
@@ -116,7 +116,7 @@ def _train_mps(cfg: dict) -> dict:
     """MPS path — mlx-lm LoRA (Apple Silicon)"""
     import subprocess
 
-    tquanta2    = cfg["tquanta2_root"]
+    tquanta2    = cfg["trainer_root"]
     train_path  = os.path.join(tquanta2, "datasets", "train.jsonl")
     eval_path   = os.path.join(tquanta2, "datasets", "eval.jsonl")
     adapter_out = os.path.join(tquanta2, "adapters", cfg["output_model_name"])
