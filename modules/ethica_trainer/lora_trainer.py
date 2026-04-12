@@ -130,7 +130,7 @@ def _train_mps(cfg: dict) -> dict:
     print(f"[lora_trainer] Output  : {adapter_out}")
 
     cmd = [
-        sys.executable, "-m", "mlx_lm.lora",
+        sys.executable, "-m", "mlx_lm", "lora",
         "--model",        base_id,
         "--train",
         "--data",         os.path.join(tquanta2, "datasets"),
