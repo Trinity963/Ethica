@@ -10,14 +10,15 @@ def _load_config() -> dict:
         raise FileNotFoundError(f"trainer_config.json not found at {cfg_path}")
     return json.loads(cfg_path.read_text(encoding="utf-8"))
 
-def _get_paths(cfg: dict) -> tuple[str, str, str, str]:
+def _get_paths(cfg: dict) -> tuple[str, str, str, str, str]:
     datasets_dir  = cfg["datasets_dir"]
     dataset_file  = cfg.get("dataset_file", "combined_dataset.jsonl")
     DATASET_PATH  = os.path.join(datasets_dir, dataset_file)
     TRAIN_PATH    = os.path.join(datasets_dir, "train.jsonl")
     EVAL_PATH     = os.path.join(datasets_dir, "eval.jsonl")
+    VALID_PATH    = os.path.join(datasets_dir, "valid.jsonl")
     REJECTED_PATH = os.path.join(datasets_dir, "rejected.jsonl")
-    return DATASET_PATH, TRAIN_PATH, EVAL_PATH, REJECTED_PATH
+    return DATASET_PATH, TRAIN_PATH, EVAL_PATH, VALID_PATH, REJECTED_PATH
 
 REQUIRED_KEYS = {"id", "system", "prompt", "completion"}
 EVAL_RATIO    = 0.05  # 95/5 split
@@ -80,7 +81,7 @@ def write_jsonl(path: str, entries: list[dict]) -> None:
 
 def build() -> dict:
     cfg = _load_config()
-    DATASET_PATH, TRAIN_PATH, EVAL_PATH, REJECTED_PATH = _get_paths(cfg)
+    DATASET_PATH, TRAIN_PATH, EVAL_PATH, VALID_PATH, REJECTED_PATH = _get_paths(cfg)
 
     print(f"[dataset_builder] Loading: {DATASET_PATH}")
     entries, errors, rejected = validate_and_load(DATASET_PATH)
@@ -100,8 +101,9 @@ def build() -> dict:
 
     write_jsonl(TRAIN_PATH, train)
     write_jsonl(EVAL_PATH, eval_)
+    write_jsonl(VALID_PATH, eval_)
     print(f"[dataset_builder] Written: {TRAIN_PATH}")
-    print(f"[dataset_builder] Written: {EVAL_PATH}")
+    print(f"[dataset_builder] Written: {EVAL_PATH} + valid.jsonl (mlx_lm alias)")
 
     write_jsonl(REJECTED_PATH, rejected)
     print(f"[dataset_builder] Written: {REJECTED_PATH} ({len(rejected)} rejected entries)")
