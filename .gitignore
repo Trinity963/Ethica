@@ -86,3 +86,12 @@ Ethica_env/bin/python3.11_local
 
 # ── Trainer config (machine-specific paths) ────────────────
 modules/ethica_trainer/trainer_config.json
+
+# Runtime memory logs
+memory/distill_log.json
+memory/evolution_log.json
+memory/reflection_log.json
+
+# Runtime status
+status/canvas_context.json
+status/req_cache.json
