@@ -33,7 +33,7 @@ class ToolListerWindow:
     def _load_tools(self):
         """Walk modules/ and read manifests."""
         self._all_tools = []
-        modules_dir = Path.home() / "Ethica/modules"
+        modules_dir = Path(__file__).parent.parent / "modules"
         if not modules_dir.exists():
             return
         for module_dir in sorted(modules_dir.iterdir()):
