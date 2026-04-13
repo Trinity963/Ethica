@@ -212,9 +212,8 @@ class ScrollDrop:
         )
         self._draw_border()
 
-    def apply_theme(self, theme):
-        self.theme = theme
-        c = theme.colors
+    def apply_theme(self):
+        c = self.theme.colors
         self.frame.config(bg=c["bg_secondary"])
         self._zone.config(bg=c["bg_secondary"])
         self._canvas.config(bg=c["bg_secondary"])

@@ -2,6 +2,11 @@
   "keep_last": 5,
   "sessions": [
     {
+      "session": "073",
+      "date": "2026-04-09",
+      "summary": "TrinityDatasetPlugin moved to TQUANTA2. dataset_builder.py + lora_trainer.py + model_merger.py built \u2014 full LoRA pipeline complete in code. Mistral-7B HF weights on TQUANTA2. TrinityDataset_env live. MacBook M5 MPS path confirmed. ETHICA_TOOL_APPENDIX updated \u2014 37 modules / 143 tools. 5 commits. Master 7427e23. Vault 167 files."
+    },
+    {
       "session": "071",
       "date": "2026-04-08",
       "summary": "XTTS v2 voice system built and tested \u2014 Trinity spoke through Ethica. Dormant until RTX 5090 (72% RAM on CPU). pyttsx3 restored. start_ethica.sh committed. .progress docs/ untracked from git. 3 commits. Master at 28c6350. Vault 165 files."
@@ -20,11 +25,6 @@
       "session": "066",
       "date": "2026-04-06",
       "summary": "Nyxt browser agent scaffolded. 7 tools wired. Three-registration rule satisfied. Nyxt 4.0.0 AppImage installed. Threading fix, xdg-open, software_render, _clean_sockets. Commit baf622b."
-    },
-    {
-      "session": "067",
-      "date": "2026-04-06",
-      "summary": "Nyxt freeze fixed (missing on_done). TrinityGuard hardened (overbroad patterns removed, internal tool exemption). nyxt_start/stop sleeps removed. nyxt_eval deferred Ivy Bridge. cl-electron swept on stop. jarvis_recon wired to nyxt_open. Keyword router wired. 6 commits. Master at 3181871. 2 modified post-seal."
     }
   ]
 }

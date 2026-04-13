@@ -27,8 +27,8 @@ RED      = "#ff5370"
 TEXT     = "#cdd6f4"
 TEXT_DIM = "#6c7086"
 
-MODULES_DIR  = Path.home() / "Ethica/modules"
-ENGINE_PATH  = Path.home() / "Ethica/core/chat_engine.py"
+MODULES_DIR  = Path(__file__).parent.parent.parent / "modules"
+ENGINE_PATH  = Path(__file__).parent.parent.parent / "core/chat_engine.py"
 
 # ── registry reference (injected by Ethica at load time) ─────
 _registry = None

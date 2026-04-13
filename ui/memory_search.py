@@ -8,9 +8,10 @@
 import tkinter as tk
 import re
 from pathlib import Path
+ETHICA_ROOT = Path(__file__).parent.parent
 
 
-MEMORY_DIR = Path.home() / "Ethica" / "memory"
+MEMORY_DIR = ETHICA_ROOT / "memory"
 CHAT_DIR   = MEMORY_DIR / "chat"
 VAULT_DIR  = MEMORY_DIR / "vault"
 EXCERPT_LEN = 200

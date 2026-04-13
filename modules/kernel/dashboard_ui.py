@@ -5,6 +5,7 @@ Victory — The Architect ⟁Σ∿∞
 """
 
 from pathlib import Path
+ETHICA_ROOT = Path(__file__).parent.parent.parent
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
@@ -462,7 +463,7 @@ class DashboardPanel(tk.Frame):
     def _launch_vault(self):
         """Open the Mnemis vault folder in the file manager."""
         import subprocess
-        vault = Path.home() / 'Ethica/memory/vault'
+        vault = ETHICA_ROOT / 'memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         try:
             subprocess.Popen(['xdg-open', str(vault)])
@@ -472,7 +473,7 @@ class DashboardPanel(tk.Frame):
     def _on_vault_drop(self, event):
         """Handle file drop onto vault drop zone — index via Mnemis."""
         import shutil
-        vault = Path.home() / 'Ethica/memory/vault'
+        vault = ETHICA_ROOT / 'memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         filepaths = self._vault_drop.tk.splitlist(event.data)
         for src in filepaths:
@@ -594,7 +595,7 @@ class DashboardPanel(tk.Frame):
 
     def _build_anomaly_detection(self, parent):
         """AnomalyDetection card — model state and last scan summary."""
-        STATUS = Path.home() / "Ethica/status/anomaly_status.json"
+        STATUS = ETHICA_ROOT / "status/anomaly_status.json"
 
         # Model trained row
         r0 = tk.Frame(parent, bg=BG_PANEL)
@@ -644,7 +645,7 @@ class DashboardPanel(tk.Frame):
         self._anom_log.tag_configure("filelink", foreground="#f7c97e", underline=True)
         # Pre-populate seen entries from existing log files to avoid duplicate writes
         try:
-            log_dir = Path.home() / "Ethica/logs/anomaly"
+            log_dir = ETHICA_ROOT / "logs/anomaly"
             for log_file in sorted(log_dir.glob("anomaly_*.log")):
                 for line in log_file.read_text().splitlines():
                     if line.strip():
@@ -681,7 +682,7 @@ class DashboardPanel(tk.Frame):
             if last != "—" and last not in self._anom_log_entries:
                 self._anom_log_entries.append(last)
                 # Write entry to daily anomaly log file
-                log_dir  = Path.home() / "Ethica/logs/anomaly"
+                log_dir  = ETHICA_ROOT / "logs/anomaly"
                 log_dir.mkdir(parents=True, exist_ok=True)
                 date_str = str(last)[:10].replace("-", "")
                 log_path = log_dir / f"anomaly_{date_str}.log"
@@ -769,8 +770,8 @@ class DashboardPanel(tk.Frame):
     def _build_memory(self, parent):
         self._mem_parent = parent
         self._mem_path = {
-            "conversational": Path.home() / "Ethica" / "memory" / "river_conversational.json",
-            "build":          Path.home() / "Ethica" / "memory" / "river_build.json",
+            "conversational": ETHICA_ROOT / "memory" / "river_conversational.json",
+            "build":          ETHICA_ROOT / "memory" / "river_build.json",
         }
 
         streams = [
@@ -825,7 +826,7 @@ class DashboardPanel(tk.Frame):
                  wraplength=700, justify="left").pack(anchor="w")
 
     def _mem_count(self, stream: str) -> int:
-        path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
+        path = ETHICA_ROOT / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
                 data = json.load(f)
@@ -834,7 +835,7 @@ class DashboardPanel(tk.Frame):
             return 0
 
     def _last_entry(self, stream: str) -> str:
-        path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
+        path = ETHICA_ROOT / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
                 data = json.load(f)
@@ -860,7 +861,7 @@ class DashboardPanel(tk.Frame):
         return default
 
     def _peek_stream(self, stream: str):
-        path = Path.home() / "Ethica" / "memory" / f"river_{stream}.json"
+        path = ETHICA_ROOT / "memory" / f"river_{stream}.json"
         try:
             with open(path) as f:
                 data = json.load(f)
@@ -971,13 +972,13 @@ class DashboardPanel(tk.Frame):
     def _fw_click(self, event=None):
         """Toggle firewall on/off when FW indicator is clicked."""
         import threading
-        fw_file = Path.home() / "Ethica/status/firewall_status.json"
+        fw_file = ETHICA_ROOT / "status/firewall_status.json"
         try:
             fw_state = json.loads(fw_file.read_text()).get("state", "IDLE") if fw_file.exists() else "IDLE"
         except Exception:
             fw_state = "IDLE"
 
-        pid_file = Path.home() / "Ethica/status/firewall_pid.json"
+        pid_file = ETHICA_ROOT / "status/firewall_pid.json"
 
         def _run():
             try:
@@ -994,7 +995,7 @@ class DashboardPanel(tk.Frame):
 
     def _tm_click(self, event=None):
         """Show last traffic scan summary when TM indicator is clicked."""
-        tm_file = Path.home() / "Ethica/status/traffic_status.json"
+        tm_file = ETHICA_ROOT / "status/traffic_status.json"
         try:
             if tm_file.exists():
                 data = json.loads(tm_file.read_text())
@@ -1045,15 +1046,15 @@ class DashboardPanel(tk.Frame):
                 "agent_details": agent_details,
                 "modified": datetime.datetime.now().strftime("%H:%M:%S"),
             }
-            ctx_path = Path.home() / "Ethica/status/dashboard_context.json"
+            ctx_path = ETHICA_ROOT / "status/dashboard_context.json"
             ctx_path.write_text(json.dumps(data, indent=2))
         except Exception:
             pass
 
     def _refresh_service_indicators(self):
         """Poll firewall and traffic status files, update header dots."""
-        fw_file = Path.home() / "Ethica/status/firewall_status.json"
-        tm_file = Path.home() / "Ethica/status/traffic_status.json"
+        fw_file = ETHICA_ROOT / "status/firewall_status.json"
+        tm_file = ETHICA_ROOT / "status/traffic_status.json"
         try:
             fw_state = json.loads(fw_file.read_text()).get("state", "IDLE") if fw_file.exists() else "IDLE"
         except Exception:

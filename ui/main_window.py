@@ -861,7 +861,7 @@ class MainWindow:
             import re as _re
             history = self.engine._history[1:]  # skip system prompt
             if history:
-                chat_dir = Path.home() / "Ethica" / "memory" / "chat"
+                chat_dir = Path(__file__).parent.parent / "memory" / "chat"
                 chat_dir.mkdir(parents=True, exist_ok=True)
                 timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M")
                 chat_file = chat_dir / f"chat_{timestamp}.txt"

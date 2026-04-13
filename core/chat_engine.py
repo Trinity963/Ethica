@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 # ── Dashboard context loader ─────────────────────────────────
 import json as _json
 from pathlib import Path as _Path
-_DASHBOARD_CONTEXT_PATH = _Path.home() / "Ethica/status/dashboard_context.json"
+_ETHICA_ROOT = _Path(__file__).parent.parent
+_DASHBOARD_CONTEXT_PATH = _ETHICA_ROOT / "status/dashboard_context.json"
 
 def _load_dashboard_context() -> str:
     """Read live dashboard snapshot written by dashboard_ui.py on each refresh."""
@@ -35,7 +36,7 @@ def _load_dashboard_context() -> str:
             if "modified" in data:
                 lines.append(f"  Last updated: {data['modified']}")
         # Last inject log
-        _inject_path = _Path.home() / "Ethica/status/inject_log.json"
+        _inject_path = _ETHICA_ROOT / "status/inject_log.json"
         if _inject_path.exists():
             inj = _json.loads(_inject_path.read_text())
             if not inj.get("acknowledged"):
@@ -45,7 +46,7 @@ def _load_dashboard_context() -> str:
         pass
     return ""
 
-_CANVAS_CONTEXT_PATH = _Path.home() / "Ethica/status/canvas_context.json"
+_CANVAS_CONTEXT_PATH = _ETHICA_ROOT / "status/canvas_context.json"
 
 def _load_canvas_context() -> str:
     """Read live canvas tab audit written by canvas_window.py on tab switch."""
@@ -682,7 +683,7 @@ class ChatEngine:
                             on_response(final)
                         elif tn == "ethica_help":
                             import pathlib
-                            doc = pathlib.Path.home() / "Ethica" / "ETHICA_TOOL_APPENDIX.md"
+                            doc = _ETHICA_ROOT / "ETHICA_TOOL_APPENDIX.md"
                             if doc.exists():
                                 text = doc.read_text(encoding="utf-8")
                                 result = f"[DEBUG:Help:markdown:\n{text}\n]"
