@@ -33,7 +33,7 @@ def _train_cuda(cfg: dict) -> dict:
     from datasets import load_dataset
 
     tquanta2    = cfg["trainer_root"]
-    base_id     = os.path.join(cfg["base_models_dir"], cfg["base_model"])
+    base_id     = cfg.get("base_model_mlx") or os.path.join(cfg["base_models_dir"], cfg["base_model"])
     train_path  = os.path.join(tquanta2, "datasets", "train.jsonl")
     eval_path   = os.path.join(tquanta2, "datasets", "eval.jsonl")
     adapter_out = os.path.join(tquanta2, "adapters", cfg["output_model_name"])
@@ -138,7 +138,8 @@ def _train_mps(cfg: dict) -> dict:
         "--num-layers",   str(cfg["lora_rank"]),
         "--iters",        "1000",
         "--batch-size",   "1",
-        "--learning-rate","2e-4",
+        "--learning-rate","1e-4",
+        "--steps-per-report","50",
         "--steps-per-eval","200",
         "--val-batches",  "5",
         "--save-every",   "100",

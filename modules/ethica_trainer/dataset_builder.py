@@ -68,8 +68,8 @@ def _format_text(entry: dict) -> str:
     prompt = entry.get("prompt", "").strip()
     completion = entry.get("completion", "").strip()
     if system:
-        return f"<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{prompt} [/INST] {completion} </s>"
-    return f"<s>[INST] {prompt} [/INST] {completion} </s>"
+        return f"[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{prompt} [/INST] {completion} </s>"
+    return f"[INST] {prompt} [/INST] {completion} </s>"
 
 def write_jsonl(path: str, entries: list[dict]) -> None:
     with open(path, "w", encoding="utf-8") as f:
