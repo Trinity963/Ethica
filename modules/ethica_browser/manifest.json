@@ -1,0 +1,43 @@
+{
+  "name": "ethica_browser",
+  "display_name": "EthicaBrowser",
+  "description": "Sovereign embedded browser via pywebview. Cross-platform: WebKit (Mac), WebKitGTK (Linux). Slot 8.",
+  "version": "0.1",
+  "author": "Victory \u2014 The Architect \u27c1\u03a3\u223f\u221e",
+  "triggers": [
+    "browser",
+    "browse",
+    "web",
+    "search web"
+  ],
+  "tools": [
+    {
+      "name": "browser_open",
+      "trigger": "browser open",
+      "description": "Open a URL in the sovereign browser window.",
+      "syntax": "[TOOL:browser_open: <url>]",
+      "example": "browser open https://example.com"
+    },
+    {
+      "name": "browser_search",
+      "trigger": "browser search",
+      "description": "Search DuckDuckGo in the sovereign browser.",
+      "syntax": "[TOOL:browser_search: <query>]",
+      "example": "browser search python asyncio tutorial"
+    },
+    {
+      "name": "browser_status",
+      "trigger": "browser status",
+      "description": "Show browser running state and current URL.",
+      "syntax": "[TOOL:browser_status: check]",
+      "example": "browser status"
+    },
+    {
+      "name": "browser_close",
+      "trigger": "browser close",
+      "description": "Close the sovereign browser window.",
+      "syntax": "[TOOL:browser_close: close]",
+      "example": "browser close"
+    }
+  ]
+}

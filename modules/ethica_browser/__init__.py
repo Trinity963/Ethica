@@ -1,0 +1,1 @@
+# EthicaBrowser — Sovereign browser module

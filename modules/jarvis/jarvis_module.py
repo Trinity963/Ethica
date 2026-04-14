@@ -457,7 +457,13 @@ def jarvis_recon(args: str = '') -> str:
         f'4. Likely attack surface\n'
         f'5. Bug bounty angle'
     )
-    # Browser open deferred — ethica_browser (pywebview) replaces Nyxt. Wire here when built.
+    # Open recon target in EthicaBrowser
+    try:
+        import importlib
+        _bmod = importlib.import_module('modules.ethica_browser.ethica_browser')
+        _bmod.browser_open(target if target.startswith('http') else f'https://{target}')
+    except Exception:
+        pass
     return f'J.A.R.V.I.S. Recon: {target} | Model: {model}\n\n{raw}\n\nAnalysis:\n' + _llm_query(prompt, system)
 
 
