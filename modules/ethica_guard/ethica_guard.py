@@ -85,7 +85,6 @@ MODULE_DIRS = [
     "jarvis",
     "memory_search",
     "crash_reporter",
-    "nyxt",
     "ethica_trainer",
 ]
 

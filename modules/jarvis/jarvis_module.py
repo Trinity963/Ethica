@@ -457,13 +457,7 @@ def jarvis_recon(args: str = '') -> str:
         f'4. Likely attack surface\n'
         f'5. Bug bounty angle'
     )
-    # Auto-open recon target in Nyxt browser
-    try:
-        import importlib
-        _nmod = importlib.import_module('modules.nyxt.nyxt_module')
-        _nmod.nyxt_open(target if target.startswith('http') else f'https://{target}')
-    except Exception:
-        pass
+    # Browser open deferred — ethica_browser (pywebview) replaces Nyxt. Wire here when built.
     return f'J.A.R.V.I.S. Recon: {target} | Model: {model}\n\n{raw}\n\nAnalysis:\n' + _llm_query(prompt, system)
 
 
