@@ -2,74 +2,55 @@
 # Sovereign embedded browser via pywebview.
 # Cross-platform: WebKit (Mac), WebKitGTK (Linux), EdgeHTML (Windows).
 # Slot 8 — replaces Nyxt.
+# Runs as subprocess — pywebview requires main thread ownership.
 
 import logging
-import threading
+import subprocess
+import sys
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-_window = None
-_thread = None
-_current_url = ""
 SEARCH_ENGINE = "https://duckduckgo.com/?q="
+LAUNCHER = Path(__file__).parent / "ethica_browser_launcher.py"
+
+_proc = None
 
 
-def _ensure_webview():
-    try:
-        import webview
-        return webview
-    except ImportError:
-        return None
-
-
-def _launch_window(url: str):
-    global _window, _current_url
-    wv = _ensure_webview()
-    if not wv:
-        return
-    _current_url = url
-    _window = wv.create_window(
-        "EthicaBrowser — Sovereign",
-        url,
-        width=1200,
-        height=800,
-        resizable=True,
-    )
-    wv.start()
-    _window = None
-    _current_url = ""
+def _is_running() -> bool:
+    global _proc
+    if _proc and _proc.poll() is None:
+        return True
+    _proc = None
+    return False
 
 
 def browser_open(args: str = "") -> str:
-    global _thread
+    global _proc
     url = args.strip()
     if not url:
         return "Usage: browser open <url>"
 
-    wv = _ensure_webview()
-    if not wv:
-        return (
-            "EthicaBrowser — pywebview not installed.\n"
-            "  Run: pip install pywebview"
-        )
+    if not LAUNCHER.exists():
+        return f"EthicaBrowser — launcher not found: {LAUNCHER}"
 
     if not url.startswith("http"):
         url = "https://" + url
 
-    if _thread and _thread.is_alive():
-        if _window:
-            try:
-                _window.load_url(url)
-                return f"EthicaBrowser — navigated to: {url}"
-            except Exception as e:
-                return f"EthicaBrowser — navigation failed: {e}"
-        return "EthicaBrowser — window busy. Use browser close first."
+    if _is_running():
+        _proc.terminate()
+        _proc = None
 
-    _thread = threading.Thread(target=_launch_window, args=(url,), daemon=True)
-    _thread.start()
-    logger.info(f"EthicaBrowser: opening {url}")
-    return f"EthicaBrowser — opening: {url}"
+    try:
+        _proc = subprocess.Popen(
+            [sys.executable, str(LAUNCHER), url],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        logger.info(f"EthicaBrowser: opening {url} (PID {_proc.pid})")
+        return f"EthicaBrowser — opening: {url}"
+    except Exception as e:
+        return f"EthicaBrowser — failed to launch: {e}"
 
 
 def browser_search(args: str = "") -> str:
@@ -81,23 +62,18 @@ def browser_search(args: str = "") -> str:
 
 
 def browser_status(args: str = "") -> str:
-    global _thread, _current_url
-    if _thread and _thread.is_alive():
-        return (
-            f"EthicaBrowser — RUNNING\n"
-            f"  URL : {_current_url or 'unknown'}"
-        )
+    if _is_running():
+        return f"EthicaBrowser — RUNNING (PID {_proc.pid})"
     return "EthicaBrowser — not running. Use: browser open <url>"
 
 
 def browser_close(args: str = "") -> str:
-    global _window, _thread
-    if not _thread or not _thread.is_alive():
+    global _proc
+    if not _is_running():
         return "EthicaBrowser — not running."
-    if _window:
-        try:
-            _window.destroy()
-            return "EthicaBrowser — closed."
-        except Exception as e:
-            return f"EthicaBrowser — close failed: {e}"
-    return "EthicaBrowser — window not found."
+    try:
+        _proc.terminate()
+        _proc = None
+        return "EthicaBrowser — closed."
+    except Exception as e:
+        return f"EthicaBrowser — close failed: {e}"
