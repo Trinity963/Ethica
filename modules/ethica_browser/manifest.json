@@ -1,5 +1,5 @@
 {
-  "name": "ethica_browser",
+  "name": "EthicaBrowser",
   "display_name": "EthicaBrowser",
   "description": "Sovereign embedded browser via pywebview. Cross-platform: WebKit (Mac), WebKitGTK (Linux). Slot 8.",
   "version": "0.1",
@@ -21,9 +21,9 @@
     {
       "name": "browser_search",
       "trigger": "browser search",
-      "description": "Search DuckDuckGo in the sovereign browser.",
+      "description": "Search the web using DuckDuckGo (default). Just pass the search terms \u2014 no need to specify the search engine.",
       "syntax": "[TOOL:browser_search: <query>]",
-      "example": "browser search python asyncio tutorial"
+      "example": "browser search claude mythos"
     },
     {
       "name": "browser_status",
