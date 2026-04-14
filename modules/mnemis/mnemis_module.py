@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 # ── Paths ─────────────────────────────────────────────────────
-ETHICA_DIR   = Path.home() / 'Ethica'
+ETHICA_DIR   = Path(__file__).parent.parent.parent
 MEMORY_DIR   = ETHICA_DIR / 'memory'
 VAULT_DIR    = MEMORY_DIR / 'vault'
 INDEX_PATH   = MEMORY_DIR / 'mnemis_index.json'
