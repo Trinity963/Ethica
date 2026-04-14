@@ -466,7 +466,8 @@ class DashboardPanel(tk.Frame):
         vault = ETHICA_ROOT / 'memory/vault'
         vault.mkdir(parents=True, exist_ok=True)
         try:
-            subprocess.Popen(['xdg-open', str(vault)])
+            opener = 'open' if __import__('sys').platform == 'darwin' else 'xdg-open'
+            subprocess.Popen([opener, str(vault)])
         except Exception as e:
             logging.warning('[Mnemis] vault open error: %s', e)
 
