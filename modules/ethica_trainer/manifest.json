@@ -34,6 +34,12 @@
       "description": "Convert merged model to GGUF and register with Ollama via register_models.sh pattern.",
       "syntax": "[TOOL:trainer_load: load]",
       "example": "trainer load"
+    },
+    {
+      "name": "trainer_export",
+      "description": "Export merged model to GGUF and register with Ollama or save locally. Backend set via export_backend in trainer_config.json.",
+      "syntax": "[TOOL:trainer_export: export]",
+      "example": "trainer export"
     }
   ]
 }

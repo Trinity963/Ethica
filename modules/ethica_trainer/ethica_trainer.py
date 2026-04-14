@@ -172,3 +172,42 @@ def trainer_load(input_text="", **kwargs):
         return f"EthicaTrainer — {model_name} registered with Ollama. Switch to it in model selector."
     else:
         return f"EthicaTrainer — Ollama registration failed:\n{result.stderr}"
+
+def trainer_export(input_text="", **kwargs):
+    export_script = Path(__file__).parent / "gguf_exporter.py"
+    if not export_script.exists():
+        return "EthicaTrainer — gguf_exporter.py not found in ethica_trainer/."
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("gguf_exporter", export_script)
+        mod  = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        r       = mod.export()
+        status  = r.get("status", "unknown")
+        backend = r.get("backend", "unknown")
+        if status == "complete":
+            if backend == "ollama":
+                model = r.get("model", "?")
+                return (
+                    f"EthicaTrainer — Export complete.\n"
+                    f"  Backend : Ollama\n"
+                    f"  Model   : {model}\n"
+                    f"  Ready   : ollama run {model}"
+                )
+            else:
+                gguf = r.get("gguf", "?")
+                return (
+                    f"EthicaTrainer — Export complete.\n"
+                    f"  Backend : local\n"
+                    f"  GGUF    : {gguf}"
+                )
+        if status == "error":
+            reason = r.get("reason", "unknown")
+            return f"EthicaTrainer — Export failed: {reason}"
+        if status == "failed":
+            rc = r.get("returncode", "?")
+            return f"EthicaTrainer — Export failed (return code {rc})."
+        return f"EthicaTrainer — trainer_export returned unexpected status: {status}"
+    except Exception as e:
+        logger.error(f"EthicaTrainer: gguf_exporter error: {e}")
+        return f"EthicaTrainer — gguf_exporter failed: {e}"
