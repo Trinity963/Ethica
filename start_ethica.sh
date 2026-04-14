@@ -1,7 +1,8 @@
 #!/bin/bash
 # Ethica launcher — starts voice server then Ethica
-GAGE_PYTHON=~/Ethica/modules/gage/gage_env/bin/python3
-VOICE_SERVER=~/Ethica/modules/ethica_voice/ethica_voice_server.py
+ETHICA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GAGE_PYTHON="$ETHICA_ROOT/modules/gage/gage_env/bin/python3"
+VOICE_SERVER="$ETHICA_ROOT/modules/ethica_voice/ethica_voice_server.py"
 SOCKET=/tmp/ethica_voice.sock
 
 # Kill old socket if stale
@@ -23,8 +24,8 @@ if [ ! -S "$SOCKET" ]; then
 fi
 
 # Launch Ethica
-source ~/Ethica/Ethica_env/bin/activate
-python3 ~/Ethica/main.py
+source "$ETHICA_ROOT/Ethica_env/bin/activate"
+python3 "$ETHICA_ROOT/main.py"
 
 # Cleanup on exit
 kill $VOICE_PID 2>/dev/null
