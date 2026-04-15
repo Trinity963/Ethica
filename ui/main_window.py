@@ -95,7 +95,15 @@ class MainWindow:
         self.root = root
         self.theme = theme
         self.config = config
-        global _tts_enabled; _tts_enabled = config.get('voice_enabled', False)
+        global _tts_enabled
+        _vs = config.get('voice_enabled', 'auto')
+        if _vs == 'auto':
+            try:
+                import torch as _t; _tts_enabled = _t.cuda.is_available()
+            except Exception:
+                _tts_enabled = False
+        else:
+            _tts_enabled = bool(_vs)
 
         # ── Backend ───────────────────────────────────────────
         # Try LlamaConnector first (local GGUFs — faster, sovereign)

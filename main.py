@@ -71,7 +71,22 @@ def boot():
     import subprocess as _sp, threading as _th, pathlib as _pl
     _VOICE_SERVER = _pl.Path(BASE_DIR) / "modules" / "ethica_voice" / "ethica_voice_server.py"
     _VOICE_PYTHON = _pl.Path(BASE_DIR) / "modules" / "gage" / "gage_env" / "bin" / "python3"
-    if config.get('voice_enabled', False) and _VOICE_SERVER.exists() and _VOICE_PYTHON.exists():
+    _voice_setting = config.get('voice_enabled', 'auto')
+    if _voice_setting == 'auto':
+        try:
+            import torch as _torch
+            _voice_on = _torch.cuda.is_available()
+            print(f'[Ethica] Voice auto-detect: {"GPU found — voice ON" if _voice_on else "CPU only — voice OFF"}')
+        except Exception:
+            _voice_on = False
+            print('[Ethica] Voice auto-detect: torch unavailable — voice OFF')
+    elif _voice_setting is True or str(_voice_setting).lower() == 'true':
+        _voice_on = True
+        print('[Ethica] Voice: forced ON (config)')
+    else:
+        _voice_on = False
+        print('[Ethica] Voice: forced OFF (config)')
+    if _voice_on and _VOICE_SERVER.exists() and _VOICE_PYTHON.exists():
         _vs_proc = _sp.Popen(
             [str(_VOICE_PYTHON), str(_VOICE_SERVER)],
             stdout=_sp.PIPE, stderr=_sp.STDOUT, text=True
