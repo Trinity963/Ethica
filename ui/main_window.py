@@ -621,7 +621,6 @@ class MainWindow:
             pass
         # Speak tool result with correct voice
         _speak_voice = "Gage" if any(g in tool_name.lower() for g in ["gage_chat", "gage chat"]) else "Trinity"
-        print(f"[VOICE DEBUG] tool={tool_name!r} processed={repr(processed[:80]) if processed else None}")
         if processed:
             _speak_text = processed[:800].strip()
             if _speak_text:
