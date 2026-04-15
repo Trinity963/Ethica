@@ -24,26 +24,54 @@ import threading
 from pathlib import Path
 
 # ── Ethica Voice ──────────────────────────────────────────────
-_TTS_SCRIPT = Path(__file__).parent.parent / "modules" / "gage" / "ethica_tts.py"
-_TTS_PYTHON  = Path(__file__).parent.parent / "modules" / "gage" / "gage_env" / "bin" / "python3"
+_VOICE_WORKER = Path(__file__).parent.parent / "modules" / "ethica_voice" / "ethica_voice_worker.py"
+_VOICE_PYTHON  = Path(__file__).parent.parent / "modules" / "gage" / "gage_env" / "bin" / "python3"
 _tts_enabled = True
 
-def _speak(text):
-    """Non-blocking TTS — runs in daemon thread via gage_env."""
+_tts_lock = __import__("threading").Lock()
+def _speak(text, voice="Trinity"):
+    """Non-blocking TTS — sends to persistent voice server via Unix socket."""
     if not _tts_enabled:
         return
-    if not _TTS_SCRIPT.exists() or not _TTS_PYTHON.exists():
+    if not _tts_lock.acquire(blocking=False):
         return
     def _run():
+        import socket as _sock, re
         try:
-            subprocess.run(
-                [str(_TTS_PYTHON), str(_TTS_SCRIPT), text],
-                timeout=30,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-        except Exception:
-            pass
+            _clean = re.sub(r"\[EthicaGuard[^\]]*\].*", "", text, flags=re.DOTALL).strip()
+            _clean = re.sub(r"\[.*?\]", "", _clean).strip()
+            _clean = _clean[:200]
+            payload = "VOICE:" + voice + "|" + _clean.replace(chr(10), " ").strip()
+            s = _sock.socket(_sock.AF_UNIX, _sock.SOCK_STREAM)
+            s.settimeout(240)
+            # Retry connect — server may still be loading XTTS (~60s)
+            import time as _time
+            for _attempt in range(12):
+                try:
+                    s.connect("/tmp/ethica_voice.sock")
+                    break
+                except (ConnectionRefusedError, FileNotFoundError):
+                    if _attempt == 11:
+                        print("[VOICE] Server not ready after 60s — skipping")
+                        _tts_lock.release()
+                        return
+                    _time.sleep(5)
+                    s = _sock.socket(_sock.AF_UNIX, _sock.SOCK_STREAM)
+                    s.settimeout(240)
+            s.sendall((payload + "\n").encode("utf-8"))
+            resp = b""
+            while b"\n" not in resp:
+                chunk = s.recv(64)
+                if not chunk:
+                    break
+                resp += chunk
+            s.close()
+            if not resp.startswith(b"OK"):
+                print(f"[VOICE FAIL] {resp!r}")
+        except Exception as _e:
+            print(f"[VOICE ERROR] {_e}")
+        finally:
+            _tts_lock.release()
     threading.Thread(target=_run, daemon=True).start()
 
 
@@ -67,6 +95,7 @@ class MainWindow:
         self.root = root
         self.theme = theme
         self.config = config
+        global _tts_enabled; _tts_enabled = config.get('voice_enabled', False)
 
         # ── Backend ───────────────────────────────────────────
         # Try LlamaConnector first (local GGUFs — faster, sovereign)
@@ -582,6 +611,13 @@ class MainWindow:
                 )
         except Exception:
             pass
+        # Speak tool result with correct voice
+        _speak_voice = "Gage" if any(g in tool_name.lower() for g in ["gage_chat", "gage chat"]) else "Trinity"
+        print(f"[VOICE DEBUG] tool={tool_name!r} processed={repr(processed[:80]) if processed else None}")
+        if processed:
+            _speak_text = processed[:800].strip()
+            if _speak_text:
+                _speak(_speak_text, voice=_speak_voice)
         # Brief marker in chat
         self.chat_window.add_message(
             f"⟁ {tool_name} → Ops",
@@ -753,7 +789,7 @@ class MainWindow:
         if hasattr(self, '_finalize_bubble') and self._finalize_bubble:
             self._finalize_bubble(response)
             self._finalize_bubble = None
-        _speak(response)
+        # _speak(response)
         self._restore_ready()
         # Auto-save if enabled
         if getattr(self, '_save_chat_enabled', False):
@@ -850,7 +886,7 @@ class MainWindow:
             sender="ethica",
             name=ethica_name
         )
-        _speak(_greeting)
+        # _speak(_greeting)
 
     def _on_close(self):
         """Called when app window closes — trigger reflection then exit."""
@@ -997,7 +1033,7 @@ class MainWindow:
             sender="ethica",
             name=ethica_name
         )
-        _speak(greeting)
+        # _speak(greeting)
 
     # ── Live Theme Refresh ────────────────────────────────────
 

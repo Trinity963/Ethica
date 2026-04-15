@@ -67,6 +67,21 @@ def boot():
     # root.overrideredirect(True)  # Uncomment for frameless — Phase 2
 
     # Launch main window — passes root, theme, config
+    # Launch persistent voice server (XTTS — loads model once)
+    import subprocess as _sp, threading as _th, pathlib as _pl
+    _VOICE_SERVER = _pl.Path(BASE_DIR) / "modules" / "ethica_voice" / "ethica_voice_server.py"
+    _VOICE_PYTHON = _pl.Path(BASE_DIR) / "modules" / "gage" / "gage_env" / "bin" / "python3"
+    if config.get('voice_enabled', False) and _VOICE_SERVER.exists() and _VOICE_PYTHON.exists():
+        _vs_proc = _sp.Popen(
+            [str(_VOICE_PYTHON), str(_VOICE_SERVER)],
+            stdout=_sp.PIPE, stderr=_sp.STDOUT, text=True
+        )
+        def _watch_voice_server(proc):
+            for line in proc.stdout:
+                print(line, end="", flush=True)
+        _th.Thread(target=_watch_voice_server, args=(_vs_proc,), daemon=True).start()
+        print("[Ethica] Voice server launching...", flush=True)
+
     app = MainWindow(root, theme, config)
 
     # Install global crash handler — before mainloop
