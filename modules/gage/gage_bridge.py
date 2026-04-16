@@ -276,8 +276,10 @@ def gage_vision(input_str):
     except Exception as e:
         return f"Gage Vision — error: {e}"
 
-# ── Module registry interface ─────────────────────────────────
+# ── Gage memory tools ───────────────────────────────────────
+from modules.gage.gage_memory import gage_wake, gage_distill_run
 
+# ── Module registry interface ─────────────────────────────────
 TOOLS = {
     "gage_launch":    gage_launch,
     "gage_chat":      gage_chat,
@@ -285,6 +287,8 @@ TOOLS = {
     "gage_status":    gage_status,
     "gage_stop":      gage_stop,
     "gage_vision":    gage_vision,
+    "gage_wake":       gage_wake,
+    "gage_distill_run": gage_distill_run,
 }
 
 def get_tools(): return TOOLS

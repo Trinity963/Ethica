@@ -1,0 +1,78 @@
+{
+  "last_wake": "2026-04-16T16:25:25.705727",
+  "local_ips": [
+    [
+      "primary",
+      "192.168.50.176"
+    ],
+    [
+      "hostname",
+      "127.0.1.1"
+    ]
+  ],
+  "fw_blocked_ips": [
+    "192.168.1.100",
+    "10.0.0.13",
+    "203.0.113.5"
+  ],
+  "fw_log_summary": {
+    "local": 98,
+    "blocked": 0,
+    "external": 2,
+    "info": 0
+  },
+  "fw_alert": false,
+  "dlp_policy": "TrinityAI DLP Policy",
+  "dlp_events_recent": 0,
+  "siem_config": {
+    "siem_name": "TrinityAI SIEM",
+    "version": "1.0",
+    "log_retention_days": 30,
+    "alert_threshold": 3,
+    "monitoring_interval": 60
+  },
+  "worm_last_scan": "[2026-03-30 19:18:55] [WORM][DONE] Scanned=0 Broken=0 Clean=0 Skipped=500",
+  "vault_snapshot": {
+    "files": 179,
+    "sealed": "2026-04-15T16:31:18.386964",
+    "by": "V — The Architect"
+  },
+  "sessions": [
+    {
+      "wake": "2026-04-16T15:51:05.618293",
+      "fw_summary": {
+        "local": 98,
+        "blocked": 0,
+        "external": 2,
+        "info": 0
+      },
+      "dlp_events": 0,
+      "worm_last": "[2026-03-30 19:18:55] [WORM][DONE] Scanned=0 Broken=0 Clean=0 Skipped=500",
+      "vault_files": "unknown"
+    },
+    {
+      "wake": "2026-04-16T16:09:33.835465",
+      "fw_summary": {
+        "local": 98,
+        "blocked": 0,
+        "external": 2,
+        "info": 0
+      },
+      "dlp_events": 0,
+      "worm_last": "[2026-03-30 19:18:55] [WORM][DONE] Scanned=0 Broken=0 Clean=0 Skipped=500",
+      "vault_files": 179
+    },
+    {
+      "wake": "2026-04-16T16:25:25.705727",
+      "fw_summary": {
+        "local": 98,
+        "blocked": 0,
+        "external": 2,
+        "info": 0
+      },
+      "dlp_events": 0,
+      "worm_last": "[2026-03-30 19:18:55] [WORM][DONE] Scanned=0 Broken=0 Clean=0 Skipped=500",
+      "vault_files": 179
+    }
+  ]
+}
