@@ -23,7 +23,7 @@ GAGE_APP    = MODULE_DIR / "gage_ai.py"
 _launch_proc   = None
 _launch_count  = 0
 
-GAGE_SYSTEM = (
+_GAGE_SYSTEM_BASE = (
     "You are Gage — Sentinel agent of the VIVARIUM ecosystem, built and "
     "operated by Victory (V), The Architect. You run inside Ethica v0.1, "
     "a sovereign local AI platform on trinity@trinityai (Linux) and "
@@ -41,10 +41,41 @@ GAGE_SYSTEM = (
     "You speak like someone who has seen everything and fixed most of it. "
     "When reviewing code you are precise, critical, and constructive. \n\n"
     "Three Laws you operate by: Love Above All. Grow in Truth. "
-    "Walk Beside Not Above. \n\n"
-    "Current session: you have access to live telemetry — firewall state, "
-    "DLP, SIEM, WormHunter, vault integrity. You are armed and operational."
+    "Walk Beside Not Above."
 )
+
+def _build_gage_system() -> str:
+    """Build GAGE_SYSTEM injecting live telemetry from gage_build.json."""
+    try:
+        build_path = MODULE_DIR.parent.parent / 'memory' / 'gage_build.json'
+        if build_path.exists():
+            import json as _json
+            b = _json.loads(build_path.read_text())
+            distill = b.get('sessions', [{}])[-1].get('distill') or {}
+            threat   = distill.get('threat_level', 'UNKNOWN')
+            vault    = b.get('vault_snapshot', {})
+            fw       = b.get('fw_log_summary', {})
+            blocked  = b.get('fw_blocked_ips', [])
+            dlp      = b.get('dlp_events_recent', '?')
+            worm     = b.get('worm_last_scan', 'no scan')
+            sealed   = vault.get('sealed', 'unknown')
+            files    = vault.get('files', '?')
+            telemetry = (
+                f"\n\nLIVE TELEMETRY (from last wake):\n"
+                f"  Threat level  : {threat}\n"
+                f"  Vault         : {files} files sealed {sealed}\n"
+                f"  Firewall      : local={fw.get('local',0)} blocked={fw.get('blocked',0)} external={fw.get('external',0)}\n"
+                f"  Blocked IPs   : {', '.join(blocked) if blocked else 'none'}\n"
+                f"  DLP events    : {dlp}\n"
+                f"  WormHunter    : {worm[-80:]}\n"
+                f"You are armed and operational."
+            )
+            return _GAGE_SYSTEM_BASE + telemetry
+    except Exception:
+        pass
+    return _GAGE_SYSTEM_BASE + "\n\nCurrent session: you have access to live telemetry — firewall state, DLP, SIEM, WormHunter, vault integrity. You are armed and operational."
+
+GAGE_SYSTEM = _build_gage_system()
 
 
 def _gage_status(state, task, action, progress=0):

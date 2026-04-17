@@ -1,5 +1,5 @@
 {
-  "sealed_at": "2026-04-17T12:44:05.066626",
+  "sealed_at": "2026-04-17T12:51:17.550396",
   "sealed_by": "V \u2014 The Architect",
   "files": {
     "core/autonomous_debugger.py": "170cf2bae89be02deb71721f0cddc6fdd097b1166d89cfe215d044c5e607686d",
@@ -37,7 +37,7 @@
     "modules/file_manager/file_manager.py": "a21612c3eb3d332cfb058bc309099f66256fc9dfa2cd6c86df168b22504a1696",
     "modules/file_manager/manifest.json": "fef2df6ff0753210a6d3b9652d6fed7fe6af32ae6884d5b2c76368fcbc01d9cf",
     "modules/gage/gage_assistant2.py": "e20d0849f64ca1d7f7505baa9b9b7c70c0b90a7b0ed307d75d14dd0a8bb4cdb5",
-    "modules/gage/gage_bridge.py": "a9c4ccf33570e24cd1060fabaaba83a963310f9eec846f0fe1d56670a76c1016",
+    "modules/gage/gage_bridge.py": "c9a8bb1688a35a0ae1f2deb6085e23c3df1496f0da15a074c6b55177a68347fa",
     "modules/gage/manifest.json": "f69994f50536d18d9dc130d1581182c292db1849a1442573afeaad3533a4d475",
     "modules/gage/gage_ai.py": "060bc85de3d9045732305bcd3b3a37464ddeb062459832a1d4de2dc2eb4f1fa3",
     "modules/gage/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
