@@ -132,6 +132,18 @@ class ModuleRegistry:
         count = len(self._modules)
         tools = len(self._tool_index)
         logging.info(f"[ModuleRegistry] {count} module(s) loaded, {tools} tool(s) available")
+        # Boot hook — auto-start Mnemis watcher after all modules load
+        try:
+            import importlib.util
+            mnemis_path = os.path.join(MODULES_DIR, 'mnemis', 'mnemis_module.py')
+            if os.path.exists(mnemis_path):
+                spec = importlib.util.spec_from_file_location('mnemis_module', mnemis_path)
+                mnemis_mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mnemis_mod)
+                mnemis_mod.start_watcher()
+                logging.info('[ModuleRegistry] Mnemis watcher auto-started (boot hook)')
+        except Exception as e:
+            logging.warning(f'[ModuleRegistry] Mnemis boot hook failed: {e}')
 
     def _load_module(self, folder_name, module_dir, manifest_path):
         """Load a single module from its folder."""

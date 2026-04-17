@@ -16,7 +16,11 @@ from pathlib import Path
 # ── Paths ─────────────────────────────────────────────────────
 ETHICA_DIR   = Path(__file__).parent.parent.parent
 MEMORY_DIR   = ETHICA_DIR / 'memory'
-VAULT_DIR    = MEMORY_DIR / 'vault'
+VAULT_DIR        = MEMORY_DIR / 'vault'
+VAULT_TRINITY    = VAULT_DIR / 'trinity'
+VAULT_GAGE       = VAULT_DIR / 'gage'
+
+AGENT_VAULTS     = {'trinity': VAULT_TRINITY, 'gage': VAULT_GAGE}
 INDEX_PATH   = MEMORY_DIR / 'mnemis_index.json'
 BUILD_PATH   = MEMORY_DIR / 'river_build.json'
 SESSION_PATH = ETHICA_DIR / 'status' / 'session.json'
@@ -95,8 +99,8 @@ def _save_index(index: dict):
     INDEX_PATH.write_text(json.dumps(index, indent=2, ensure_ascii=False))
 
 # ── Index a single vault file ─────────────────────────────────
-def _index_vault_file(path: Path, index: dict) -> str:
-    key = path.name
+def _index_vault_file(path: Path, index: dict, agent: str = 'shared') -> str:
+    key = f'{agent}/{path.name}'
     text = _extract_text(path)
     try:
         mtime = str(path.stat().st_mtime)
@@ -110,6 +114,7 @@ def _index_vault_file(path: Path, index: dict) -> str:
         'keywords': _extract_keywords(text),
         'summary' : _extract_summary(text),
         'source'  : 'vault',
+        'agent'   : agent,
         'size'    : len(text),
     }
     index['files'][key] = entry
@@ -155,32 +160,41 @@ def _index_sessions(index: dict):
 # ── Full re-index ─────────────────────────────────────────────
 def _full_index() -> dict:
     index = _load_index()
-    VAULT_DIR.mkdir(parents=True, exist_ok=True)
-    # Only re-index vault files that are new or modified
-    for path in VAULT_DIR.iterdir():
-        if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
-            continue
-        key = path.name
-        try:
-            mtime = str(path.stat().st_mtime)
-        except Exception:
-            continue
-        existing = index['files'].get(key, {})
-        if existing.get('mtime') == mtime:
-            continue  # unchanged — skip
-        entry = index['files'].get(key, {})
-        text = _extract_text(path)
-        entry.update({
-            'path'    : str(path),
-            'type'    : path.suffix.lstrip('.'),
-            'indexed' : datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'mtime'   : mtime,
-            'keywords': _extract_keywords(text),
-            'summary' : _extract_summary(text),
-            'source'  : 'vault',
-            'size'    : len(text),
-        })
-        index['files'][key] = entry
+    # Ensure all vault dirs exist
+    for vdir in [VAULT_DIR, VAULT_TRINITY, VAULT_GAGE]:
+        vdir.mkdir(parents=True, exist_ok=True)
+    # Index root vault (shared), trinity, and gage — each stamped with agent
+    vault_targets = [
+        (VAULT_DIR,     'shared'),
+        (VAULT_TRINITY, 'trinity'),
+        (VAULT_GAGE,    'gage'),
+    ]
+    for vault_path, agent_label in vault_targets:
+        for path in vault_path.iterdir():
+            if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+                continue
+            key = f'{agent_label}/{path.name}'
+            try:
+                mtime = str(path.stat().st_mtime)
+            except Exception:
+                continue
+            existing = index['files'].get(key, {})
+            if existing.get('mtime') == mtime:
+                continue  # unchanged — skip
+            text = _extract_text(path)
+            entry = index['files'].get(key, {})
+            entry.update({
+                'path'    : str(path),
+                'type'    : path.suffix.lstrip('.'),
+                'indexed' : datetime.now().strftime('%Y-%m-%d %H:%M'),
+                'mtime'   : mtime,
+                'keywords': _extract_keywords(text),
+                'summary' : _extract_summary(text),
+                'source'  : 'vault',
+                'agent'   : agent_label,
+                'size'    : len(text),
+            })
+            index['files'][key] = entry
     _index_builds(index)
     _index_sessions(index)
     index['last_indexed'] = datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -188,9 +202,9 @@ def _full_index() -> dict:
     return index
 
 # ── Incremental index (single file) ──────────────────────────
-def _index_one(path: Path):
+def _index_one(path: Path, agent: str = 'shared'):
     index = _load_index()
-    key = _index_vault_file(path, index)
+    key = _index_vault_file(path, index, agent)
     index['last_indexed'] = datetime.now().strftime('%Y-%m-%d %H:%M')
     _save_index(index)
     return key
@@ -269,37 +283,44 @@ def _watch_loop():
     global _watcher_running
     # Wait for boot index to be fully written before first scan
     time.sleep(2)
+    # Ensure agent subdirs exist
+    for vdir in [VAULT_DIR, VAULT_TRINITY, VAULT_GAGE]:
+        vdir.mkdir(parents=True, exist_ok=True)
     # Pre-populate seen from existing index so boot files don't re-notify
     index = _load_index()
     seen = {
         fname: entry.get('mtime', '')
         for fname, entry in index.get('files', {}).items()
     }
-    VAULT_DIR.mkdir(parents=True, exist_ok=True)
+    vault_targets = [
+        (VAULT_DIR,     'shared'),
+        (VAULT_TRINITY, 'trinity'),
+        (VAULT_GAGE,    'gage'),
+    ]
     while _watcher_running:
         try:
             current = {}
-            for path in VAULT_DIR.iterdir():
-                if path.suffix.lower() in SUPPORTED_EXTENSIONS:
-                    try:
-                        mtime = str(path.stat().st_mtime)
-                        current[path.name] = mtime
-                    except Exception:
-                        pass
+            for vault_path, agent_label in vault_targets:
+                for path in vault_path.iterdir():
+                    if path.suffix.lower() in SUPPORTED_EXTENSIONS:
+                        try:
+                            mtime = str(path.stat().st_mtime)
+                            current[f'{agent_label}/{path.name}'] = (path, mtime, agent_label)
+                        except Exception:
+                            pass
 
-            for name, mtime in current.items():
-                if name not in seen or seen[name] != mtime:
-                    path = VAULT_DIR / name
-                    key  = _index_one(path)
+            for key, (path, mtime, agent_label) in current.items():
+                if key not in seen or seen[key] != mtime:
+                    _index_one(path, agent_label)
                     if _notify_callback:
                         index = _load_index()
                         entry = index['files'].get(key, {})
                         _notify_callback(
-                            f"Mnemis indexed: {name} "
+                            f"Mnemis [{agent_label}] indexed: {path.name} "
                             f"({entry.get('size',0)} chars, "
                             f"{len(entry.get('keywords',[]))} keywords)"
                         )
-            seen = current
+            seen = {k: v[1] for k, v in current.items()}
         except Exception:
             pass
         time.sleep(3)
@@ -353,15 +374,26 @@ def mnemis_index(args: str = '') -> str:
 
 
 def mnemis_search(args: str = '') -> str:
+    # Optional agent filter: "agent:trinity bubble leak" or "agent:gage firewall"
+    agent_filter = None
     query = args.strip()
     if not query:
-        return 'Mnemis search — provide a keyword. Example: mnemis search bubble leak'
-
-    index   = _load_index()
+        return 'Mnemis search — provide a keyword. Example: mnemis search bubble leak\nOptional: agent:trinity <query> or agent:gage <query>'
+    parts = query.split()
+    if parts and parts[0].startswith('agent:'):
+        agent_filter = parts[0].split(':', 1)[1].lower()
+        query = ' '.join(parts[1:]).strip()
+        if not query:
+            return f'Mnemis search — provide a keyword after agent:{agent_filter}'
+    index = _load_index()
+    if agent_filter:
+        filtered = {k: v for k, v in index.get('files', {}).items()
+                    if v.get('agent', 'shared') == agent_filter}
+        index = dict(index, files=filtered)
     results = _search(query, index)
-
     if not results:
-        return f'Mnemis — no results for "{query}". Try: mnemis index to rebuild, then search again.'
+        agent_note = f' (agent:{agent_filter})' if agent_filter else ''
+        return f'Mnemis — no results for "{query}"{agent_note}. Try: mnemis index to rebuild, then search again.'
 
     lines = [f'── Mnemis Search: "{query}" ── {len(results)} results ──']
     for i, r in enumerate(results, 1):
