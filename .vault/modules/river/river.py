@@ -255,7 +255,7 @@ def river_read(input_str):
     _river_status("ACTIVE", f"Reading {input_str[:60]}", "river_read", 10)
     # ── last drop shortcut ──────────────────────────────
     if input_str.strip().lower() in ("last drop", "last_drop"):
-        state_path = Path.home() / "Ethica/memory/river_state.json"
+        state_path = Path(__file__).parent.parent.parent / "memory/river_state.json"
         try:
             state = json.loads(state_path.read_text())
             last_path = state.get("last_drop_path")

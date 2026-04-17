@@ -3,7 +3,7 @@
 import streamlit as st
 import whisper
 import speech_recognition as sr
-import pyttsx3
+from TTS.api import TTS as CoquiTTS
 # import pygame  # reserved for standalone lip sync process
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -19,10 +19,12 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
-# Load TTS Engine
-engine = pyttsx3.init()
-engine.setProperty("rate", 150)  # Adjust speed
-engine.setProperty("voice", "english+f3")  # Change voice tone
+# Load TTS Engine (XTTS v2 — lazy init on first speak)
+_xtts_engine = None
+_GAGE_REFS = sorted(
+    (pathlib.Path(__file__).parent.parent.parent / "reference_wavs" / "gage").glob("gage*.wav")
+)
+_xtts_ref = str(_GAGE_REFS[0]) if _GAGE_REFS else None
 
 # Initialize Pygame for Lip Syncing (only if display available)
 # Pygame lip sync disabled in Streamlit context — reserved for standalone pygame process
@@ -32,7 +34,7 @@ face_closed = None
 face_open   = None
 
 # Load 3D Avatar Model (VR Ready)
-GAGE_GLB = pathlib.Path("/home/trinity/Ethica/assets/Gage.glb")
+GAGE_GLB = pathlib.Path(__file__).parent.parent.parent / "assets" / "Gage.glb"
 gage_model = trimesh.load(str(GAGE_GLB)) if GAGE_GLB.exists() else None
 
 # Initialize Chat History
@@ -106,9 +108,25 @@ if user_input:
     # Speak AI Response
     # Speak response in background thread so UI renders immediately
     import threading as _threading
+    import tempfile, subprocess as _sp
     def _speak():
-        engine.say(response)
-        engine.runAndWait()
+        global _xtts_engine
+        if _xtts_ref is None:
+            return
+        try:
+            if _xtts_engine is None:
+                _xtts_engine = CoquiTTS("tts_models/multilingual/multi-dataset/xtts_v2")
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as _f:
+                _out = _f.name
+            _xtts_engine.tts_to_file(
+                text=response,
+                speaker_wav=_xtts_ref,
+                language="en",
+                file_path=_out,
+            )
+            _sp.Popen(["aplay", _out])
+        except Exception as _e:
+            print(f"[Gage TTS error] {_e}")
     _threading.Thread(target=_speak, daemon=True).start()
 
     # Lip Sync Animation (only if pygame display available)

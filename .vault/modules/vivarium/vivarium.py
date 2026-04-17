@@ -18,7 +18,7 @@ from pathlib import Path
 import psutil
 
 MODULE_DIR  = Path(__file__).parent
-WATCH_FILE  = Path.home() / "Ethica" / "memory" / "vivarium_watch.json"
+WATCH_FILE  = Path(__file__).parent.parent.parent / "memory" / "vivarium_watch.json"
 
 # ── Default discovery patterns (generic, no personal stack) ──
 DEFAULT_PATTERNS = [

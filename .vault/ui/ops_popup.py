@@ -180,7 +180,12 @@ class OpsPopup:
             if self._log.compare(start, "<=", index) and self._log.compare(index, "<=", end):
                 path_str = self._log.get(start, end).strip().strip('`\'\"')
                 p = Path(path_str).expanduser().resolve()
-                if not p.exists() or not p.is_file():
+                if not p.exists():
+                    return
+                if p.is_dir():
+                    import subprocess, sys
+                    opener = "open" if sys.platform == "darwin" else "xdg-open"
+                    subprocess.Popen([opener, str(p)])
                     return
                 if self._canvas_ref:
                     self._canvas_ref.open_file(str(p))

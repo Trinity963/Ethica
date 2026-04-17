@@ -1161,7 +1161,7 @@ class CanvasWindow:
                 "active_tab": self._tabs[self._active_tab_index].name if self._tabs else "None",
                 "tabs": tabs,
             }
-            ctx_path = Path.home() / "Ethica/status/canvas_context.json"
+            ctx_path = Path(__file__).parent.parent / "status/canvas_context.json"
             ctx_path.write_text(json.dumps(data, indent=2))
         except Exception:
             pass

@@ -11,7 +11,7 @@ from pathlib import Path
 MODULE_NAME = "kernel"
 LABEL = "Dashboard"
 
-STATUS_DIR = Path.home() / "Ethica" / "status"
+STATUS_DIR = Path(__file__).parent.parent.parent / "status"
 AGENTS = ["river", "gage", "reka", "orchestrate", "debugtron", "jarvis"]
 
 TOOLS = {

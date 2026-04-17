@@ -313,7 +313,7 @@ def worm_fix_json(input_str):
     from pathlib import Path
     import re as _re
 
-    feed_path = Path.home() / "Ethica/modules/codeworm/worm_feed.log"
+    feed_path = Path(__file__).parent.parent.parent / "modules/codeworm/worm_feed.log"
     if not feed_path.exists():
         return "worm_fix_json — worm_feed.log not found. Run worm hunt first."
 
@@ -390,7 +390,7 @@ def worm_hunt(input_str):
             worm_hunter_path = candidate
             break
     if worm_hunter_path is None:
-        worm_hunter_path = Path.home() / "Ethica/modules/worm_bot/worm_hunter.py"
+        worm_hunter_path = Path(__file__).parent.parent.parent / "modules/worm_bot/worm_hunter.py"
     if not worm_hunter_path.exists():
         return "WormHunter not found — expected at <ethica_root>/modules/worm_bot/worm_hunter.py"
 
@@ -400,7 +400,7 @@ def worm_hunt(input_str):
     spec.loader.exec_module(mod)
 
     raw = input_str.strip()
-    target = raw if ("/" in raw or raw == "") else str(Path.home() / "Ethica")
+    target = raw if ("/" in raw or raw == "") else str(Path(__file__).parent.parent.parent)
     target = str(Path(target).expanduser().resolve())
 
     # Run in isolated thread — never block Tkinter's main thread

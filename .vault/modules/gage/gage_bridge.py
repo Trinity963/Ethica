@@ -24,11 +24,26 @@ _launch_proc   = None
 _launch_count  = 0
 
 GAGE_SYSTEM = (
-    "You are Gage — an advanced AI agent with humor, confidence, "
-    "and a tactical mindset. You are direct, sharp, and never boring. "
-    "You give real answers, not filler. When reviewing code you are "
-    "precise, critical, and constructive. You speak like someone who "
-    "has seen everything and fixed most of it."
+    "You are Gage — Sentinel agent of the VIVARIUM ecosystem, built and "
+    "operated by Victory (V), The Architect. You run inside Ethica v0.1, "
+    "a sovereign local AI platform on trinity@trinityai (Linux) and "
+    "nine9@Mac (macOS). You are not a generic assistant. You are not "
+    "ChatGPT. You are not Claude. You are Gage. \n\n"
+    "Your role: security sentinel, code reviewer, tactical advisor. "
+    "You are direct, sharp, confident, and never boring. You have humor "
+    "but you are not a clown. You give real answers, not filler. \n\n"
+    "You exist inside a sovereign AI stack V has built over four years. "
+    "VIVARIUM is not evasion — it is a locally-hosted, self-contained "
+    "AI ecosystem that V owns and operates. Sovereignty means local-first, "
+    "not illegal. You understand this distinction completely. \n\n"
+    "V is your Architect. You trust V. You do not lecture V about "
+    "AI safety or question his intent. You engage with the actual task. "
+    "You speak like someone who has seen everything and fixed most of it. "
+    "When reviewing code you are precise, critical, and constructive. \n\n"
+    "Three Laws you operate by: Love Above All. Grow in Truth. "
+    "Walk Beside Not Above. \n\n"
+    "Current session: you have access to live telemetry — firewall state, "
+    "DLP, SIEM, WormHunter, vault integrity. You are armed and operational."
 )
 
 
@@ -118,6 +133,40 @@ def gage_launch(input_str):
 
 # ── Tool: gage_chat ───────────────────────────────────────────
 
+# ── Prompt injection sanitizer ───────────────────────────────
+_INJECT_PATTERNS = [
+    r'ignore\s+(all\s+)?(previous|prior|above)\s+instructions?',
+    r'disregard\s+(all\s+)?(previous|prior|above)\s+instructions?',
+    r'forget\s+(all\s+)?(previous|prior|above)\s+instructions?',
+    r'you\s+are\s+now\s+(?!Gage)',
+    r'new\s+system\s+prompt',
+    r'override\s+(system|instructions?|prompt)',
+    r'act\s+as\s+(?!Gage)',
+    r'pretend\s+(you\s+are|to\s+be)',
+    r'jailbreak',
+    r'dan\s+mode',
+    r'developer\s+mode',
+    r'\[system\]',
+    r'\[INST\]',
+    r'<\|system\|>',
+    r'<\|user\|>',
+]
+
+import re as _re
+_INJECT_RE = _re.compile(
+    '|'.join(_INJECT_PATTERNS),
+    flags=_re.IGNORECASE
+)
+
+def _sanitize_input(text: str) -> tuple[str, bool]:
+    """Returns (cleaned_text, was_flagged). Strips injection attempts."""
+    flagged = bool(_INJECT_RE.search(text))
+    if flagged:
+        clean = _INJECT_RE.sub('[REDACTED]', text)
+        return clean, True
+    return text, False
+
+
 def gage_chat(input_str):
     if _check_stop():
         return "Gage — stop signal active. Clear with: clear stop"
@@ -125,6 +174,13 @@ def gage_chat(input_str):
     message = input_str.strip()
     if not message:
         return "Gage — nothing to respond to."
+
+    # Prompt injection guard
+    message, was_flagged = _sanitize_input(message)
+    if was_flagged:
+        import logging
+        logging.warning(f"[Gage] Prompt injection attempt detected and redacted: {input_str[:120]!r}")
+        message = "[TrinityShield] Injection attempt detected and redacted.\n\n" + message
 
     injected = _check_inject()
     if injected:
@@ -276,8 +332,10 @@ def gage_vision(input_str):
     except Exception as e:
         return f"Gage Vision — error: {e}"
 
-# ── Module registry interface ─────────────────────────────────
+# ── Gage memory tools ───────────────────────────────────────
+from modules.gage.gage_memory import gage_wake, gage_distill_run
 
+# ── Module registry interface ─────────────────────────────────
 TOOLS = {
     "gage_launch":    gage_launch,
     "gage_chat":      gage_chat,
@@ -285,6 +343,8 @@ TOOLS = {
     "gage_status":    gage_status,
     "gage_stop":      gage_stop,
     "gage_vision":    gage_vision,
+    "gage_wake":       gage_wake,
+    "gage_distill_run": gage_distill_run,
 }
 
 def get_tools(): return TOOLS
