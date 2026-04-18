@@ -13,6 +13,19 @@ except ImportError:
     _DND = False
 import sys
 import os
+import logging
+
+# ── Logging Setup ─────────────────────────────────────────────
+_LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(_LOG_DIR, exist_ok=True)
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(_LOG_DIR, 'ethica.log')),
+        logging.StreamHandler(),
+    ]
+)
 
 # ── Path Setup (portable — no absolute paths) ─────────────────
 # Ensures all imports work regardless of where Ethica is installed
