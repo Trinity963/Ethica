@@ -1,5 +1,5 @@
 {
-  "sealed_at": "2026-04-18T13:15:43.923161",
+  "sealed_at": "2026-04-18T19:33:29.679010",
   "sealed_by": "V \u2014 The Architect",
   "files": {
     "core/autonomous_debugger.py": "170cf2bae89be02deb71721f0cddc6fdd097b1166d89cfe215d044c5e607686d",
@@ -130,12 +130,12 @@
     "modules/memory_search/memory_search_tool.py": "72065c58c33401458a4375f3876445f3af9ea66d37c5ce2f876347839594853f",
     "modules/crash_reporter/manifest.json": "6bde5d74c296e5e25ec61774e9597ef1442ff855c144d2798682c347e1e86ade",
     "modules/crash_reporter/crash_reporter_tool.py": "3a222af30aa319f1e29bc6ae0fcc72303b11cd345cff4cce38dfaba33ce8a54f",
-    "modules/ethica_trainer/lora_trainer.py": "01fd55a615d9110c69ea0aff307c8918314066289170313ec0ffd58eb632e17e",
+    "modules/ethica_trainer/lora_trainer.py": "cc8335ca942214064fba292fa0931cbc7f8b23c4fed42c0c53aafa16a9fd19db",
     "modules/ethica_trainer/manifest.json": "e9419964045be90556feb471ab5e66d5b51e6e56e78c6f2376980e1d3834dc89",
-    "modules/ethica_trainer/model_merger.py": "b432269dbe06eb4ec4db594e8373de9ec0a29bda82d3d0c82dc589d30e8731a6",
-    "modules/ethica_trainer/dataset_builder.py": "8f0401e292d79b1798ce423182f996fffb148d0ed8c48e3fa21d855dee8921f0",
+    "modules/ethica_trainer/model_merger.py": "166fcdf26740733523bae04fda81c772124681a99d1234fb86d0dcd20d830052",
+    "modules/ethica_trainer/dataset_builder.py": "26cfd978d57b084bfaf54410c947635bc810b9b2b9253a385a0de6dc25122a03",
     "modules/ethica_trainer/ethica_trainer.py": "2a200e9ee7431c171077f59348e02a8ac76545540cc98dec3a145be1d2611776",
-    "modules/ethica_trainer/gguf_exporter.py": "8bfe3ca1e4a0e48f16f8f3f4d22934ecb3fe70b20fcec287b7be28d101894869",
+    "modules/ethica_trainer/gguf_exporter.py": "7de6ff9533c3e510f5d50cf8846e91a4bd5711c8903bef40b77b053b83863b95",
     "modules/ethica_browser/manifest.json": "2bdc1d085d846753f24f44fe4939de1ebdfb5a8540e6fc5187e353d6e7b0b80a",
     "modules/ethica_browser/__init__.py": "98c263a9072d0b2d57c18e5ba662fdf7999b01cc5e28050cb9d7450305a32435",
     "modules/ethica_browser/ethica_browser_launcher.py": "dde9e64f0a90fb593afbdc19e422877e0e41c5ccde721614da91210473a678dd",
