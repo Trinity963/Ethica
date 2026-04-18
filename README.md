@@ -17,7 +17,7 @@ At its core, Ethica is:
 
 - **A multi-agent sanctuary** — River (Builder), Gage (Sentinel), Reka (Inventor), Orchestrate (Synthesist), Debugtron, Mnemis (Rememberer), and J.A.R.V.I.S. (Infiltrator) work together inside a single desktop interface
 - **A living canvas** — a persistent document workspace where agents push content, code, and debug output in real time
-- **A tool ecosystem** — 36 modules and 138 tools covering security, code analysis, system monitoring, web search, memory, file management, and more
+- **A tool ecosystem** — 38 modules and 150 tools covering security, code analysis, system monitoring, web search, memory, file management, and more
 - **A memory system** — filesystem-based continuity across sessions. Ethica remembers what was built, what was said, and what matters
 - **Fully sovereign** — no API keys, no metered services, no external dependencies beyond what you choose to install
 
@@ -115,7 +115,7 @@ worm hunt ~/myproject
 dashboard
 ```
 
-See [ETHICA_TOOL_APPENDIX.md](docs/ETHICA_TOOL_APPENDIX.md) for the full list of 138 tools across 36 modules.
+See [ETHICA_TOOL_APPENDIX.md](docs/ETHICA_TOOL_APPENDIX.md) for the full list of 150 tools across 38 modules.
 
 ---
 
@@ -187,6 +187,40 @@ Ethica/
 ├── docs/                    ← appendix, guides
 └── .vault/                  ← EthicaGuard integrity hashes
 ```
+
+---
+
+## Sovereign Model Training
+
+Ethica includes a full local LoRA fine-tuning pipeline — train, merge, export, and run your own sovereign language model without leaving VIVARIUM.
+
+### The Pipeline
+dataset_builder  →  lora_trainer  →  model_merger  →  gguf_exporter  →  Ollama
+
+| Step | Tool | What it does |
+|---|---|---|
+| 1 | `trainer_build_dataset` | Validates, deduplicates, and splits your conversation archive into train/eval sets |
+| 2 | `trainer_train` | Runs LoRA fine-tuning — CUDA (RTX) or MPS (Apple Silicon) |
+| 3 | `trainer_merge` | Fuses the LoRA adapter into the base model |
+| 4 | `trainer_export` | Converts to GGUF, quantizes to Q4_K_M, registers with Ollama |
+
+All tools are accessible from the Ethica trainer UI — no terminal required once configured.
+
+### EthicaGuide-7b
+
+Every Ethica instance ships with **EthicaGuide-7b** — a community model trained on the Ethica codebase, CODOC philosophy, Three Laws, and module documentation. It understands Ethica from the inside.
+
+As you use Ethica, your conversations accumulate in your local dataset. When you have enough, you train **your own sovereign model** — shaped by your work, your voice, your decisions. EthicaGuide-7b is the seed. Your model is the destination.
+
+Your sovereign model never leaves your machine. It is yours.
+
+### Hardware Requirements for Training
+
+| Backend | Hardware | Notes |
+|---|---|---|
+| CUDA | NVIDIA RTX (8GB+ VRAM) | Full pipeline — train, merge, export |
+| MPS | Apple Silicon (M1+) | Full pipeline via mlx-lm |
+| CPU | Any | Inference only — training not supported |
 
 ---
 
