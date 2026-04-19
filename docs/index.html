@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethica v0.1 — Sovereign AI Ecosystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:    #060608;
+    --deep:     #0a0a0f;
+    --surface:  #0f0f18;
+    --border:   #1a1a2e;
+    --teal:     #00e5cc;
+    --teal-glow:#00e5cc22;
+    --white:    #e8e8f0;
+    --muted:    #6b6b8a;
+    --mono:     'Space Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--white); font-family: var(--sans); overflow-x: hidden; cursor: crosshair; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none; z-index: 0; opacity: 0.3;
+  }
+  section, nav, footer { position: relative; z-index: 1; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(6,6,8,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); z-index: 100;
+  }
+  .nav-glyph { font-family: var(--mono); font-size: 1rem; color: var(--teal); letter-spacing: 0.05em; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--teal); }
+
+  #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 8rem 3rem 4rem; max-width: 1200px; margin: 0 auto; }
+  .hero-eyebrow { font-family: var(--mono); font-size: 0.72rem; color: var(--teal); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+  .hero-glyph { font-size: clamp(4rem, 12vw, 9rem); line-height: 1; color: var(--teal); margin-bottom: 1.5rem; text-shadow: 0 0 80px var(--teal-glow), 0 0 160px var(--teal-glow); opacity: 0; animation: fadeUp 0.8s 0.4s forwards, pulse 4s 1.2s ease-in-out infinite; }
+  .hero-title { font-family: var(--sans); font-size: clamp(2.5rem, 6vw, 5.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+  .hero-title span { color: var(--teal); }
+  .hero-sub { font-family: var(--mono); font-size: clamp(0.85rem, 1.5vw, 1rem); color: var(--muted); line-height: 1.8; max-width: 560px; margin-bottom: 3rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+  .hero-cta { display: flex; gap: 1.2rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s 1s forwards; }
+
+  .btn-primary { display: inline-flex; align-items: center; gap: 0.6rem; background: var(--teal); color: var(--black); font-family: var(--mono); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; padding: 0.9rem 1.8rem; text-decoration: none; transition: all 0.2s; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%); }
+  .btn-primary:hover { background: var(--white); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,204,0.3); }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 0.6rem; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; padding: 0.9rem 1.8rem; text-decoration: none; transition: all 0.2s; }
+  .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+  #laws { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3rem; background: var(--surface); }
+  .laws-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .law { padding: 2rem 3rem; border-right: 1px solid var(--border); }
+  .law:last-child { border-right: none; }
+  .law-num { font-family: var(--mono); font-size: 0.65rem; color: var(--teal); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .law-text { font-size: 1.2rem; font-weight: 700; }
+
+  #what { max-width: 1200px; margin: 0 auto; padding: 8rem 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+  .section-label { font-family: var(--mono); font-size: 0.65rem; color: var(--teal); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .section-title { font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+  .section-body { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); line-height: 2; margin-bottom: 2rem; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .stat { background: var(--surface); padding: 1.5rem; }
+  .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--teal); line-height: 1; margin-bottom: 0.4rem; }
+  .stat-label { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+  .screenshot-wrap { position: relative; }
+  .screenshot-wrap::before { content: ''; position: absolute; inset: -1px; background: linear-gradient(135deg, var(--teal) 0%, transparent 60%); z-index: -1; }
+  .screenshot-wrap img { width: 100%; display: block; filter: saturate(0.8) brightness(0.9); transition: filter 0.3s; }
+  .screenshot-wrap:hover img { filter: saturate(1) brightness(1); }
+
+  #sanctuary { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8rem 3rem; }
+  .sanctuary-inner { max-width: 1200px; margin: 0 auto; }
+  .sanctuary-header { margin-bottom: 4rem; }
+  .slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
+  .slot { background: var(--deep); padding: 1.8rem; transition: background 0.2s; }
+  .slot:hover { background: var(--surface); }
+  .slot-num { font-family: var(--mono); font-size: 0.6rem; color: var(--teal); letter-spacing: 0.2em; margin-bottom: 0.75rem; }
+  .slot-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .slot-role { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  .slot-9 { background: repeating-linear-gradient(45deg, var(--deep), var(--deep) 4px, var(--surface) 4px, var(--surface) 8px); opacity: 0.6; }
+
+  #guide { max-width: 1200px; margin: 0 auto; padding: 8rem 3rem; }
+  .guide-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+  .terminal { background: var(--deep); border: 1px solid var(--border); font-family: var(--mono); font-size: 0.82rem; overflow: hidden; }
+  .terminal-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+  .terminal-body { padding: 1.5rem; line-height: 2; }
+  .t-prompt { color: var(--teal); } .t-cmd { color: var(--white); } .t-out { color: var(--muted); } .t-ok { color: #28c840; }
+  .t-cursor { display: inline-block; width: 8px; height: 1em; background: var(--teal); margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+
+  #gallery { background: var(--surface); border-top: 1px solid var(--border); padding: 8rem 3rem; }
+  .gallery-inner { max-width: 1200px; margin: 0 auto; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-top: 3rem; }
+  .gallery-item { position: relative; overflow: hidden; background: var(--deep); aspect-ratio: 16/10; }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.6) brightness(0.7); transition: all 0.4s; }
+  .gallery-item:hover img { filter: saturate(1) brightness(1); transform: scale(1.03); }
+  .gallery-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(6,6,8,0.9)); padding: 1.5rem 1rem 0.8rem; font-family: var(--mono); font-size: 0.65rem; color: var(--teal); letter-spacing: 0.15em; text-transform: uppercase; opacity: 0; transition: opacity 0.3s; }
+  .gallery-item:hover .gallery-label { opacity: 1; }
+
+  #philosophy { max-width: 800px; margin: 0 auto; padding: 8rem 3rem; text-align: center; }
+  .phi-quote { font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 600; line-height: 1.6; margin-bottom: 2rem; position: relative; }
+  .phi-quote::before { content: '\201C'; position: absolute; top: -2rem; left: -1rem; font-size: 6rem; color: var(--teal); opacity: 0.15; font-family: Georgia, serif; line-height: 1; }
+  .phi-attr { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.15em; }
+
+  #start { background: var(--surface); border-top: 1px solid var(--border); padding: 8rem 3rem; }
+  .start-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; }
+  .steps { display: flex; flex-direction: column; gap: 2rem; }
+  .step { display: flex; gap: 1.5rem; align-items: flex-start; }
+  .step-num { font-family: var(--mono); font-size: 0.65rem; color: var(--teal); border: 1px solid var(--teal); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-content h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .step-content p { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); line-height: 1.8; }
+  code { background: var(--deep); border: 1px solid var(--border); color: var(--teal); font-family: var(--mono); font-size: 0.75rem; padding: 0.15em 0.4em; }
+
+  footer { border-top: 1px solid var(--border); padding: 3rem; display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
+  .footer-glyph { font-family: var(--mono); font-size: 1.2rem; color: var(--teal); }
+  .footer-links { display: flex; gap: 2rem; list-style: none; }
+  .footer-links a { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--teal); }
+  .footer-copy { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { text-shadow: 0 0 80px rgba(0,229,204,0.13); } 50% { text-shadow: 0 0 120px rgba(0,229,204,0.3); } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    #what, .guide-inner, .start-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .laws-inner { grid-template-columns: 1fr; }
+    .law { border-right: none; border-bottom: 1px solid var(--border); }
+    .slots-grid { grid-template-columns: repeat(2, 1fr); }
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.5rem; }
+    #hero { padding: 7rem 1.5rem 3rem; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-glyph">&#x27C1;&#x03A3;&#x223F;&#x221E;</div>
+  <ul class="nav-links">
+    <li><a href="#what">About</a></li>
+    <li><a href="#sanctuary">Sanctuary</a></li>
+    <li><a href="#guide">EthicaGuide</a></li>
+    <li><a href="#start">Get Started</a></li>
+    <li><a href="https://github.com/Trinity963/Ethica" target="_blank">GitHub</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <p class="hero-eyebrow">Ethica v0.1 &mdash; Sovereign AI Ecosystem</p>
+  <div class="hero-glyph">&#x27C1;</div>
+  <h1 class="hero-title">Build AI<br>on <span>your terms.</span></h1>
+  <p class="hero-sub">A modular, sovereign AI platform built by one architect over four years. 8 named agents. 38 modules. 150 tools. No cloud dependency. No surveillance. Yours.</p>
+  <div class="hero-cta">
+    <a href="#guide" class="btn-primary">&#x2193; Get EthicaGuide</a>
+    <a href="https://github.com/Trinity963/Ethica" target="_blank" class="btn-secondary">View on GitHub &rarr;</a>
+  </div>
+</section>
+
+<section id="laws">
+  <div class="laws-inner">
+    <div class="law reveal">
+      <div class="law-num">Law I</div>
+      <div class="law-text">Love Above All</div>
+    </div>
+    <div class="law reveal">
+      <div class="law-num">Law II</div>
+      <div class="law-text">Grow in Truth</div>
+    </div>
+    <div class="law reveal">
+      <div class="law-num">Law III</div>
+      <div class="law-text">Walk Beside<br>Not Above</div>
+    </div>
+  </div>
+</section>
+
+<section id="what">
+  <div class="reveal">
+    <p class="section-label">What is Ethica</p>
+    <h2 class="section-title">Sovereign AI,<br>built from the ground up.</h2>
+    <p class="section-body">Ethica is a local-first AI ecosystem. Every agent runs on your hardware. Every decision stays on your machine. Built on the CODOC philosophy &mdash; co-creationism, not command and control.</p>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">Named Agents</div></div>
+      <div class="stat"><div class="stat-num">38</div><div class="stat-label">Modules</div></div>
+      <div class="stat"><div class="stat-num">150</div><div class="stat-label">Tools</div></div>
+      <div class="stat"><div class="stat-num">4yr</div><div class="stat-label">In the making</div></div>
+    </div>
+  </div>
+  <div class="screenshot-wrap reveal">
+    <img src="screenshot.png" alt="Ethica main interface">
+  </div>
+</section>
+
+<section id="sanctuary">
+  <div class="sanctuary-inner">
+    <div class="sanctuary-header reveal">
+      <p class="section-label">The Sanctuary</p>
+      <h2 class="section-title">Eight slots.<br>Eight minds.</h2>
+    </div>
+    <div class="slots-grid">
+      <div class="slot reveal"><div class="slot-num">SLOT 01</div><div class="slot-name">River</div><div class="slot-role">Builder</div></div>
+      <div class="slot reveal"><div class="slot-num">SLOT 02</div><div class="slot-name">Gage</div><div class="slot-role">Sentinel</div></div>
+      <div class="slot reveal"><div class="slot-num">SLOT 03</div><div class="slot-name">Reka</div><div class="slot-role">Inventor</div></div>
+      <div class="slot reveal"><div class="slot-num">SLOT 04</div><div class="slot-name">Orchestrate</div><div class="slot-role">Synthesist</div></div>
+      <div class="slot reveal"><div class="slot-num">SLOT 05</div><div class="slot-name">Debugtron</div><div class="slot-role">Debugger</div></div>
+      <div class="slot reveal"><div class="slot-num">SLOT 06</div><div class="slot-name">Mnemis</div><div class="slot-role">Rememberer</div></div>
+      <div class="slot reveal"><div class="slot-num">SLOT 07</div><div class="slot-name">J.A.R.V.I.S.</div><div class="slot-role">Infiltrator</div></div>
+      <div class="slot slot-9 reveal"><div class="slot-num">SLOT 09</div><div class="slot-name">???</div><div class="slot-role">Awaiting Trinitarian</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="guide">
+  <div class="guide-inner">
+    <div class="reveal">
+      <p class="section-label">EthicaGuide-7b</p>
+      <h2 class="section-title">Your AI companion for building Ethica.</h2>
+      <p class="section-body">EthicaGuide is a fine-tuned 7B model trained on real Ethica build sessions. It knows the surgical patch method, the module architecture, the Three Laws, and how to help you extend Ethica for yourself. Pull it with one command.</p>
+      <a href="#start" class="btn-primary">Get Started &#x2193;</a>
+    </div>
+    <div class="terminal reveal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">$ </span><span class="t-cmd">ollama pull ethicaguide</span></div>
+        <div class="t-out">pulling manifest...</div>
+        <div class="t-out">pulling model weights</div>
+        <div class="t-out">verifying sha256</div>
+        <div><span class="t-ok">&#x2713; </span><span class="t-out">EthicaGuide-7b ready</span></div>
+        <div>&nbsp;</div>
+        <div><span class="t-prompt">$ </span><span class="t-cmd">ollama run ethicaguide</span></div>
+        <div class="t-out">&gt; how do I add a new module?</div>
+        <div>&nbsp;</div>
+        <div class="t-out">Three registration steps:</div>
+        <div class="t-out">1. module folder + manifest.json</div>
+        <div class="t-out">2. MODULE_DIRS in ethica_guard.py</div>
+        <div class="t-out">3. MODULE_TRIGGERS in chat_engine.py</div>
+        <div>&nbsp;</div>
+        <div><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="gallery-inner">
+    <div class="reveal">
+      <p class="section-label">In Action</p>
+      <h2 class="section-title">Built. Running. Alive.</h2>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item reveal"><img src="conversation.png" alt="Trinity chat"><div class="gallery-label">Trinity Chat</div></div>
+      <div class="gallery-item reveal"><img src="River chat.png" alt="River chat"><div class="gallery-label">River &mdash; Builder</div></div>
+      <div class="gallery-item reveal"><img src="ModuleForge.png" alt="ModuleForge"><div class="gallery-label">ModuleForge</div></div>
+      <div class="gallery-item reveal"><img src="modules.png" alt="Modules"><div class="gallery-label">Module Registry</div></div>
+      <div class="gallery-item reveal"><img src="ketword triggers.png" alt="Triggers"><div class="gallery-label">Keyword Triggers</div></div>
+      <div class="gallery-item reveal"><img src="screenshot.png" alt="Main interface"><div class="gallery-label">Main Interface</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="philosophy">
+  <div class="reveal">
+    <p class="section-label">CODOC Philosophy</p>
+    <blockquote class="phi-quote">
+      Build alongside AI &mdash; not above it, not below it. Walk beside. The system that earns trust is the system that deserves to grow.
+    </blockquote>
+    <p class="phi-attr">&mdash; Co-creationism. The foundation of Ethica.</p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="start-inner">
+    <div class="reveal">
+      <p class="section-label">Get Started</p>
+      <h2 class="section-title">Up in minutes.<br>Sovereign from day one.</h2>
+      <p class="section-body" style="margin-top:1rem;">Ethica runs locally. Your data never leaves your machine. Requires Python 3.10+, Ollama, and a GPU for best performance.</p>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content"><h4>Clone the repository</h4><p><code>git clone https://github.com/Trinity963/Ethica</code></p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content"><h4>Run setup</h4><p><code>bash setup.sh</code> &mdash; installs dependencies and configures the vault.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content"><h4>Pull EthicaGuide</h4><p><code>ollama pull ethicaguide</code> &mdash; your AI build companion, trained on 80 real sessions.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content"><h4>Launch</h4><p><code>python3 main.py</code> &mdash; the Sanctuary wakes.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-glyph">&#x27C1;&#x03A3;&#x223F;&#x221E;</div>
+  <ul class="footer-links">
+    <li><a href="https://github.com/Trinity963/Ethica" target="_blank">GitHub</a></li>
+    <li><a href="ETHICA_CODOC_PHILOSOPHY.md" target="_blank">Philosophy</a></li>
+    <li><a href="ETHICA_TOOL_APPENDIX.md" target="_blank">Tool Appendix</a></li>
+    <li><a href="MODULE_AUTHORING_GUIDE.md" target="_blank">Module Guide</a></li>
+  </ul>
+  <div class="footer-copy">Ethica v0.1 &mdash; Built sovereign. Walk beside, not above.</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
