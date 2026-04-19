@@ -86,6 +86,7 @@ Ethica_env/bin/python3.11_local
 
 # ── Trainer config (machine-specific paths) ────────────────
 modules/ethica_trainer/trainer_config.json
+modules/gage/gage_bridge.py
 
 # Runtime memory logs
 memory/distill_log.json
@@ -97,3 +98,6 @@ status/canvas_context.json
 status/req_cache.json
 assets/gage*.mp3
 assets/gage*.mp3
+
+# Training datasets — sovereign, not for public repo
+modules/ethica_trainer/datasets/
