@@ -211,3 +211,27 @@ def trainer_export(input_text="", **kwargs):
     except Exception as e:
         logger.error(f"EthicaTrainer: gguf_exporter error: {e}")
         return f"EthicaTrainer — gguf_exporter failed: {e}"
+
+
+def trainer_pipeline(input_text='', **kwargs):
+    """Run full sovereign training pipeline: train -> merge -> export."""
+    logger.info("EthicaTrainer: pipeline start -- train -> merge -> export")
+    results = []
+
+    r1 = trainer_run(input_text=input_text, **kwargs)
+    results.append("[1/3] TRAIN\n" + r1)
+    if "error" in r1.lower() or "failed" in r1.lower() or "not found" in r1.lower():
+        results.append("Pipeline halted at train step.")
+        return "\n\n".join(results)
+
+    r2 = trainer_merge(input_text=input_text, **kwargs)
+    results.append("[2/3] MERGE\n" + r2)
+    if "error" in r2.lower() or "failed" in r2.lower() or "not found" in r2.lower() or "blocked" in r2.lower():
+        results.append("Pipeline halted at merge step.")
+        return "\n\n".join(results)
+
+    r3 = trainer_export(input_text=input_text, **kwargs)
+    results.append("[3/3] EXPORT\n" + r3)
+
+    results.append("EthicaTrainer -- Pipeline complete.")
+    return "\n\n".join(results)

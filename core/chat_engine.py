@@ -614,6 +614,8 @@ class ChatEngine:
             "trainer run":      ("trainer_run",          "start"),
             "trainer merge":    ("trainer_merge",        "merge"),
             "trainer load":     ("trainer_load",         "load"),
+            "trainer export":   ("trainer_export",       "export"),
+            "trainer pipeline": ("trainer_pipeline",     "start"),
         }
         msg_lower = msg.lower()
         for trigger, (tool_name, default_input) in MODULE_TRIGGERS.items():
