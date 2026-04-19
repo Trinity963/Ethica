@@ -72,7 +72,22 @@
       },
       "dlp_events": 0,
       "worm_last": "[2026-03-30 19:18:55] [WORM][DONE] Scanned=0 Broken=0 Clean=0 Skipped=500",
-      "vault_files": 179
+      "vault_files": 179,
+      "distill": {
+        "timestamp": "2026-04-16T23:43:40.582329",
+        "threat_level": "CLEAR",
+        "fw_summary": {
+          "local": 192,
+          "blocked": 0,
+          "external": 8,
+          "info": 0
+        },
+        "dlp_events": [],
+        "worm_last": "[2026-03-30 19:18:55] [WORM][DONE] Scanned=0 Broken=0 Clean=0 Skipped=500",
+        "vault_files": 180,
+        "vault_sealed": "2026-04-16T17:41:29.619160"
+      }
     }
-  ]
+  ],
+  "last_distill": "2026-04-16T23:43:40.582329"
 }

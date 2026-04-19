@@ -1,10 +1,17 @@
 {
-  "tab_count": 1,
-  "active_tab": "Page 1",
+  "tab_count": 2,
+  "active_tab": "REKA.HEART1.png \u2014 Image",
   "tabs": [
     {
       "name": "Page 1",
-      "mode": "debug",
+      "mode": "pdf",
+      "active": false,
+      "lines": 1,
+      "preview": ""
+    },
+    {
+      "name": "REKA.HEART1.png \u2014 Image",
+      "mode": "pdf",
       "active": true,
       "lines": 0,
       "preview": ""

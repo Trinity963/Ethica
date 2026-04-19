@@ -10,7 +10,7 @@ with open(filepath, "rb") as f:
 resp = requests.post(
     "http://localhost:11434/api/chat",
     json={
-        "model": "moondream:latest",
+        "model": "kimi-k2.5:cloud",
         "messages": [
             {
                 "role": "user",
