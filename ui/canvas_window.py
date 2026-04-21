@@ -464,7 +464,7 @@ class CanvasWindow:
         self._switch_tab(len(self._tabs) - 1)
         self._update_status(f"Image loaded: {filename}")
 
-        notification = f'V dropped image "{filename}" into the canvas.'
+        notification = f'V dropped image "{filename}" into the canvas. [path:{filepath}]'
         if self.notify_fn:
             self.parent.after(200, lambda n=notification: self.notify_fn(n))
         _notify_canvas_drop(filename, filepath=filepath)

@@ -1,0 +1,40 @@
+# Ethica v0.1 — Mac requirements
+# Python 3.14 + Tcl/Tk 8.6 (install via: brew install tcl-tk@8)
+# Rebuild pyenv Python against Tk 8.6 before installing
+ollama
+requests
+psutil
+watchdog
+GitPython
+pillow
+pypdf
+tkinterdnd2
+transformers
+huggingface_hub
+safetensors
+tokenizers
+ddgs
+beautifulsoup4
+lxml
+httpx
+numpy
+pandas
+pyflakes
+pycodestyle
+pygame
+pyyaml
+rich
+tqdm
+python-dateutil
+pytz
+packaging
+pydantic
+certifi
+charset-normalizer
+urllib3
+regex
+toml
+arrow
+tenacity
+Jinja2
+click

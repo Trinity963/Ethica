@@ -357,6 +357,42 @@ class ChatEngine:
                            "json fix", "fix json")
         _is_diff_cmd = any(msg.lower().startswith(t) for t in _diff_triggers)
         _is_file_drop = msg.startswith("[FILE DROP]") or msg.startswith("V dropped")
+
+        # ── Trinity Vision intercept ────────────────────────────────────
+        import re as _re
+        _vision_match = _re.search(r'V dropped image ".+?" into the canvas\. \[path:(.+?)\]$', msg)
+        if _vision_match:
+            _img_path = _vision_match.group(1).strip()
+            def _run_vision():
+                try:
+                    import base64, requests as _req
+                    with open(_img_path, "rb") as _f:
+                        _b64 = base64.b64encode(_f.read()).decode("utf-8")
+                    _resp = _req.post(
+                        "http://localhost:11434/api/chat",
+                        json={
+                            "model": "llava-phi3",
+                            "messages": [{
+                                "role": "user",
+                                "content": "Describe this image in detail. Be specific about content, colors, text, and context.",
+                                "images": [_b64]
+                            }],
+                            "stream": False
+                        },
+                        timeout=300
+                    )
+                    _resp.raise_for_status()
+                    _result = _resp.json()["message"]["content"]
+                    _label = "[Trinity Vision]\n"
+                    final = self._handle_canvas_push(_label + _result, tool_result=True)
+                    on_response(final)
+                except Exception as _e:
+                    on_response("[Trinity Vision] Error: " + str(_e))
+                finally:
+                    if on_done:
+                        on_done()
+            threading.Thread(target=_run_vision, daemon=True).start()
+            return True
         if file_match and not _is_gage_cmd and not _is_diff_cmd and not _is_file_drop:
             filepath = file_match.group(1).strip()
 

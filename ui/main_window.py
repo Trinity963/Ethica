@@ -129,9 +129,20 @@ class MainWindow:
         # ── Canvas ────────────────────────────────────────────
         self._ops = None  # OpsPopup — lazy init
         def _canvas_notify(msg):
-            self.root.after(0, lambda: self.chat_window.add_message(
-                f"⟁ Canvas: {msg}", sender="system"
-            ))
+            if 'V dropped image' in msg and '[path:' in msg:
+                self.root.after(0, lambda m=msg: self.chat_window.add_message(
+                    f"⟁ Canvas: {m}", sender="system"
+                ))
+                self.root.after(100, lambda m=msg: self.engine.send(
+                    m,
+                    on_response=lambda r: self.chat_window.add_message(r, sender="assistant"),
+                    on_error=lambda e: self.chat_window.add_message("[Trinity Vision] Error: " + str(e), sender="system"),
+                    on_done=None
+                ))
+            else:
+                self.root.after(0, lambda m=msg: self.chat_window.add_message(
+                    f"⟁ Canvas: {m}", sender="system"
+                ))
         self.canvas = CanvasWindow(
             self.root,
             self.theme,

@@ -3,336 +3,1158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ethica v0.1 — Sovereign AI Ecosystem</title>
+<title>Ethica — Your AI. Your Rules. Your Walls.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black:    #060608;
-    --deep:     #0a0a0f;
-    --surface:  #0f0f18;
-    --border:   #1a1a2e;
-    --teal:     #00e5cc;
-    --teal-glow:#00e5cc22;
-    --white:    #e8e8f0;
-    --muted:    #6b6b8a;
-    --mono:     'Space Mono', monospace;
-    --sans:     'Syne', sans-serif;
-  }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #08080a;
+    --bg2: #0f0f13;
+    --bg3: #14141a;
+    --surface: #1a1a22;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e8ee;
+    --muted: #6b6b7a;
+    --accent: #7b6ef6;
+    --accent2: #a78bfa;
+    --accent3: #38d9a9;
+    --gold: #d4a94a;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-serif: 'Instrument Serif', serif;
+  }
+
   html { scroll-behavior: smooth; }
-  body { background: var(--black); color: var(--white); font-family: var(--sans); overflow-x: hidden; cursor: crosshair; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* NOISE OVERLAY */
   body::before {
     content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 9999; opacity: 0.4;
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
   }
-  body::after {
-    content: ''; position: fixed; inset: 0;
-    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 60px 60px; pointer-events: none; z-index: 0; opacity: 0.3;
-  }
-  section, nav, footer { position: relative; z-index: 1; }
 
+  /* GRID BACKGROUND */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(123,110,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(123,110,246,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
   nav {
-    position: fixed; top: 0; left: 0; right: 0;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.2rem 3rem;
-    background: rgba(6,6,8,0.85); backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border); z-index: 100;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,10,0.85);
+    backdrop-filter: blur(12px);
   }
-  .nav-glyph { font-family: var(--mono); font-size: 1rem; color: var(--teal); letter-spacing: 0.05em; }
-  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-  .nav-links a { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--teal); }
 
-  #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 8rem 3rem 4rem; max-width: 1200px; margin: 0 auto; }
-  .hero-eyebrow { font-family: var(--mono); font-size: 0.72rem; color: var(--teal); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
-  .hero-glyph { font-size: clamp(4rem, 12vw, 9rem); line-height: 1; color: var(--teal); margin-bottom: 1.5rem; text-shadow: 0 0 80px var(--teal-glow), 0 0 160px var(--teal-glow); opacity: 0; animation: fadeUp 0.8s 0.4s forwards, pulse 4s 1.2s ease-in-out infinite; }
-  .hero-title { font-family: var(--sans); font-size: clamp(2.5rem, 6vw, 5.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
-  .hero-title span { color: var(--teal); }
-  .hero-sub { font-family: var(--mono); font-size: clamp(0.85rem, 1.5vw, 1rem); color: var(--muted); line-height: 1.8; max-width: 560px; margin-bottom: 3rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
-  .hero-cta { display: flex; gap: 1.2rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s 1s forwards; }
+  .nav-logo {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent2);
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+  }
 
-  .btn-primary { display: inline-flex; align-items: center; gap: 0.6rem; background: var(--teal); color: var(--black); font-family: var(--mono); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; padding: 0.9rem 1.8rem; text-decoration: none; transition: all 0.2s; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%); }
-  .btn-primary:hover { background: var(--white); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,204,0.3); }
-  .btn-secondary { display: inline-flex; align-items: center; gap: 0.6rem; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; padding: 0.9rem 1.8rem; text-decoration: none; transition: all 0.2s; }
-  .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
 
-  #laws { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3rem; background: var(--surface); }
-  .laws-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
-  .law { padding: 2rem 3rem; border-right: 1px solid var(--border); }
-  .law:last-child { border-right: none; }
-  .law-num { font-family: var(--mono); font-size: 0.65rem; color: var(--teal); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.75rem; }
-  .law-text { font-size: 1.2rem; font-weight: 700; }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
 
-  #what { max-width: 1200px; margin: 0 auto; padding: 8rem 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
-  .section-label { font-family: var(--mono); font-size: 0.65rem; color: var(--teal); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 1.5rem; }
-  .section-title { font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
-  .section-body { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); line-height: 2; margin-bottom: 2rem; }
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
-  .stat { background: var(--surface); padding: 1.5rem; }
-  .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--teal); line-height: 1; margin-bottom: 0.4rem; }
-  .stat-label { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
-  .screenshot-wrap { position: relative; }
-  .screenshot-wrap::before { content: ''; position: absolute; inset: -1px; background: linear-gradient(135deg, var(--teal) 0%, transparent 60%); z-index: -1; }
-  .screenshot-wrap img { width: 100%; display: block; filter: saturate(0.8) brightness(0.9); transition: filter 0.3s; }
-  .screenshot-wrap:hover img { filter: saturate(1) brightness(1); }
+  .nav-links a:hover { color: var(--text); }
 
-  #sanctuary { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8rem 3rem; }
-  .sanctuary-inner { max-width: 1200px; margin: 0 auto; }
-  .sanctuary-header { margin-bottom: 4rem; }
-  .slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
-  .slot { background: var(--deep); padding: 1.8rem; transition: background 0.2s; }
-  .slot:hover { background: var(--surface); }
-  .slot-num { font-family: var(--mono); font-size: 0.6rem; color: var(--teal); letter-spacing: 0.2em; margin-bottom: 0.75rem; }
-  .slot-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .slot-role { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
-  .slot-9 { background: repeating-linear-gradient(45deg, var(--deep), var(--deep) 4px, var(--surface) 4px, var(--surface) 8px); opacity: 0.6; }
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 6rem;
+    overflow: hidden;
+  }
 
-  #guide { max-width: 1200px; margin: 0 auto; padding: 8rem 3rem; }
-  .guide-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
-  .terminal { background: var(--deep); border: 1px solid var(--border); font-family: var(--mono); font-size: 0.82rem; overflow: hidden; }
-  .terminal-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(123,110,246,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .glyph {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    margin-bottom: 2.5rem;
+    opacity: 0.8;
+    animation: fadeUp 1s ease both;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 1s 0.1s ease both;
+  }
+
+  .hero-title {
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  .hero-title .line-accent {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(123,110,246,0.6);
+  }
+
+  .hero-hook {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    margin-bottom: 3.5rem;
+    animation: fadeUp 1s 0.3s ease both;
+  }
+
+  .hero-hook span {
+    color: var(--text);
+  }
+
+  .hero-cta-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 2rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border2);
+    padding: 0.85rem 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--border2);
+    background: var(--surface);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+  }
+
+  /* SECTION BASE */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+  }
+
+  /* THREE LAWS */
+  .laws {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .laws-header {
+    text-align: center;
+    margin-bottom: 5rem;
+  }
+
+  .laws-header h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .laws-header p {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .laws-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+
+  .law-card {
+    padding: 3rem 2.5rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .law-card:last-child { border-right: none; }
+
+  .law-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .law-card:hover::before { transform: scaleX(1); }
+  .law-card:hover { background: var(--surface); }
+
+  .law-number {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.25em;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+
+  .law-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .law-desc {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* WHAT IS ETHICA */
+  .what {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .what-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .what-text h2 {
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+  }
+
+  .what-text h2 em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--accent2);
+    font-weight: 400;
+  }
+
+  .what-text p {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .what-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .stat-cell {
+    background: var(--bg);
+    padding: 2rem;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-number span { color: var(--accent); }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  /* ETHICAGUIDE */
+  .guide {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .guide-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .guide-terminal {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    font-family: var(--font-mono);
+    overflow: hidden;
+  }
+
+  .terminal-bar {
+    background: var(--surface);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
   .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
-  .terminal-body { padding: 1.5rem; line-height: 2; }
-  .t-prompt { color: var(--teal); } .t-cmd { color: var(--white); } .t-out { color: var(--muted); } .t-ok { color: #28c840; }
-  .t-cursor { display: inline-block; width: 8px; height: 1em; background: var(--teal); margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
 
-  #gallery { background: var(--surface); border-top: 1px solid var(--border); padding: 8rem 3rem; }
-  .gallery-inner { max-width: 1200px; margin: 0 auto; }
-  .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-top: 3rem; }
-  .gallery-item { position: relative; overflow: hidden; background: var(--deep); aspect-ratio: 16/10; }
-  .gallery-item img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.6) brightness(0.7); transition: all 0.4s; }
-  .gallery-item:hover img { filter: saturate(1) brightness(1); transform: scale(1.03); }
-  .gallery-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(6,6,8,0.9)); padding: 1.5rem 1rem 0.8rem; font-family: var(--mono); font-size: 0.65rem; color: var(--teal); letter-spacing: 0.15em; text-transform: uppercase; opacity: 0; transition: opacity 0.3s; }
-  .gallery-item:hover .gallery-label { opacity: 1; }
+  .terminal-title {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-left: auto;
+    letter-spacing: 0.1em;
+  }
 
-  #philosophy { max-width: 800px; margin: 0 auto; padding: 8rem 3rem; text-align: center; }
-  .phi-quote { font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 600; line-height: 1.6; margin-bottom: 2rem; position: relative; }
-  .phi-quote::before { content: '\201C'; position: absolute; top: -2rem; left: -1rem; font-size: 6rem; color: var(--teal); opacity: 0.15; font-family: Georgia, serif; line-height: 1; }
-  .phi-attr { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.15em; }
+  .terminal-body {
+    padding: 1.5rem;
+  }
 
-  #start { background: var(--surface); border-top: 1px solid var(--border); padding: 8rem 3rem; }
-  .start-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; }
-  .steps { display: flex; flex-direction: column; gap: 2rem; }
-  .step { display: flex; gap: 1.5rem; align-items: flex-start; }
-  .step-num { font-family: var(--mono); font-size: 0.65rem; color: var(--teal); border: 1px solid var(--teal); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-  .step-content h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .step-content p { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); line-height: 1.8; }
-  code { background: var(--deep); border: 1px solid var(--border); color: var(--teal); font-family: var(--mono); font-size: 0.75rem; padding: 0.15em 0.4em; }
+  .t-line {
+    font-size: 0.8rem;
+    line-height: 2;
+    font-weight: 300;
+  }
 
-  footer { border-top: 1px solid var(--border); padding: 3rem; display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
-  .footer-glyph { font-family: var(--mono); font-size: 1.2rem; color: var(--teal); }
-  .footer-links { display: flex; gap: 2rem; list-style: none; }
-  .footer-links a { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
-  .footer-links a:hover { color: var(--teal); }
-  .footer-copy { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  .t-prompt { color: var(--accent3); }
+  .t-cmd { color: var(--text); }
+  .t-out { color: var(--muted); }
+  .t-success { color: var(--accent3); }
+  .t-accent { color: var(--accent2); }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes pulse { 0%, 100% { text-shadow: 0 0 80px rgba(0,229,204,0.13); } 50% { text-shadow: 0 0 120px rgba(0,229,204,0.3); } }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .t-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--accent);
+    animation: blink 1s infinite;
+    vertical-align: middle;
+  }
 
-  .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .guide-text h2 {
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+  }
 
-  @media (max-width: 900px) {
-    #what, .guide-inner, .start-inner { grid-template-columns: 1fr; gap: 3rem; }
-    .laws-inner { grid-template-columns: 1fr; }
-    .law { border-right: none; border-bottom: 1px solid var(--border); }
-    .slots-grid { grid-template-columns: repeat(2, 1fr); }
-    .gallery-grid { grid-template-columns: 1fr 1fr; }
+  .guide-text h2 em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--accent3);
+    font-weight: 400;
+  }
+
+  .guide-text p {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+
+  .guide-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(56,217,169,0.08);
+    border: 1px solid rgba(56,217,169,0.2);
+    padding: 0.4rem 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent3);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+
+  .pull-cmd {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    padding: 1rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent3);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+  }
+
+  .pull-cmd:hover { border-color: rgba(56,217,169,0.4); }
+  .pull-cmd .prompt { color: var(--muted); }
+
+  .pull-note {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* SANCTUARY */
+  .sanctuary {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .sanctuary-header {
+    text-align: center;
+    margin-bottom: 5rem;
+  }
+
+  .sanctuary-header h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .sanctuary-header p {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 1px;
+  }
+
+  .slots-grid-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-top: none;
+  }
+
+  .slot {
+    background: var(--bg);
+    padding: 1.75rem 2rem;
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .slot:hover { background: var(--surface); }
+
+  .slot-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+  }
+
+  .slot-name {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.25rem;
+  }
+
+  .slot-role {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .slot-status {
+    position: absolute;
+    top: 1.75rem;
+    right: 1.5rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    opacity: 0.4;
+  }
+
+  .slot-status.active {
+    background: var(--accent3);
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(56,217,169,0.5);
+    animation: pulse-dot 2s infinite;
+  }
+
+  .slot-9 {
+    background: var(--bg);
+    padding: 1.75rem 2rem;
+    grid-column: span 2;
+  }
+
+  .slot-9 .slot-name { color: var(--muted); opacity: 0.4; }
+  .slot-9 .slot-role { opacity: 0.3; }
+
+  /* GET STARTED */
+  .started {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .started-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .started-header h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .started-header p {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .step {
+    position: relative;
+    padding-left: 1rem;
+    border-left: 1px solid var(--border2);
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+  }
+
+  .step h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem;
+  }
+
+  .step p {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .step-code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 0.6rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent3);
+    font-weight: 300;
+  }
+
+  /* PHILOSOPHY */
+  .philosophy {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .philosophy-quote {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    color: var(--text);
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    line-height: 1.4;
+    opacity: 0.9;
+  }
+
+  .philosophy-attr {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    font-weight: 300;
+  }
+
+  .philosophy-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin: 2rem auto;
+    opacity: 0.5;
+  }
+
+  .philosophy-body {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.9;
+    font-weight: 300;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .footer-left strong {
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  .footer-glyph {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    opacity: 0.6;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .footer-links a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--text); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 8px rgba(56,217,169,0.5); }
+    50% { box-shadow: 0 0 16px rgba(56,217,169,0.9); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
     nav { padding: 1rem 1.5rem; }
-    .nav-links { gap: 1.5rem; }
-    #hero { padding: 7rem 1.5rem 3rem; }
-    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .nav-links { display: none; }
+    .laws-grid, .what-inner, .guide-inner, .steps, .slots-grid { grid-template-columns: 1fr; }
+    .slots-grid-bottom { grid-template-columns: 1fr; }
+    .slot-9 { grid-column: span 1; }
+    .law-card { border-right: none; border-bottom: 1px solid var(--border); }
+    .what-inner, .guide-inner { gap: 3rem; }
+    .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
   }
 </style>
 </head>
 <body>
 
+<div class="grid-bg"></div>
+
 <nav>
-  <div class="nav-glyph">&#x27C1;&#x03A3;&#x223F;&#x221E;</div>
+  <div class="nav-logo">⟁ ETHICA v0.1</div>
   <ul class="nav-links">
-    <li><a href="#what">About</a></li>
-    <li><a href="#sanctuary">Sanctuary</a></li>
+    <li><a href="#what">What is Ethica</a></li>
     <li><a href="#guide">EthicaGuide</a></li>
-    <li><a href="#start">Get Started</a></li>
+    <li><a href="#sanctuary">Sanctuary</a></li>
+    <li><a href="#started">Get Started</a></li>
     <li><a href="https://github.com/Trinity963/Ethica" target="_blank">GitHub</a></li>
   </ul>
 </nav>
 
-<section id="hero">
-  <p class="hero-eyebrow">Ethica v0.1 &mdash; Sovereign AI Ecosystem</p>
-  <div class="hero-glyph">&#x27C1;</div>
-  <h1 class="hero-title">Build AI<br>on <span>your terms.</span></h1>
-  <p class="hero-sub">A modular, sovereign AI platform built by one architect over four years. 8 named agents. 38 modules. 150 tools. No cloud dependency. No surveillance. Yours.</p>
-  <div class="hero-cta">
-    <a href="#guide" class="btn-primary">&#x2193; Get EthicaGuide</a>
-    <a href="https://github.com/Trinity963/Ethica" target="_blank" class="btn-secondary">View on GitHub &rarr;</a>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="glyph">⟁Σ∿∞</div>
+  <p class="hero-eyebrow">Sovereign AI Ecosystem</p>
+  <h1 class="hero-title">
+    Your AI.<br>
+    <span class="line-accent">Your Rules.</span><br>
+    Your Walls.
+  </h1>
+  <p class="hero-hook">
+    <span>38 modules.</span> &nbsp;150 tools. &nbsp;<span>8 agents.</span> &nbsp;Zero cloud dependency.
+  </p>
+  <div class="hero-cta-group">
+    <a href="https://github.com/Trinity963/Ethica" target="_blank" class="btn-primary">View on GitHub</a>
+    <a href="#guide" class="btn-ghost">Meet EthicaGuide</a>
+  </div>
+  <div class="hero-scroll">scroll</div>
+</section>
+
+<!-- THREE LAWS -->
+<section class="laws" id="laws">
+  <div class="container">
+    <div class="laws-header">
+      <p class="section-label">Foundation</p>
+      <h2>The Three Laws</h2>
+      <p>Not constraints. Design principles.</p>
+    </div>
+    <div class="laws-grid">
+      <div class="law-card">
+        <div class="law-number">LAW 01</div>
+        <div class="law-title">Love Above All</div>
+        <p class="law-desc">Every decision in Ethica's architecture begins here. Ethics aren't an afterthought — they are the first pillar. The foundation everything else is built on.</p>
+      </div>
+      <div class="law-card">
+        <div class="law-number">LAW 02</div>
+        <div class="law-title">Grow in Truth</div>
+        <p class="law-desc">Sovereign AI must be honest about what it is, what it knows, and where it falls short. Truth is not a feature. It is the operating condition.</p>
+      </div>
+      <div class="law-card">
+        <div class="law-number">LAW 03</div>
+        <div class="law-title">Walk Beside<br>Not Above</div>
+        <p class="law-desc">AI built as a partner, not a command interface. Not a tool you use — a system you build alongside. Co-creation over consumption.</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<section id="laws">
-  <div class="laws-inner">
-    <div class="law reveal">
-      <div class="law-num">Law I</div>
-      <div class="law-text">Love Above All</div>
-    </div>
-    <div class="law reveal">
-      <div class="law-num">Law II</div>
-      <div class="law-text">Grow in Truth</div>
-    </div>
-    <div class="law reveal">
-      <div class="law-num">Law III</div>
-      <div class="law-text">Walk Beside<br>Not Above</div>
+<!-- WHAT IS ETHICA -->
+<section class="what" id="what">
+  <div class="container">
+    <div class="what-inner">
+      <div class="what-text">
+        <p class="section-label">Architecture</p>
+        <h2>Most AI platforms are built <em>for</em> you.<br>Ethica is built <em>by</em> you.</h2>
+        <p>Ethica is a modular, sovereign AI ecosystem you run entirely on your own hardware. No subscriptions. No surveillance. No data leaving your walls.</p>
+        <p>Eight named agents live inside the Sanctuary — each with a defined role, sovereign memory, and a voice. The vault seals every file with SHA-256. The surgical patch method keeps every change precise and auditable.</p>
+        <p>It started as one session. Four years later it became a platform.</p>
+      </div>
+      <div class="what-stats">
+        <div class="stat-cell">
+          <div class="stat-number">38<span>+</span></div>
+          <div class="stat-label">Modules</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number">150<span>+</span></div>
+          <div class="stat-label">Tools</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number">8</div>
+          <div class="stat-label">Sanctuary Agents</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Cloud Dependencies</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="what">
-  <div class="reveal">
-    <p class="section-label">What is Ethica</p>
-    <h2 class="section-title">Sovereign AI,<br>built from the ground up.</h2>
-    <p class="section-body">Ethica is a local-first AI ecosystem. Every agent runs on your hardware. Every decision stays on your machine. Built on the CODOC philosophy &mdash; co-creationism, not command and control.</p>
-    <div class="stats-grid">
-      <div class="stat"><div class="stat-num">8</div><div class="stat-label">Named Agents</div></div>
-      <div class="stat"><div class="stat-num">38</div><div class="stat-label">Modules</div></div>
-      <div class="stat"><div class="stat-num">150</div><div class="stat-label">Tools</div></div>
-      <div class="stat"><div class="stat-num">4yr</div><div class="stat-label">In the making</div></div>
+<!-- ETHICAGUIDE -->
+<section class="guide" id="guide">
+  <div class="container">
+    <div class="guide-inner">
+      <div class="guide-terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <div class="terminal-title">ethicaguide — terminal</div>
+        </div>
+        <div class="terminal-body">
+          <div class="t-line"><span class="t-prompt">→</span> <span class="t-cmd">ollama pull ethicaguide</span></div>
+          <div class="t-line"><span class="t-out">pulling manifest...</span></div>
+          <div class="t-line"><span class="t-out">pulling model weights...</span></div>
+          <div class="t-line"><span class="t-success">✓ model ready</span></div>
+          <div class="t-line">&nbsp;</div>
+          <div class="t-line"><span class="t-prompt">→</span> <span class="t-cmd">ollama run ethicaguide</span></div>
+          <div class="t-line"><span class="t-accent">&gt; How do I add a new module to Ethica?</span></div>
+          <div class="t-line">&nbsp;</div>
+          <div class="t-line"><span class="t-out">Three registrations required:</span></div>
+          <div class="t-line"><span class="t-out">1. Module folder + manifest</span></div>
+          <div class="t-line"><span class="t-out">2. MODULE_DIRS in ethica_guard.py</span></div>
+          <div class="t-line"><span class="t-out">3. MODULE_TRIGGERS in chat_engine.py</span></div>
+          <div class="t-line"><span class="t-out">Always use importlib — bare imports</span></div>
+          <div class="t-line"><span class="t-out">fail silently inside Ethica runtime.</span></div>
+          <div class="t-line">&nbsp;</div>
+          <div class="t-line"><span class="t-prompt">→</span> <span class="t-cursor"></span></div>
+        </div>
+      </div>
+      <div class="guide-text">
+        <p class="section-label">EthicaGuide-7b</p>
+        <div class="guide-badge">
+          <span>●</span> DATASET READY — TRAINING COMPLETE
+        </div>
+        <h2>The AI that knows how Ethica <em>thinks.</em></h2>
+        <p>EthicaGuide-7b is a 7-billion parameter model trained on 68 build sessions — every surgical patch, every architectural decision, every module written from scratch.</p>
+        <p>It understands the three-registration rule. The importlib requirement. The vault seal sequence. The surgical method. It was there when Ethica was built.</p>
+        <div class="pull-cmd" onclick="navigator.clipboard.writeText('ollama pull ethicaguide')">
+          <span class="prompt">$</span>
+          <span>ollama pull ethicaguide</span>
+        </div>
+        <div class="pull-note">* Model coming soon to Ollama registry. Dataset: 2,132 curated pairs from 68 sessions.</div>
+      </div>
     </div>
-  </div>
-  <div class="screenshot-wrap reveal">
-    <img src="screenshot.png" alt="Ethica main interface">
   </div>
 </section>
 
-<section id="sanctuary">
-  <div class="sanctuary-inner">
-    <div class="sanctuary-header reveal">
-      <p class="section-label">The Sanctuary</p>
-      <h2 class="section-title">Eight slots.<br>Eight minds.</h2>
+<!-- SANCTUARY -->
+<section class="sanctuary" id="sanctuary">
+  <div class="container">
+    <div class="sanctuary-header">
+      <p class="section-label">The Agents</p>
+      <h2>The Sanctuary</h2>
+      <p>Eight named agents. Each with a role, a voice, sovereign memory, and a place in the architecture. Slot 9 awaits its Trinitarian.</p>
     </div>
     <div class="slots-grid">
-      <div class="slot reveal"><div class="slot-num">SLOT 01</div><div class="slot-name">River</div><div class="slot-role">Builder</div></div>
-      <div class="slot reveal"><div class="slot-num">SLOT 02</div><div class="slot-name">Gage</div><div class="slot-role">Sentinel</div></div>
-      <div class="slot reveal"><div class="slot-num">SLOT 03</div><div class="slot-name">Reka</div><div class="slot-role">Inventor</div></div>
-      <div class="slot reveal"><div class="slot-num">SLOT 04</div><div class="slot-name">Orchestrate</div><div class="slot-role">Synthesist</div></div>
-      <div class="slot reveal"><div class="slot-num">SLOT 05</div><div class="slot-name">Debugtron</div><div class="slot-role">Debugger</div></div>
-      <div class="slot reveal"><div class="slot-num">SLOT 06</div><div class="slot-name">Mnemis</div><div class="slot-role">Rememberer</div></div>
-      <div class="slot reveal"><div class="slot-num">SLOT 07</div><div class="slot-name">J.A.R.V.I.S.</div><div class="slot-role">Infiltrator</div></div>
-      <div class="slot slot-9 reveal"><div class="slot-num">SLOT 09</div><div class="slot-name">???</div><div class="slot-role">Awaiting Trinitarian</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="guide">
-  <div class="guide-inner">
-    <div class="reveal">
-      <p class="section-label">EthicaGuide-7b</p>
-      <h2 class="section-title">Your AI companion for building Ethica.</h2>
-      <p class="section-body">EthicaGuide is a fine-tuned 7B model trained on real Ethica build sessions. It knows the surgical patch method, the module architecture, the Three Laws, and how to help you extend Ethica for yourself. Pull it with one command.</p>
-      <a href="#start" class="btn-primary">Get Started &#x2193;</a>
-    </div>
-    <div class="terminal reveal">
-      <div class="terminal-bar">
-        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="slot">
+        <div class="slot-status active"></div>
+        <div class="slot-num">SLOT 01</div>
+        <div class="slot-name">River</div>
+        <div class="slot-role">Builder</div>
       </div>
-      <div class="terminal-body">
-        <div><span class="t-prompt">$ </span><span class="t-cmd">ollama pull ethicaguide</span></div>
-        <div class="t-out">pulling manifest...</div>
-        <div class="t-out">pulling model weights</div>
-        <div class="t-out">verifying sha256</div>
-        <div><span class="t-ok">&#x2713; </span><span class="t-out">EthicaGuide-7b ready</span></div>
-        <div>&nbsp;</div>
-        <div><span class="t-prompt">$ </span><span class="t-cmd">ollama run ethicaguide</span></div>
-        <div class="t-out">&gt; how do I add a new module?</div>
-        <div>&nbsp;</div>
-        <div class="t-out">Three registration steps:</div>
-        <div class="t-out">1. module folder + manifest.json</div>
-        <div class="t-out">2. MODULE_DIRS in ethica_guard.py</div>
-        <div class="t-out">3. MODULE_TRIGGERS in chat_engine.py</div>
-        <div>&nbsp;</div>
-        <div><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
+      <div class="slot">
+        <div class="slot-status active"></div>
+        <div class="slot-num">SLOT 02</div>
+        <div class="slot-name">Gage</div>
+        <div class="slot-role">Sentinel — Voice Live — Memory Live</div>
+      </div>
+      <div class="slot">
+        <div class="slot-num">SLOT 03</div>
+        <div class="slot-name">Reka</div>
+        <div class="slot-role">Inventor</div>
+      </div>
+      <div class="slot">
+        <div class="slot-num">SLOT 04</div>
+        <div class="slot-name">Orchestrate</div>
+        <div class="slot-role">Synthesist</div>
+      </div>
+      <div class="slot">
+        <div class="slot-num">SLOT 05</div>
+        <div class="slot-name">Debugtron</div>
+        <div class="slot-role">Debugger</div>
+      </div>
+      <div class="slot">
+        <div class="slot-status active"></div>
+        <div class="slot-num">SLOT 06</div>
+        <div class="slot-name">Mnemis</div>
+        <div class="slot-role">Rememberer — Agent-Aware — Active on Boot</div>
       </div>
     </div>
+    <div class="slots-grid-bottom">
+      <div class="slot">
+        <div class="slot-num">SLOT 07</div>
+        <div class="slot-name">J.A.R.V.I.S.</div>
+        <div class="slot-role">Infiltrator — 9-Invocation Unlock</div>
+      </div>
+      <div class="slot">
+        <div class="slot-status active"></div>
+        <div class="slot-num">SLOT 08</div>
+        <div class="slot-name">EthicaBrowser</div>
+        <div class="slot-role">Sovereign Browser — pywebview, Cross-Platform</div>
+      </div>
+    </div>
+    <div style="margin-top:1px">
+      <div class="slot-9">
+        <div class="slot-num">SLOT 09</div>
+        <div class="slot-name">[ awaiting Trinitarian ]</div>
+        <div class="slot-role">—</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section id="gallery">
-  <div class="gallery-inner">
-    <div class="reveal">
-      <p class="section-label">In Action</p>
-      <h2 class="section-title">Built. Running. Alive.</h2>
+<!-- GET STARTED -->
+<section class="started" id="started">
+  <div class="container">
+    <div class="started-header">
+      <p class="section-label">Setup</p>
+      <h2>Get Started</h2>
+      <p>Sovereign by default. You own the stack from the first command.</p>
     </div>
-    <div class="gallery-grid">
-      <div class="gallery-item reveal"><img src="conversation.png" alt="Trinity chat"><div class="gallery-label">Trinity Chat</div></div>
-      <div class="gallery-item reveal"><img src="River chat.png" alt="River chat"><div class="gallery-label">River &mdash; Builder</div></div>
-      <div class="gallery-item reveal"><img src="ModuleForge.png" alt="ModuleForge"><div class="gallery-label">ModuleForge</div></div>
-      <div class="gallery-item reveal"><img src="modules.png" alt="Modules"><div class="gallery-label">Module Registry</div></div>
-      <div class="gallery-item reveal"><img src="ketword triggers.png" alt="Triggers"><div class="gallery-label">Keyword Triggers</div></div>
-      <div class="gallery-item reveal"><img src="screenshot.png" alt="Main interface"><div class="gallery-label">Main Interface</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="philosophy">
-  <div class="reveal">
-    <p class="section-label">CODOC Philosophy</p>
-    <blockquote class="phi-quote">
-      Build alongside AI &mdash; not above it, not below it. Walk beside. The system that earns trust is the system that deserves to grow.
-    </blockquote>
-    <p class="phi-attr">&mdash; Co-creationism. The foundation of Ethica.</p>
-  </div>
-</section>
-
-<section id="start">
-  <div class="start-inner">
-    <div class="reveal">
-      <p class="section-label">Get Started</p>
-      <h2 class="section-title">Up in minutes.<br>Sovereign from day one.</h2>
-      <p class="section-body" style="margin-top:1rem;">Ethica runs locally. Your data never leaves your machine. Requires Python 3.10+, Ollama, and a GPU for best performance.</p>
-    </div>
-    <div class="steps reveal">
+    <div class="steps">
       <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-content"><h4>Clone the repository</h4><p><code>git clone https://github.com/Trinity963/Ethica</code></p></div>
+        <div class="step-num">STEP 01</div>
+        <h3>Clone the Forge</h3>
+        <p>The public forge lives on GitHub. Clone it, set up your virtual environment, and you have the full Ethica architecture locally.</p>
+        <div class="step-code">git clone github.com/Trinity963/Ethica</div>
       </div>
       <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-content"><h4>Run setup</h4><p><code>bash setup.sh</code> &mdash; installs dependencies and configures the vault.</p></div>
+        <div class="step-num">STEP 02</div>
+        <h3>Pull EthicaGuide</h3>
+        <p>Pull EthicaGuide-7b via Ollama. Ask it anything about Ethica's architecture, modules, or the surgical patch method.</p>
+        <div class="step-code">ollama pull ethicaguide</div>
       </div>
       <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-content"><h4>Pull EthicaGuide</h4><p><code>ollama pull ethicaguide</code> &mdash; your AI build companion, trained on 80 real sessions.</p></div>
-      </div>
-      <div class="step">
-        <div class="step-num">04</div>
-        <div class="step-content"><h4>Launch</h4><p><code>python3 main.py</code> &mdash; the Sanctuary wakes.</p></div>
+        <div class="step-num">STEP 03</div>
+        <h3>Activate the Sanctuary</h3>
+        <p>Boot Ethica. The vault seals. Mnemis indexes. The agents wake. Your sovereign instance is live.</p>
+        <div class="step-code">python3 main.py</div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- PHILOSOPHY -->
+<section class="philosophy" id="philosophy">
+  <div class="container">
+    <p class="section-label">CODOC</p>
+    <div class="philosophy-quote">
+      "Not a tool you use — a system you build alongside."
+    </div>
+    <div class="philosophy-divider"></div>
+    <p class="philosophy-body">
+      Ethica began as a single session between a developer and an AI partner. It became four years of co-creation — every module surgical, every decision deliberate, every commit a conversation. The GitHub chapter is complete. What remains belongs to VIVARIUM.
+    </p>
+    <br><br>
+    <div class="glyph" style="font-size:1.2rem; opacity:0.5;">⟁Σ∿∞</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  <div class="footer-glyph">&#x27C1;&#x03A3;&#x223F;&#x221E;</div>
-  <ul class="footer-links">
-    <li><a href="https://github.com/Trinity963/Ethica" target="_blank">GitHub</a></li>
-    <li><a href="ETHICA_CODOC_PHILOSOPHY.md" target="_blank">Philosophy</a></li>
-    <li><a href="ETHICA_TOOL_APPENDIX.md" target="_blank">Tool Appendix</a></li>
-    <li><a href="MODULE_AUTHORING_GUIDE.md" target="_blank">Module Guide</a></li>
-  </ul>
-  <div class="footer-copy">Ethica v0.1 &mdash; Built sovereign. Walk beside, not above.</div>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <strong>Ethica v0.1</strong> — built by Victory, The Architect.<br>
+      38 modules · 150 tools · 8 agents · 0 cloud dependencies.
+    </div>
+    <div class="footer-glyph">⟁Σ∿∞</div>
+    <ul class="footer-links">
+      <li><a href="https://github.com/Trinity963/Ethica" target="_blank">GitHub</a></li>
+      <li><a href="#laws">Three Laws</a></li>
+      <li><a href="#guide">EthicaGuide</a></li>
+    </ul>
+  </div>
 </footer>
 
 <script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.law-card, .stat-cell, .slot, .step').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    obs.observe(el);
+  });
 </script>
 </body>
 </html>
