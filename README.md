@@ -140,7 +140,7 @@ Ethica runs any model available through [Ollama](https://ollama.com). Pull a mod
 
 **Recommended starting model:**
 ```bash
-ollama pull mistral
+minimax-m2.7:cloud
 ```
 
 **Other tested models:**
