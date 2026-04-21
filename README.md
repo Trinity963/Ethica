@@ -58,7 +58,7 @@ The filesystem is the memory. The agents are the team. The sovereignty is the po
 
 **Models:**
 - At least one general-purpose model pulled in Ollama works best with `ollama pull MiniMax -m2.5`  (e.g. `ollama pull mistral`)
-- `moondream:latest` for Gage Vision — `ollama pull moondream`
+- `ollama pull llava-phi3` for Gage Vision — `kimi-k2.6:cloud`
 
 ---
 
