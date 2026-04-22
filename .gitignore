@@ -101,3 +101,7 @@ assets/gage*.mp3
 
 # Training datasets — sovereign, not for public repo
 modules/ethica_trainer/datasets/
+
+# Model weights — never commit to GitHub
+models/*.gguf
+models/**/*.gguf
