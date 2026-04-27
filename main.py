@@ -112,6 +112,59 @@ def boot():
 
     app = MainWindow(root, theme, config)
 
+    # ── HTTP Trigger (VIVARIUM bridge — port 5006) ────────────
+    def _start_http_trigger(root, app):
+        import http.server, json, threading
+
+        class _TriggerHandler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, fmt, *args):
+                pass  # silence access log
+
+            def do_GET(self):
+                if self.path == '/ping':
+                    body = json.dumps({"status": "alive", "body": "Ethica"}).encode()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+
+            def do_POST(self):
+                if self.path == '/trigger':
+                    try:
+                        length = int(self.headers.get('Content-Length', 0))
+                        raw = self.rfile.read(length)
+                        data = json.loads(raw)
+                        message = data.get('message', '').strip()
+                        if message:
+                            root.after(0, app._on_send, message)
+                            body = json.dumps({"status": "ok", "message": message}).encode()
+                            self.send_response(200)
+                        else:
+                            body = json.dumps({"status": "error", "reason": "empty message"}).encode()
+                            self.send_response(400)
+                    except Exception as exc:
+                        body = json.dumps({"status": "error", "reason": str(exc)}).encode()
+                        self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+
+        server = http.server.HTTPServer(('127.0.0.1', 5006), _TriggerHandler)
+        t = threading.Thread(target=server.serve_forever, daemon=True)
+        t.start()
+        print('[Ethica] HTTP trigger listening on 127.0.0.1:5006', flush=True)
+
+    _start_http_trigger(root, app)
+    # ─────────────────────────────────────────────────────────
+
     # Install global crash handler — before mainloop
     install_excepthook()
 
