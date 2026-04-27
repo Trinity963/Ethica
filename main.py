@@ -163,6 +163,24 @@ def boot():
         print('[Ethica] HTTP trigger listening on 127.0.0.1:5006', flush=True)
 
     _start_http_trigger(root, app)
+
+    # ── VIVARIUM boot read — shared_state awareness
+    def _read_vivarium_state():
+        import json, os
+        state_path = os.path.expanduser("~/.trinity/shared_state.json")
+        try:
+            with open(state_path, "r") as f:
+                state = json.load(f)
+            mini = state.get("minitrini", {})
+            if mini.get("port"):
+                print(f"[Ethica] VIVARIUM — MiniTrini LIVE on port {mini['port']} | agent: {mini.get('agent','?')} | last: {mini.get('timestamp','?')}", flush=True)
+            else:
+                print("[Ethica] VIVARIUM — MiniTrini state: not found", flush=True)
+        except Exception:
+            print("[Ethica] VIVARIUM — shared_state unreadable or missing", flush=True)
+    import threading as _vt
+    _vt.Thread(target=_read_vivarium_state, daemon=True).start()
+
     # ─────────────────────────────────────────────────────────
 
     # Install global crash handler — before mainloop
