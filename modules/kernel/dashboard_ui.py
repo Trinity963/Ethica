@@ -395,6 +395,7 @@ class DashboardPanel(tk.Frame):
             ("Debug",    self._launch_debug),
             ("Project",  self._launch_project),
             ("Notes",    self._launch_notes),
+            ("VIVARIUM", self._launch_vivarium_dashboard),
         ]
 
         btn_row = tk.Frame(parent, bg=BG_PANEL)
@@ -505,6 +506,20 @@ class DashboardPanel(tk.Frame):
             self.app.canvas.open()
             self.app.canvas._add_tab()
             self.app._on_send("show notes")
+
+    def _launch_vivarium_dashboard(self):
+        """Launch the VIVARIUM dashboard — standalone Tkinter process."""
+        import subprocess, pathlib
+        dashboard = pathlib.Path.home() / ".trinity" / "vivarium_dashboard.py"
+        if not dashboard.exists():
+            import tkinter.messagebox as mb
+            mb.showerror("VIVARIUM", f"Dashboard not found at {dashboard}")
+            return
+        subprocess.Popen(
+            ["python3", str(dashboard)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
     def _open_agent_manager(self):
         if hasattr(self, "_agent_manager_win") and self._agent_manager_win and self._agent_manager_win.winfo_exists():
