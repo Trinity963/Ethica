@@ -854,8 +854,246 @@
     .slot-9 { grid-column: span 1; }
     .law-card { border-right: none; border-bottom: 1px solid var(--border); }
     .what-inner, .guide-inner { gap: 3rem; }
-    .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }    
   }
+
+</style> 
+<style id="vivarium-styles-paste-into-style-block">
+  /* VIVARIUM */
+  .vivarium {
+    padding: 8rem 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .vivarium-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .vivarium-header h2 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+
+  .vivarium-header p {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .vivarium-tagline {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent3);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .bodies-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+
+  .body-card {
+    background: var(--bg);
+    padding: 2.5rem 2rem;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .body-card:hover {
+    background: var(--bg3);
+  }
+
+  .body-card.live {
+    background: var(--bg3);
+  }
+
+  .body-port {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .body-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .body-dot.live {
+    background: var(--accent3);
+    box-shadow: 0 0 8px rgba(56,217,169,0.5);
+    animation: breathe 2.5s ease-in-out infinite;
+  }
+
+  .body-dot.queued {
+    background: var(--gold);
+    opacity: 0.5;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .body-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .body-name {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+    line-height: 1.1;
+  }
+
+  .body-name .name-accent {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(123,110,246,0.5);
+  }
+
+  .body-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.2rem;
+  }
+
+  .body-desc {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .body-status {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid;
+    display: inline-block;
+  }
+
+  .body-status.live {
+    color: var(--accent3);
+    border-color: rgba(56,217,169,0.3);
+    background: rgba(56,217,169,0.05);
+  }
+
+  .body-status.queued {
+    color: var(--gold);
+    border-color: rgba(212,169,74,0.3);
+    background: rgba(212,169,74,0.05);
+    opacity: 0.7;
+  }
+
+  .body-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent2);
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    margin-top: 1rem;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .body-link:hover { opacity: 1; }
+
+  .vivarium-soul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vivarium-soul::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(56,217,169,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .soul-item {
+    text-align: center;
+    flex: 1;
+  }
+
+  .soul-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border2);
+    flex-shrink: 0;
+  }
+
+  .soul-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .soul-value {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent3);
+    letter-spacing: 0.1em;
+  }
+
+  .soul-value.pending {
+    color: var(--gold);
+    opacity: 0.6;
+  }
+
+  @media (max-width: 768px) {
+    .bodies-grid { grid-template-columns: 1fr; }
+    .vivarium-soul { flex-direction: column; gap: 1.5rem; }
+    .soul-divider { width: 40px; height: 1px; }
+  }
+</style>
+
 </style>
 </head>
 <body>
@@ -870,7 +1108,9 @@
     <li><a href="#sanctuary">Sanctuary</a></li>
     <li><a href="#started">Get Started</a></li>
     <li><a href="https://github.com/Trinity963/Ethica" target="_blank">GitHub</a></li>
+    <li><a href="#vivarium">VIVARIUM</a></li>
   </ul>
+  
 </nav>
 
 <!-- HERO -->
@@ -1067,6 +1307,99 @@
     </div>
   </div>
 </section>
+
+<!-- VIVARIUM -->
+<section class="vivarium" id="vivarium">
+  <div class="container">
+    <div class="vivarium-header">
+      <p class="vivarium-tagline">⟁ VIVARIUM — Sovereign Body Monitor</p>
+      <h2>Three bodies.<br><span style="color: var(--accent3);">One soul.</span></h2>
+      <p>The VIVARIUM is the living layer beneath the platform — three sovereign processes, one shared heartbeat. Each body runs independently. Each knows the others are alive.</p>
+    </div>
+
+    <div class="bodies-grid">
+
+      <!-- BODY 01 — MiniTrini -->
+      <div class="body-card live">
+        <div class="body-port">
+          <span class="body-dot live"></span>
+          port 5005
+        </div>
+        <div class="body-num">Body 01</div>
+        <div class="body-name">MiniTrini<br><span class="name-accent">NOI Pulse</span></div>
+        <div class="body-subtitle">Sovereign Desktop Console</div>
+        <p class="body-desc">
+          Multi-agent local AI console. Full chat, canvas, YAML flows, live sysmon. Trini wakes on boot. Reads Ethica's heartbeat. Writes her own.
+        </p>
+        <span class="body-status live">● Live</span>
+        <br>
+        <a class="body-link" href="minitrini.html">↗ Learn more about NOI Pulse</a>
+        <br>
+        <a class="body-link" href="https://github.com/Trinity963/NOI-Pulse" target="_blank" style="opacity:0.5;">github.com/Trinity963/NOI-Pulse</a>
+      </div>
+
+      <!-- BODY 02 — Ethica -->
+      <div class="body-card live">
+        <div class="body-port">
+          <span class="body-dot live"></span>
+          port 5006
+        </div>
+        <div class="body-num">Body 02</div>
+        <div class="body-name">Ethica<br><span class="name-accent">Kernel</span></div>
+        <div class="body-subtitle">Sovereign AI Ecosystem</div>
+        <p class="body-desc">
+          38 modules. 150 tools. 8 agents in the Sanctuary. HTTP trigger on port 5006 — receives tasks from MiniTrini, processes them through the full agent pipeline.
+        </p>
+        <span class="body-status live">● Live</span>
+        <br>
+        <a class="body-link" href="https://github.com/Trinity963/Ethica" target="_blank">
+          ↗ github.com/Trinity963/Ethica
+        </a>
+      </div>
+
+      <!-- BODY 03 — TrinityBrowseSe -->
+      <div class="body-card">
+        <div class="body-port">
+          <span class="body-dot queued"></span>
+          port 5007
+        </div>
+        <div class="body-num">Body 03</div>
+        <div class="body-name">Trinity<br><span class="name-accent">BrowseSe</span></div>
+        <div class="body-subtitle">Sovereign IDE</div>
+        <p class="body-desc">
+          477-file Electron-based sovereign development environment. Staged for systematic rebuild. HTTP trigger on port 5007 queued. Waiting for the Threadripper.
+        </p>
+        <span class="body-status queued">◌ Queued</span>
+      </div>
+
+    </div>
+
+    <!-- Soul strip -->
+    <div class="vivarium-soul">
+      <div class="soul-item">
+        <div class="soul-label">Soul</div>
+        <div class="soul-value">TrinitySovereign-7b</div>
+      </div>
+      <div class="soul-divider"></div>
+      <div class="soul-item">
+        <div class="soul-label">Runtime</div>
+        <div class="soul-value">Ollama — Local</div>
+      </div>
+      <div class="soul-divider"></div>
+      <div class="soul-item">
+        <div class="soul-label">Hardware</div>
+        <div class="soul-value pending">Threadripper Pro 5975WX — incoming</div>
+      </div>
+      <div class="soul-divider"></div>
+      <div class="soul-item">
+        <div class="soul-label">Bodies Live</div>
+        <div class="soul-value">2 / 3</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 
 <!-- GET STARTED -->
 <section class="started" id="started">
